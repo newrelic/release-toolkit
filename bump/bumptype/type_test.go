@@ -1,15 +1,16 @@
 package bumptype_test
 
 import (
+	"testing"
+
 	"github.com/Masterminds/semver"
 	"github.com/newrelic/release-toolkit/bump/bumptype"
-	"testing"
 )
 
 func TestBump(t *testing.T) {
 	t.Parallel()
 
-	version := "v1.2.3-beta"
+	version := "v1.2.3"
 
 	for _, tc := range []struct {
 		bt       bumptype.Type
