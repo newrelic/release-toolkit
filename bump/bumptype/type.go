@@ -60,6 +60,7 @@ func Bump(version *semver.Version, bt Type) *semver.Version {
 
 	v := *version
 
+	//nolint:exhaustive // case None is handled in the if above, saving a copy operation.
 	switch bt {
 	case Patch:
 		v = version.IncPatch()
