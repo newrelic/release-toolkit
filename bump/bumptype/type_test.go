@@ -94,3 +94,98 @@ func TestBumpType_With(t *testing.T) {
 		}
 	}
 }
+
+func TestBumpType_Cap(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		expected bumptype.Type
+		bump     bumptype.Type
+		cap      bumptype.Type
+	}{
+		// Patcj
+		{
+			bump:     bumptype.Patch,
+			cap:      bumptype.Patch,
+			expected: bumptype.Patch,
+		},
+		{
+			bump:     bumptype.Patch,
+			cap:      bumptype.Minor,
+			expected: bumptype.Patch,
+		},
+		{
+			bump:     bumptype.Patch,
+			cap:      bumptype.Major,
+			expected: bumptype.Patch,
+		},
+		// Minor
+		{
+			bump:     bumptype.Minor,
+			cap:      bumptype.Patch,
+			expected: bumptype.Patch,
+		},
+		{
+			bump:     bumptype.Minor,
+			cap:      bumptype.Minor,
+			expected: bumptype.Minor,
+		},
+		{
+			bump:     bumptype.Minor,
+			cap:      bumptype.Major,
+			expected: bumptype.Minor,
+		},
+		// Major
+		{
+			bump:     bumptype.Major,
+			cap:      bumptype.Patch,
+			expected: bumptype.Patch,
+		},
+		{
+			bump:     bumptype.Major,
+			cap:      bumptype.Minor,
+			expected: bumptype.Minor,
+		},
+		{
+			bump:     bumptype.Major,
+			cap:      bumptype.Major,
+			expected: bumptype.Major,
+		},
+	} {
+		actual := tc.bump.Cap(tc.cap)
+		if actual != tc.expected {
+			t.Fatalf("Expected %v for %v.Cap(%v), got %v", tc.expected, tc.bump, tc.cap, actual)
+		}
+	}
+}
+
+func TestBump_From(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		from     string
+		to       string
+		expected bumptype.Type
+	}{
+		{
+			from:     "v1.2.3",
+			to:       "v1.2.4",
+			expected: bumptype.Patch,
+		},
+		{
+			from:     "v1.2.3",
+			to:       "v1.4.0",
+			expected: bumptype.Minor,
+		},
+		{
+			from:     "v1.2.3",
+			to:       "v2.4.0",
+			expected: bumptype.Major,
+		},
+	} {
+		actual := bumptype.From(semver.MustParse(tc.from), semver.MustParse(tc.to))
+		if actual != tc.expected {
+			t.Fatalf("Expected %v for %v -> %v, got %v", tc.expected, tc.from, tc.to, actual)
+		}
+	}
+}
