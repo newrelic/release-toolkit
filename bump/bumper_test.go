@@ -1,6 +1,7 @@
 package bump_test
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/Masterminds/semver"
@@ -91,10 +92,72 @@ func TestBumper_Bump(t *testing.T) {
 			t.Parallel()
 
 			bumper := bump.NewBumper(tc.changelog)
-			next := bumper.Bump(tc.current)
+			next, err := bumper.Bump(tc.current)
+			if err != nil {
+				t.Fatalf("Bumping version: %v", err)
+			}
+
 			if !tc.expected.Equal(next) {
 				t.Fatalf("Expected %v, got %v", tc.expected, next)
 			}
 		})
 	}
+}
+
+func TestBumper_BumpSource_Bumps(t *testing.T) {
+	t.Parallel()
+
+	c := changelog.Changelog{
+		Changes: []changelog.Entry{
+			{Type: changelog.TypeEnhancement},
+			{Type: changelog.TypeSecurity},
+		},
+	}
+
+	b := bump.NewBumper(c)
+	source := mockSource{
+		"v1.2.3",
+		"v3.4.5",
+		"v2.3.4",
+	}
+
+	bumped, err := b.BumpSource(source)
+	if err != nil {
+		t.Fatalf("Bumping: %v", err)
+	}
+
+	expected := semver.MustParse("v3.5.0")
+	if !expected.Equal(bumped) {
+		t.Fatalf("Expected %v, got %v", expected, bumped)
+	}
+}
+
+func TestBumper_BumpSource_Errors(t *testing.T) {
+	t.Parallel()
+
+	c := changelog.Changelog{
+		Changes: []changelog.Entry{
+			{Type: changelog.TypeEnhancement},
+			{Type: changelog.TypeSecurity},
+		},
+	}
+
+	b := bump.NewBumper(c)
+	source := mockSource{}
+
+	_, err := b.BumpSource(source)
+	if !errors.Is(err, bump.ErrNoTags) {
+		t.Fatalf("Expected bump.ErrNoTags, got %v", err)
+	}
+}
+
+type mockSource []string
+
+func (m mockSource) Tags() ([]*semver.Version, error) {
+	versions := make([]*semver.Version, 0, len(m))
+	for _, v := range m {
+		versions = append(versions, semver.MustParse(v))
+	}
+
+	return versions, nil
 }
