@@ -120,18 +120,26 @@ func (d Dependency) BumpType() bumptype.Type {
 	return bumptype.From(d.From, d.To)
 }
 
+func (d Dependency) Change() string {
+	if d.From == nil || d.To == nil {
+		return "Updated"
+	}
+
+	switch {
+	case d.To.LessThan(d.From):
+		return "Downgraded"
+	case d.To.GreaterThan(d.From):
+		return "Upgraded"
+	default:
+		return "Updated"
+	}
+}
+
 // Strings outputs a human-readable one-liner of the dependency update, including extra information if found.
 func (d Dependency) String() string {
 	buf := &strings.Builder{}
 
-	//nolint:gocritic // This logic is a bit messy and looks actually worse with a switch-case.
-	if d.From == nil || d.To == nil || d.From.Equal(d.To) {
-		buf.WriteString("Updated")
-	} else if d.From.LessThan(d.To) {
-		buf.WriteString("Upgraded")
-	} else {
-		buf.WriteString("Downgraded")
-	}
+	buf.WriteString(d.Change())
 
 	_, _ = fmt.Fprintf(buf, " %s", d.Name)
 
