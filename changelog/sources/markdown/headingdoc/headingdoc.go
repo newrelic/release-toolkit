@@ -3,9 +3,11 @@ package headingdoc
 import (
 	"errors"
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/gomarkdown/markdown/ast"
+	"github.com/gomarkdown/markdown/parser"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -25,7 +27,6 @@ type Doc struct {
 
 var (
 	ErrEmptyName   = errors.New("heading has no name")
-	ErrNotL1       = errors.New("first header is not level 1")
 	ErrNotDocument = errors.New("markdown ast node is not a document node")
 )
 
@@ -52,6 +53,15 @@ func New(root ast.Node) (*Doc, error) {
 	}
 
 	return docRoot, nil
+}
+
+func NewFromReader(r io.Reader) (*Doc, error) {
+	buf, err := io.ReadAll(r)
+	if err != nil {
+		return nil, fmt.Errorf("reading markdown from source: %w", err)
+	}
+
+	return New(parser.New().Parse(buf))
 }
 
 // Find searches this header and its subheaders for one matching the given name and level.
@@ -102,10 +112,6 @@ func (hd *Doc) append(node ast.Node) (*Doc, error) {
 		name := headingName(heading)
 		if name == "" {
 			return nil, ErrEmptyName
-		}
-
-		if heading.Level != 1 && hd.Parent == nil {
-			return nil, ErrNotL1
 		}
 
 		hd.Name = name
