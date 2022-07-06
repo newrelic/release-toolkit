@@ -1,11 +1,11 @@
-package bump_test
+package bumper_test
 
 import (
 	"errors"
 	"testing"
 
 	"github.com/Masterminds/semver"
-	"github.com/newrelic/release-toolkit/bump"
+	"github.com/newrelic/release-toolkit/bumper"
 	"github.com/newrelic/release-toolkit/changelog"
 )
 
@@ -91,7 +91,7 @@ func TestBumper_Bump(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			bumper := bump.NewBumper(tc.changelog)
+			bumper := bumper.New(tc.changelog)
 			next, err := bumper.Bump(tc.current)
 			if err != nil {
 				t.Fatalf("Bumping version: %v", err)
@@ -114,7 +114,7 @@ func TestBumper_BumpSource_Bumps(t *testing.T) {
 		},
 	}
 
-	b := bump.NewBumper(c)
+	b := bumper.New(c)
 	source := mockSource{
 		"v1.2.3",
 		"v3.4.5",
@@ -142,11 +142,11 @@ func TestBumper_BumpSource_Errors(t *testing.T) {
 		},
 	}
 
-	b := bump.NewBumper(c)
+	b := bumper.New(c)
 	source := mockSource{}
 
 	_, err := b.BumpSource(source)
-	if !errors.Is(err, bump.ErrNoTags) {
+	if !errors.Is(err, bumper.ErrNoTags) {
 		t.Fatalf("Expected bump.ErrNoTags, got %v", err)
 	}
 }
