@@ -11,6 +11,8 @@ import (
 
 // Changelog models a machine-readable changelog.
 type Changelog struct {
+	// Held is true if this changelog should not be released without human intervention.
+	Held bool
 	// Notes is a markdown snippet that will be rendered just below the version header.
 	Notes string `yaml:"notes"`
 	// Changes is a list of changes that have been made since the last release.

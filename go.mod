@@ -4,6 +4,8 @@ go 1.18
 
 require (
 	github.com/Masterminds/semver v1.5.0
+	github.com/gomarkdown/markdown v0.0.0-20220627144906-e9a81102ebeb
+	github.com/google/go-cmp v0.5.8
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.3.0
 	gopkg.in/src-d/go-git.v4 v4.13.1
