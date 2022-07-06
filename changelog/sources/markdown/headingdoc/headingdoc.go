@@ -6,8 +6,11 @@ import (
 	"io"
 	"strings"
 
+	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/ast"
+	"github.com/gomarkdown/markdown/md"
 	"github.com/gomarkdown/markdown/parser"
+	"github.com/newrelic/release-toolkit/changelog/sources/markdown/pretty"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -141,6 +144,28 @@ func (hd *Doc) append(node ast.Node) (*Doc, error) {
 
 	// Initialize child, which will return itself.
 	return child.append(heading)
+}
+
+// Render writes the current doc and their children to the specified io.Writer.
+// Render uses pretty.Renderer to write a cute output.
+func (hd *Doc) Render(w io.Writer) error {
+	renderer := pretty.New(md.NewRenderer())
+
+	for _, node := range hd.Content {
+		_, err := w.Write(markdown.Render(node, renderer))
+		if err != nil {
+			return fmt.Errorf("writing rendered output: %w", err)
+		}
+	}
+
+	for _, child := range hd.Children {
+		err := child.Render(w)
+		if err != nil {
+			return fmt.Errorf("rendering child: %w", err)
+		}
+	}
+
+	return nil
 }
 
 // headingName is a helper function that returns the name of an ast.Heading, by getting the text of the first child.
