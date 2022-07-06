@@ -9,7 +9,6 @@ import (
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/ast"
 	"github.com/gomarkdown/markdown/md"
-	"github.com/gomarkdown/markdown/parser"
 	"github.com/newrelic/release-toolkit/changelog"
 	"github.com/newrelic/release-toolkit/changelog/sources/markdown/headingdoc"
 	log "github.com/sirupsen/logrus"
@@ -42,12 +41,7 @@ func New(r io.Reader) Markdown {
 // Changelog reads the supplied reader into memory and parses the contents.
 // It will return
 func (m Markdown) Changelog() (*changelog.Changelog, error) {
-	buf, err := io.ReadAll(m.reader)
-	if err != nil {
-		return nil, fmt.Errorf("reading markdown from source: %w", err)
-	}
-
-	doc, err := headingdoc.New(parser.New().Parse(buf))
+	doc, err := headingdoc.NewFromReader(m.reader)
 	if err != nil {
 		return nil, fmt.Errorf("parsing markdown: %w", err)
 	}
