@@ -1,4 +1,4 @@
-package bumptype
+package bump
 
 import "github.com/Masterminds/semver"
 
@@ -25,7 +25,7 @@ func (bt Type) With(other Type) Type {
 	return other
 }
 
-// Cap returns the current bumptype if it is smaller or equal than another one, and second otherwise.
+// Cap returns the current bump if it is smaller or equal than another one, and second otherwise.
 // e.g Major.Cap(Minor) returns Minor, and Patch.Cap(Minor) returns Patch.
 func (bt Type) Cap(other Type) Type {
 	if other.Less(bt) {
@@ -52,7 +52,7 @@ func From(old, new *semver.Version) Type {
 	return None
 }
 
-// Bump returns a new version after bumping it according to the specified bump bumptype.
+// Bump returns a new version after bumping it according to the specified bump bump.
 func Bump(version *semver.Version, bt Type) *semver.Version {
 	if bt == None {
 		return version

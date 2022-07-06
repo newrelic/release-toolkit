@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/Masterminds/semver"
-	"github.com/newrelic/release-toolkit/bump/bumptype"
+	"github.com/newrelic/release-toolkit/bump"
 	"github.com/newrelic/release-toolkit/changelog"
 )
 
@@ -14,7 +14,7 @@ func TestDependency_BumpType_Handles_Nils(t *testing.T) {
 		To:   semver.MustParse("v1.2.3"),
 	}
 
-	if d.BumpType() != bumptype.Patch {
+	if d.BumpType() != bump.Patch {
 		t.Fatalf("Expected patch bump from nil")
 	}
 
@@ -23,7 +23,7 @@ func TestDependency_BumpType_Handles_Nils(t *testing.T) {
 		To:   nil,
 	}
 
-	if d.BumpType() != bumptype.Patch {
+	if d.BumpType() != bump.Patch {
 		t.Fatalf("Expected patch bump to nil")
 	}
 }
