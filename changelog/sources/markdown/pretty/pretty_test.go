@@ -24,6 +24,7 @@ As you can see
 I think so
 `
 
+	// Lack of space between list and paragraph is, unfortunately, expected.
 	expected := `# I'm a markdown document
 Here's a pragraph
 
@@ -36,7 +37,6 @@ As you can see
 
 ## Dontyathink
 - Heck yes
-
 I think so
 `
 
