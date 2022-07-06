@@ -7,7 +7,7 @@ require (
 	github.com/gomarkdown/markdown v0.0.0-20220627144906-e9a81102ebeb
 	github.com/google/go-cmp v0.5.8
 	github.com/sirupsen/logrus v1.8.1
-	github.com/stretchr/testify v1.3.0
+	github.com/stretchr/testify v1.8.0
 	gopkg.in/src-d/go-git.v4 v4.13.1
 )
 
@@ -26,4 +26,5 @@ require (
 	golang.org/x/sys v0.0.0-20191026070338-33540a1f6037 // indirect
 	gopkg.in/src-d/go-billy.v4 v4.3.2 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
