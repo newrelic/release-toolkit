@@ -20,11 +20,15 @@ As you can see
 ## Incredibly unreadable
 ## Dontyathink
 - Heck yes
+- Here's another
 
 I think so
+` + "```" + `
+Here, have a code block
+` + "```" + `
 `
 
-	// Lack of space between list and paragraph is, unfortunately, expected.
+	// Lack of newline between list and paragraph is, unfortunately, expected.
 	expected := `# I'm a markdown document
 Here's a pragraph
 
@@ -37,15 +41,21 @@ As you can see
 
 ## Dontyathink
 - Heck yes
+- Here's another
+
 I think so
+
+` + "```" + `
+Here, have a code block
+` + "```" + `
 `
 
 	root := markdown.Parse([]byte(orig), parser.New())
-
 	buf := &strings.Builder{}
 	buf.Write(markdown.Render(root, pretty.New(md.NewRenderer())))
 
-	if diff := cmp.Diff(expected, buf.String()); diff != "" {
+	actual := buf.String()
+	if diff := cmp.Diff(expected, actual); diff != "" {
 		t.Fatalf("Output markdown is not as expected:\n%s", diff)
 	}
 }
