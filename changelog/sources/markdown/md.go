@@ -19,6 +19,7 @@ const (
 	heldHeader       = "held"
 )
 
+//nolint:gochecknoglobals
 var supportedTypes = []changelog.EntryType{
 	changelog.TypeBreaking,
 	changelog.TypeSecurity,
