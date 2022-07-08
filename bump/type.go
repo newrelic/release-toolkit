@@ -36,16 +36,16 @@ func (bt Type) Cap(other Type) Type {
 }
 
 // From deduces the bump that caused the old version to go to the new.
-func From(old, new *semver.Version) Type {
-	if new.Major() > old.Major() {
+func From(previous, current *semver.Version) Type {
+	if current.Major() > previous.Major() {
 		return Major
 	}
 
-	if new.Minor() > old.Minor() {
+	if current.Minor() > previous.Minor() {
 		return Minor
 	}
 
-	if new.Patch() > old.Patch() {
+	if current.Patch() > previous.Patch() {
 		return Patch
 	}
 

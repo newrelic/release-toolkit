@@ -33,9 +33,9 @@ func Matching(regex string) OptionFunc {
 	}
 }
 
-func Replacing(old, new string) OptionFunc {
+func Replacing(existing, replacement string) OptionFunc {
 	return func(s *Source) error {
-		s.replacer = strings.NewReplacer(old, new)
+		s.replacer = strings.NewReplacer(existing, replacement)
 		return nil
 	}
 }
