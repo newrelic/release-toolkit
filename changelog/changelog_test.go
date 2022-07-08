@@ -9,6 +9,8 @@ import (
 )
 
 func TestDependency_BumpType_Handles_Nils(t *testing.T) {
+	t.Parallel()
+
 	d := changelog.Dependency{
 		From: nil,
 		To:   semver.MustParse("v1.2.3"),
@@ -29,6 +31,8 @@ func TestDependency_BumpType_Handles_Nils(t *testing.T) {
 }
 
 func TestDependency_Change(t *testing.T) {
+	t.Parallel()
+
 	for _, tc := range []struct {
 		expected string
 		d        changelog.Dependency

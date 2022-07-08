@@ -145,8 +145,7 @@ func TestBumper_BumpSource_Errors(t *testing.T) {
 	b := bumper.New(c)
 	source := mockSource{}
 
-	_, err := b.BumpSource(source)
-	if !errors.Is(err, bumper.ErrNoTags) {
+	if _, err := b.BumpSource(source); !errors.Is(err, bumper.ErrNoTags) {
 		t.Fatalf("Expected bump.ErrNoTags, got %v", err)
 	}
 }

@@ -11,7 +11,7 @@ import (
 	"gopkg.in/src-d/go-git.v4/plumbing"
 )
 
-// Source allows tags from a git repository as a source for previous versions
+// Source allows tags from a git repository as a source for previous versions.
 type Source struct {
 	workDir  string
 	match    *regexp.Regexp
@@ -33,9 +33,9 @@ func Matching(regex string) OptionFunc {
 	}
 }
 
-func Replacing(old, new string) OptionFunc {
+func Replacing(existing, replacement string) OptionFunc {
 	return func(s *Source) error {
-		s.replacer = strings.NewReplacer(old, new)
+		s.replacer = strings.NewReplacer(existing, replacement)
 		return nil
 	}
 }

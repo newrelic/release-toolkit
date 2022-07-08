@@ -8,6 +8,8 @@ import (
 )
 
 func TestStaticSource(t *testing.T) {
+	t.Parallel()
+
 	tagStr := "v1.2.3-beta"
 
 	ss := tag.Static(tagStr)
