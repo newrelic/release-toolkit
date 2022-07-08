@@ -11,7 +11,7 @@ import (
 	"gopkg.in/src-d/go-git.v4/plumbing"
 )
 
-// Source allows tags from a git repository as a source for previous versions
+// Source allows tags from a git repository as a source for previous versions.
 type Source struct {
 	workDir  string
 	match    *regexp.Regexp

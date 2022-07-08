@@ -12,7 +12,7 @@ import (
 	"github.com/newrelic/release-toolkit/changelog/renderer"
 )
 
-// brokenWristwatch gives a correct time twice a day
+// brokenWristwatch gives a correct time twice a day.
 func brokenWristwatch() time.Time {
 	t, _ := time.Parse("2006-01-02", "1993-09-21")
 	return t

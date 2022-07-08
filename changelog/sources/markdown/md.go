@@ -39,7 +39,7 @@ func New(r io.Reader) Markdown {
 }
 
 // Changelog reads the supplied reader into memory and parses the contents.
-// It will return
+// An empty, non-nil changelog will not result in an error, but a very wrongly formatted one will.
 func (m Markdown) Changelog() (*changelog.Changelog, error) {
 	doc, err := headingdoc.NewFromReader(m.reader)
 	if err != nil {
@@ -49,7 +49,7 @@ func (m Markdown) Changelog() (*changelog.Changelog, error) {
 	return builder{doc: doc}.build()
 }
 
-// builder is an object which, from a heading doc, can produce a changelog
+// builder is an object which, from a heading doc, can produce a changelog.
 type builder struct {
 	doc *headingdoc.Doc
 	cl  *changelog.Changelog

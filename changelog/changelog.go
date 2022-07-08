@@ -50,7 +50,7 @@ type Entry struct {
 	Meta EntryMeta
 }
 
-// EntryType encodes the nature of the change
+// EntryType encodes the nature of the change.
 type EntryType string
 
 const (
