@@ -60,8 +60,8 @@ func (b Bumper) BumpSource(source tag.Source) (*semver.Version, error) {
 
 	sort.Slice(versions, func(i, j int) bool {
 		// We use GreaterThan as lessFunc to sort from largest to smallest.
-		return versions[i].GreaterThan(versions[j])
+		return versions[i].Version.GreaterThan(versions[j].Version)
 	})
 
-	return b.Bump(versions[0])
+	return b.Bump(versions[0].Version)
 }

@@ -11,7 +11,7 @@ type Tag struct {
 	Hash    string
 }
 
-// Source is an object that returns a list of (unordered) versions.
+// Source is an object that returns a list of ordered tags.
 // Typical implementations would be a git repository, or simply a hardcoded string.
 type Source interface {
 	Tags() ([]Tag, error)
