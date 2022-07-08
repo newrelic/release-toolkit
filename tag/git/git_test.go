@@ -47,6 +47,8 @@ func repoWithTags(t *testing.T, tags ...string) string {
 }
 
 func TestSource_Tags(t *testing.T) {
+	t.Parallel()
+
 	repodir := repoWithTags(t,
 		"v1.2.3",
 		"v1.3.0",
