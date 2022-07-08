@@ -69,20 +69,20 @@ func TestSource_Tags(t *testing.T) {
 			name: "Default_Settings",
 			opts: nil,
 			expectedTags: []string{
-				"1.2.3",
-				"1.3.0",
-				"1.4.0",
-				"1.5.0",
 				"2.0.0-beta",
+				"1.5.0",
+				"1.4.0",
+				"1.3.0",
+				"1.2.3",
 			},
 		},
 		{
 			name: "Matching_Leading_v",
 			opts: []git.OptionFunc{git.Matching("^v")},
 			expectedTags: []string{
-				"1.2.3",
-				"1.3.0",
 				"1.4.0",
+				"1.3.0",
+				"1.2.3",
 			},
 		},
 		{
@@ -92,8 +92,8 @@ func TestSource_Tags(t *testing.T) {
 				git.Replacing("helm-chart-", ""),
 			},
 			expectedTags: []string{
-				"1.3.0",
 				"1.3.1",
+				"1.3.0",
 			},
 		},
 	} {
@@ -113,10 +113,10 @@ func TestSource_Tags(t *testing.T) {
 
 			strTags := make([]string, 0, len(tags))
 			for _, t := range tags {
-				strTags = append(strTags, t.String())
+				strTags = append(strTags, t.Version.String())
 			}
 
-			assert.ElementsMatchf(t, strTags, tc.expectedTags, "Reported tags do not match")
+			assert.Equal(t, tc.expectedTags, strTags, "Reported tags do not match")
 		})
 	}
 }

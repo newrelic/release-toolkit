@@ -23,7 +23,7 @@ func TestStaticSource(t *testing.T) {
 	}
 
 	unprefixedTag := strings.TrimPrefix(tagStr, "v")
-	if rt := tags[0].String(); rt != unprefixedTag {
+	if rt := tags[0].Version.String(); rt != unprefixedTag {
 		t.Fatalf("unexpected tag %q returned, expected %q", rt, tagStr)
 	}
 }

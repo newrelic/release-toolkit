@@ -3,12 +3,15 @@ package git
 import (
 	"fmt"
 	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/Masterminds/semver"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing"
+
+	"github.com/newrelic/release-toolkit/tag"
 )
 
 // Source allows tags from a git repository as a source for previous versions.
@@ -58,20 +61,20 @@ func NewSource(workDir string, opts ...OptionFunc) (*Source, error) {
 	return s, nil
 }
 
-func (s *Source) Tags() ([]*semver.Version, error) {
+func (s *Source) Tags() ([]tag.Tag, error) {
 	repo, err := git.PlainOpen(s.workDir)
 	if err != nil {
 		return nil, fmt.Errorf("opening git repo at %s: %w", s.workDir, err)
 	}
 
-	tags, err := repo.Tags()
+	repoTags, err := repo.Tags()
 	if err != nil {
 		return nil, fmt.Errorf("getting git tags: %w", err)
 	}
 
-	var versions []*semver.Version
+	var tags []tag.Tag
 
-	err = tags.ForEach(func(reference *plumbing.Reference) error {
+	err = repoTags.ForEach(func(reference *plumbing.Reference) error {
 		ref := reference.Name()
 		if !ref.IsTag() {
 			log.Tracef("Ignoring reference %q, it is not a tag", ref.String())
@@ -92,12 +95,19 @@ func (s *Source) Tags() ([]*semver.Version, error) {
 			return nil
 		}
 
-		versions = append(versions, v)
+		tags = append(tags, tag.Tag{
+			Version: v,
+			Hash:    reference.Hash().String(),
+		})
 		return nil
 	})
 	if err != nil {
 		return nil, fmt.Errorf("iterating over tags: %w", err)
 	}
 
-	return versions, nil
+	sort.Slice(tags, func(i, j int) bool {
+		return tags[i].Version.GreaterThan(tags[j].Version)
+	})
+
+	return tags, nil
 }
