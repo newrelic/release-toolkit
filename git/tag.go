@@ -3,7 +3,6 @@ package git
 import (
 	"fmt"
 	"regexp"
-	"sort"
 	"strings"
 
 	"github.com/Masterminds/semver"
@@ -105,10 +104,6 @@ func (s *TagSource) Tags() ([]tag.Tag, error) {
 	if err != nil {
 		return nil, fmt.Errorf("iterating over tags: %w", err)
 	}
-
-	sort.Slice(tags, func(i, j int) bool {
-		return tags[i].Version.GreaterThan(tags[j].Version)
-	})
 
 	return tags, nil
 }

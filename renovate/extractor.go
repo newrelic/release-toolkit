@@ -2,6 +2,7 @@ package renovate
 
 import (
 	"regexp"
+	"sort"
 
 	"github.com/Masterminds/semver"
 	"github.com/newrelic/release-toolkit/changelog"
@@ -29,6 +30,10 @@ func (r Extractor) Extract() ([]changelog.Dependency, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	sort.Slice(gitTags, func(i, j int) bool {
+		return gitTags[i].Version.GreaterThan(gitTags[j].Version)
+	})
 
 	gitCommits, err := r.commitSource.Commits(gitTags[0].Hash)
 	if err != nil {
