@@ -33,6 +33,7 @@ func (c *CommitSourceMock) Commits(_ string) ([]commit.Commit, error) {
 }
 
 func TestExtractor_Extract(t *testing.T) {
+	t.Parallel()
 	for _, tc := range []struct {
 		name                 string
 		commitMessages       []commit.Commit

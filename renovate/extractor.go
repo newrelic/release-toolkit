@@ -1,10 +1,9 @@
 package renovate
 
 import (
+	"fmt"
 	"regexp"
 	"sort"
-
-	"fmt"
 
 	"github.com/Masterminds/semver"
 	"github.com/newrelic/release-toolkit/changelog"
@@ -42,7 +41,7 @@ func (r Extractor) Extract() ([]changelog.Dependency, error) {
 		return nil, fmt.Errorf("getting commits: %w", err)
 	}
 
-	var dependencies []changelog.Dependency
+	dependencies := make([]changelog.Dependency, 0)
 
 	for _, c := range gitCommits {
 		capturingGroups := helmReleaseRegex.FindStringSubmatch(c.Message)
