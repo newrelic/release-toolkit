@@ -4,6 +4,8 @@ import (
 	"regexp"
 	"sort"
 
+	"fmt"
+
 	"github.com/Masterminds/semver"
 	"github.com/newrelic/release-toolkit/changelog"
 	"github.com/newrelic/release-toolkit/commit"
@@ -28,7 +30,7 @@ func NewExtractor(tagSource tag.Source, commitSource commit.Source) Extractor {
 func (r Extractor) Extract() ([]changelog.Dependency, error) {
 	gitTags, err := r.tagsSource.Tags()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("getting tags: %w", err)
 	}
 
 	sort.Slice(gitTags, func(i, j int) bool {
@@ -37,7 +39,7 @@ func (r Extractor) Extract() ([]changelog.Dependency, error) {
 
 	gitCommits, err := r.commitSource.Commits(gitTags[0].Hash)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("getting commits: %w", err)
 	}
 
 	var dependencies []changelog.Dependency

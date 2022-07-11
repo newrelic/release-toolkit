@@ -49,6 +49,7 @@ func repoWithCommitsAndTags(t *testing.T, commitsAndTags ...string) string {
 }
 
 func TestCommitSource_Commits(t *testing.T) {
+	t.Parallel()
 	repodir := repoWithCommitsAndTags(t,
 		"v1.2.3",
 		"v1.3.0",
