@@ -114,7 +114,7 @@ func TestSource_Tags(t *testing.T) {
 				strTags = append(strTags, t.Version.String())
 			}
 
-			assert.Equal(t, tc.expectedTags, strTags, "Reported tags do not match")
+			assert.ElementsMatchf(t, tc.expectedTags, strTags, "Reported tags do not match")
 		})
 	}
 }
