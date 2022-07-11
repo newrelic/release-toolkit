@@ -35,10 +35,12 @@ func TagMatching(regex string) TagOptionFunc {
 	}
 }
 
-// TagReplacing returns an option that will replace a string in the tag source.
-func TagReplacing(old, new string) TagOptionFunc {
+// TagReplacing returns an option that will perform a string replacement on tags
+// that match the regex before attempting to parse them as versions.
+// It is useful to, for example, strip prefixes matched with TagMatching.
+func TagReplacing(existing, replacement string) TagOptionFunc {
 	return func(s *TagSource) error {
-		s.replacer = strings.NewReplacer(old, new)
+		s.replacer = strings.NewReplacer(existing, replacement)
 		return nil
 	}
 }
