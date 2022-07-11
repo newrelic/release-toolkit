@@ -6,6 +6,8 @@ import (
 	"strings"
 	"testing"
 
+	"sort"
+
 	"github.com/newrelic/release-toolkit/git"
 	"github.com/stretchr/testify/assert"
 )
@@ -56,7 +58,7 @@ func TestCommitSource_Commits(t *testing.T) {
 		"2.0.0-beta",
 	)
 
-	tagSrc, err := git.NewTagSource(repodir)
+	tagSrc, err := git.NewTagsSource(repodir)
 	if err != nil {
 		t.Fatalf("Error creating git source: %v", err)
 	}
@@ -65,6 +67,10 @@ func TestCommitSource_Commits(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error fetching tags: %v", err)
 	}
+
+	sort.Slice(tags, func(i, j int) bool {
+		return tags[i].Version.GreaterThan(tags[j].Version)
+	})
 
 	for _, tc := range []struct {
 		name            string

@@ -14,19 +14,19 @@ import (
 var helmReleaseRegex = regexp.MustCompile("chore\\(deps\\): update helm release (.*) to (v?(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?)")
 
 type Extractor struct {
-	tagSource    tag.Source
+	tagsSource   tag.Source
 	commitSource commit.Source
 }
 
 func NewExtractor(tagSource tag.Source, commitSource commit.Source) Extractor {
 	return Extractor{
-		tagSource:    tagSource,
+		tagsSource:   tagSource,
 		commitSource: commitSource,
 	}
 }
 
 func (r Extractor) Extract() ([]changelog.Dependency, error) {
-	gitTags, err := r.tagSource.Tags()
+	gitTags, err := r.tagsSource.Tags()
 	if err != nil {
 		return nil, err
 	}

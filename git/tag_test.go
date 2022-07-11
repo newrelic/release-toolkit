@@ -99,7 +99,7 @@ func TestSource_Tags(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			src, err := git.NewTagSource(repodir, tc.opts...)
+			src, err := git.NewTagsSource(repodir, tc.opts...)
 			if err != nil {
 				t.Fatalf("Error creating git source: %v", err)
 			}

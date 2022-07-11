@@ -13,18 +13,18 @@ import (
 	"github.com/newrelic/release-toolkit/tag"
 )
 
-// TagSource implements the `tag.Source` interface, using tags from a git repository as a source for previous versions.
-type TagSource struct {
+// TagsSource implements the `tag.Source` interface, using tags from a git repository as a source for previous versions.
+type TagsSource struct {
 	workDir  string
 	match    *regexp.Regexp
 	replacer *strings.Replacer
 }
 
-type TagOptionFunc func(s *TagSource) error
+type TagOptionFunc func(s *TagsSource) error
 
 // TagMatching returns an option that will cause Source to ignore tags or commits that do not match regex.
 func TagMatching(regex string) TagOptionFunc {
-	return func(s *TagSource) error {
+	return func(s *TagsSource) error {
 		rgx, err := regexp.Compile(regex)
 		if err != nil {
 			return fmt.Errorf("compiling %q: %w", regex, err)
@@ -39,7 +39,7 @@ func TagMatching(regex string) TagOptionFunc {
 // that match the regex before attempting to parse them as versions.
 // It is useful to, for example, strip prefixes matched with TagMatching.
 func TagReplacing(existing, replacement string) TagOptionFunc {
-	return func(s *TagSource) error {
+	return func(s *TagsSource) error {
 		s.replacer = strings.NewReplacer(existing, replacement)
 		return nil
 	}
@@ -47,8 +47,8 @@ func TagReplacing(existing, replacement string) TagOptionFunc {
 
 var MatchAllTags = regexp.MustCompile("")
 
-func NewTagSource(workDir string, opts ...TagOptionFunc) (*TagSource, error) {
-	s := &TagSource{
+func NewTagsSource(workDir string, opts ...TagOptionFunc) (*TagsSource, error) {
+	s := &TagsSource{
 		workDir:  workDir,
 		match:    MatchAllTags,
 		replacer: strings.NewReplacer(),
@@ -63,7 +63,7 @@ func NewTagSource(workDir string, opts ...TagOptionFunc) (*TagSource, error) {
 	return s, nil
 }
 
-func (s *TagSource) Tags() ([]tag.Tag, error) {
+func (s *TagsSource) Tags() ([]tag.Tag, error) {
 	repo, err := git.PlainOpen(s.workDir)
 	if err != nil {
 		return nil, fmt.Errorf("opening git repo at %s: %w", s.workDir, err)
