@@ -14,8 +14,8 @@ import (
 	"github.com/newrelic/release-toolkit/tag"
 )
 
-// Source allows tags from a git repository as a source for previous versions.
-type Source struct {
+// TagSource allows tags from a git repository as a source for previous versions.
+type TagSource struct {
 	workDir  string
 	match    *regexp.Regexp
 	replacer *strings.Replacer

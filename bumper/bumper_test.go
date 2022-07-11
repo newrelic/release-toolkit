@@ -7,6 +7,7 @@ import (
 	"github.com/Masterminds/semver"
 	"github.com/newrelic/release-toolkit/bumper"
 	"github.com/newrelic/release-toolkit/changelog"
+	"github.com/newrelic/release-toolkit/tag"
 )
 
 type testCase struct {
@@ -152,10 +153,10 @@ func TestBumper_BumpSource_Errors(t *testing.T) {
 
 type mockSource []string
 
-func (m mockSource) Tags() ([]*semver.Version, error) {
-	versions := make([]*semver.Version, 0, len(m))
+func (m mockSource) Tags() ([]tag.Tag, error) {
+	versions := make([]tag.Tag, 0, len(m))
 	for _, v := range m {
-		versions = append(versions, semver.MustParse(v))
+		versions = append(versions, tag.Tag{Version: semver.MustParse(v)})
 	}
 
 	return versions, nil
