@@ -3,10 +3,9 @@ package git_test
 import (
 	"fmt"
 	"os/exec"
+	"sort"
 	"strings"
 	"testing"
-
-	"sort"
 
 	"github.com/newrelic/release-toolkit/git"
 	"github.com/stretchr/testify/assert"
@@ -58,19 +57,7 @@ func TestCommitSource_Commits(t *testing.T) {
 		"2.0.0-beta",
 	)
 
-	tagSrc, err := git.NewTagsSource(repodir)
-	if err != nil {
-		t.Fatalf("Error creating git source: %v", err)
-	}
-
-	tags, err := tagSrc.Tags()
-	if err != nil {
-		t.Fatalf("Error fetching tags: %v", err)
-	}
-
-	sort.Slice(tags, func(i, j int) bool {
-		return tags[i].Version.GreaterThan(tags[j].Version)
-	})
+	lastTagHash := getLastTagHash(t, repodir)
 
 	for _, tc := range []struct {
 		name            string
@@ -130,7 +117,7 @@ func TestCommitSource_Commits(t *testing.T) {
 		},
 		{
 			name:       "Existing_Hash_Default_Opts",
-			commitHash: tags[2].Hash,
+			commitHash: lastTagHash,
 			expectedCommits: []string{
 				"2.0.0-beta\n",
 				"1.5.0\n",
@@ -151,7 +138,7 @@ func TestCommitSource_Commits(t *testing.T) {
 				t.Fatalf("Error fetching commits: %v", err)
 			}
 
-			strCommits := make([]string, 0, len(tags))
+			strCommits := make([]string, 0, len(commits))
 			for _, c := range commits {
 				strCommits = append(strCommits, c.Message)
 			}
@@ -159,4 +146,21 @@ func TestCommitSource_Commits(t *testing.T) {
 			assert.ElementsMatchf(t, tc.expectedCommits, strCommits, "Reported commits do not match")
 		})
 	}
+}
+
+func getLastTagHash(t *testing.T, repodir string) string {
+	tagSrc, err := git.NewTagsSource(repodir)
+	if err != nil {
+		t.Fatalf("Error creating git source: %v", err)
+	}
+
+	tags, err := tagSrc.Tags()
+	if err != nil {
+		t.Fatalf("Error fetching tags: %v", err)
+	}
+
+	sort.Slice(tags, func(i, j int) bool {
+		return tags[i].Version.GreaterThan(tags[j].Version)
+	})
+	return tags[2].Hash
 }

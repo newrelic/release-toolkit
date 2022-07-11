@@ -9,7 +9,7 @@ import (
 	"gopkg.in/src-d/go-git.v4"
 )
 
-// Source allows commits rom a git repository as a source for previous versions
+// CommitSource allows commits rom a git repository as a source for previous versions.
 type CommitSource struct {
 	workDir      string
 	matchMessage *regexp.Regexp
@@ -63,7 +63,7 @@ func NewCommitSource(workDir string, opts ...CommitOptionFunc) (*CommitSource, e
 }
 
 // Commits returns all the commits from Head ordered from top to bottom
-// until LastHash, if lastHash is empty, all commits are returned
+// until LastHash, if lastHash is empty, all commits are returned.
 func (s *CommitSource) Commits(lastHash string) ([]commit.Commit, error) {
 	repo, err := git.PlainOpen(s.workDir)
 	if err != nil {
@@ -82,20 +82,20 @@ func (s *CommitSource) Commits(lastHash string) ([]commit.Commit, error) {
 
 	var commits []commit.Commit
 
-	for cm, err := commitIter.Next(); err == nil; {
+	for cm, errCommit := commitIter.Next(); errCommit == nil; {
 		if cm.Hash.String() == lastHash {
 			break
 		}
 
 		if !s.matchMessage.MatchString(cm.Message) {
 			log.Debugf("skipping commit %q as message does not match %q", cm.Message, s.matchMessage.String())
-			cm, err = commitIter.Next()
+			cm, errCommit = commitIter.Next()
 			continue
 		}
 
 		if !s.matchAuthor.MatchString(cm.Author.Name) {
 			log.Debugf("skipping commit %q as it author does not match %q", cm.Author, s.matchAuthor.String())
-			cm, err = commitIter.Next()
+			cm, errCommit = commitIter.Next()
 			continue
 		}
 
@@ -104,13 +104,10 @@ func (s *CommitSource) Commits(lastHash string) ([]commit.Commit, error) {
 			Hash:    cm.Hash.String(),
 			Author:  cm.Author.Name,
 		})
-		cm, err = commitIter.Next()
+		cm, errCommit = commitIter.Next()
 	}
-	commitIter.Close()
 
-	if err != nil {
-		return nil, fmt.Errorf("iterating over commits: %w", err)
-	}
+	commitIter.Close()
 
 	return commits, nil
 }
