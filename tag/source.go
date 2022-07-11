@@ -6,6 +6,8 @@ import (
 	"github.com/Masterminds/semver"
 )
 
+// Tag must always have a version and can't be nil
+// Hash can be empty and relates to the commit if it's a git repo
 type Tag struct {
 	Version *semver.Version
 	Hash    string
