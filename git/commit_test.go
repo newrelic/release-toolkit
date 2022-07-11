@@ -21,6 +21,7 @@ func repoWithCommitsAndTags(t *testing.T, commitsAndTags ...string) string {
 		"git config user.name Test",
 	}
 
+	// Create an empty file, commit and tag it for each tag name.
 	for _, t := range commitsAndTags {
 		cmds = append(cmds, fmt.Sprintf("touch %s", t))
 		cmds = append(cmds, fmt.Sprintf("git add %s", t))
