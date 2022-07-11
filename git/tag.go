@@ -13,7 +13,7 @@ import (
 	"github.com/newrelic/release-toolkit/tag"
 )
 
-// TagSource allows tags from a git repository as a source for previous versions.
+// TagSource implements the `tag.Source` interface, using tags from a git repository as a source for previous versions.
 type TagSource struct {
 	workDir  string
 	match    *regexp.Regexp
