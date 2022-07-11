@@ -47,8 +47,6 @@ func repoWithTags(t *testing.T, tags ...string) string {
 }
 
 func TestSource_Tags(t *testing.T) {
-	t.Parallel()
-
 	repodir := repoWithTags(t,
 		"v1.2.3",
 		"v1.3.0",
@@ -62,7 +60,7 @@ func TestSource_Tags(t *testing.T) {
 
 	for _, tc := range []struct {
 		name         string
-		opts         []git.OptionFunc
+		opts         []git.TagOptionFunc
 		expectedTags []string
 	}{
 		{
@@ -78,7 +76,7 @@ func TestSource_Tags(t *testing.T) {
 		},
 		{
 			name: "Matching_Leading_v",
-			opts: []git.OptionFunc{git.Matching("^v")},
+			opts: []git.TagOptionFunc{git.TagMatching("^v")},
 			expectedTags: []string{
 				"1.4.0",
 				"1.3.0",
@@ -87,9 +85,9 @@ func TestSource_Tags(t *testing.T) {
 		},
 		{
 			name: "Matching_And_Replacing_Prefix",
-			opts: []git.OptionFunc{
-				git.Matching("^helm-chart-"),
-				git.Replacing("helm-chart-", ""),
+			opts: []git.TagOptionFunc{
+				git.TagMatching("^helm-chart-"),
+				git.TagReplacing("helm-chart-", ""),
 			},
 			expectedTags: []string{
 				"1.3.1",
@@ -101,7 +99,7 @@ func TestSource_Tags(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			src, err := git.NewSource(repodir, tc.opts...)
+			src, err := git.NewTagSource(repodir, tc.opts...)
 			if err != nil {
 				t.Fatalf("Error creating git source: %v", err)
 			}

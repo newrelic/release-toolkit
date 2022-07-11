@@ -21,11 +21,11 @@ type Source struct {
 	replacer *strings.Replacer
 }
 
-type OptionFunc func(s *Source) error
+type TagOptionFunc func(s *TagSource) error
 
-// Matching returns an option that will cause Source to ignore tags that do not match regex.
-func Matching(regex string) OptionFunc {
-	return func(s *Source) error {
+// TagMatching returns an option that will cause Source to ignore tags or commits that do not match regex.
+func TagMatching(regex string) TagOptionFunc {
+	return func(s *TagSource) error {
 		rgx, err := regexp.Compile(regex)
 		if err != nil {
 			return fmt.Errorf("compiling %q: %w", regex, err)
@@ -36,19 +36,20 @@ func Matching(regex string) OptionFunc {
 	}
 }
 
-func Replacing(existing, replacement string) OptionFunc {
-	return func(s *Source) error {
-		s.replacer = strings.NewReplacer(existing, replacement)
+// TagReplacing returns an option that will replace a string in the tag source.
+func TagReplacing(old, new string) TagOptionFunc {
+	return func(s *TagSource) error {
+		s.replacer = strings.NewReplacer(old, new)
 		return nil
 	}
 }
 
-var MatchAll = regexp.MustCompile("")
+var MatchAllTags = regexp.MustCompile("")
 
-func NewSource(workDir string, opts ...OptionFunc) (*Source, error) {
-	s := &Source{
+func NewTagSource(workDir string, opts ...TagOptionFunc) (*TagSource, error) {
+	s := &TagSource{
 		workDir:  workDir,
-		match:    MatchAll,
+		match:    MatchAllTags,
 		replacer: strings.NewReplacer(),
 	}
 
@@ -61,7 +62,7 @@ func NewSource(workDir string, opts ...OptionFunc) (*Source, error) {
 	return s, nil
 }
 
-func (s *Source) Tags() ([]tag.Tag, error) {
+func (s *TagSource) Tags() ([]tag.Tag, error) {
 	repo, err := git.PlainOpen(s.workDir)
 	if err != nil {
 		return nil, fmt.Errorf("opening git repo at %s: %w", s.workDir, err)
