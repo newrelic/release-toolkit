@@ -36,6 +36,7 @@ func (c *Changelog) Merge(other *Changelog) {
 		c.Notes = strings.TrimSpace(strings.TrimSpace(c.Notes) + "\n\n" + other.Notes)
 	}
 
+	c.Held = c.Held || other.Held
 	c.Changes = append(c.Changes, other.Changes...)
 	c.Dependencies = append(c.Dependencies, other.Dependencies...)
 }
