@@ -2,11 +2,14 @@ package changelog_test
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/Masterminds/semver"
+	"github.com/google/go-cmp/cmp"
 	"github.com/newrelic/release-toolkit/bump"
 	"github.com/newrelic/release-toolkit/changelog"
+	"gopkg.in/yaml.v3"
 )
 
 func TestChangelog_Merge(t *testing.T) {
@@ -191,4 +194,100 @@ func TestDependency_Change(t *testing.T) {
 			t.Fatalf("Expected %q for %v -> %v, got %v", tc.expected, tc.d.From, tc.d.To, actual)
 		}
 	}
+}
+
+// TestYaml checks a changelog marshals and unmarshals as we expect.
+func TestYaml(t *testing.T) {
+	t.Parallel()
+
+	ch := changelog.Changelog{
+		Held:  false,
+		Notes: "### I am a note!\nNote this note that...",
+		Changes: []changelog.Entry{
+			{
+				Type:    changelog.TypeBugfix,
+				Message: "Fixed this",
+				Meta: changelog.EntryMeta{
+					Author: "roobre",
+					Commit: "abcdef",
+				},
+			},
+			{
+				Type:    changelog.TypeBreaking,
+				Message: "Broken that",
+				Meta: changelog.EntryMeta{
+					PR: "69",
+				},
+			},
+		},
+		Dependencies: []changelog.Dependency{
+			{
+				Name: "kubernetes",
+				From: semver.MustParse("v1.24.0"),
+			},
+			{
+				Name: "linux",
+				To:   semver.MustParse("5.15.52"),
+			},
+		},
+	}
+
+	yml := strings.TrimSpace(`
+notes: |-
+    ### I am a note!
+    Note this note that...
+changes:
+    - type: bugfix
+      message: Fixed this
+      meta:
+        author: roobre
+        commit: abcdef
+    - type: breaking
+      message: Broken that
+      meta:
+        pr: "69"
+dependencies:
+    - name: kubernetes
+      from: v1.24.0
+    - name: linux
+      to: 5.15.52
+	`) + "\n"
+
+	t.Run("Marshal", func(t *testing.T) {
+		t.Parallel()
+
+		actual, err := yaml.Marshal(&ch)
+		if err != nil {
+			t.Fatalf("Error marshaling changelog: %v", err)
+		}
+
+		if diff := cmp.Diff(yml, string(actual)); diff != "" {
+			t.Fatalf("Marshaled yaml is not as expected:\n%s", diff)
+		}
+	})
+
+	t.Run("Unmarshal", func(t *testing.T) {
+		t.Parallel()
+
+		actual := changelog.Changelog{}
+		err := yaml.Unmarshal([]byte(yml), &actual)
+		if err != nil {
+			t.Fatalf("Error unmarshaling changelog: %v", err)
+		}
+
+		// We cannot use cmp.Diff, as it will try to call
+		if !reflect.DeepEqual(ch.Changes, actual.Changes) {
+			t.Fatalf("Entries are not equal")
+		}
+		if !reflect.DeepEqual(ch.Dependencies, actual.Dependencies) {
+			t.Fatalf("Dependencies are not equal")
+		}
+		if ch.Notes != actual.Notes {
+			t.Fatalf("Notes are not equal")
+		}
+
+		if !reflect.DeepEqual(ch, actual) {
+			t.Fatalf("Changelogs are not equal")
+		}
+	})
 }

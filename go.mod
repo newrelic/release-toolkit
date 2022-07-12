@@ -9,6 +9,7 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.8.0
 	gopkg.in/src-d/go-git.v4 v4.13.1
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -26,5 +27,4 @@ require (
 	golang.org/x/sys v0.0.0-20220704084225-05e143d24a9e // indirect
 	gopkg.in/src-d/go-billy.v4 v4.3.2 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

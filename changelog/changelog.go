@@ -7,12 +7,15 @@ import (
 	"github.com/Masterminds/semver"
 	"github.com/newrelic/release-toolkit/bump"
 	log "github.com/sirupsen/logrus"
+	"gopkg.in/yaml.v3"
 )
+
+type Version *semver.Version
 
 // Changelog models a machine-readable changelog.
 type Changelog struct {
 	// Held is true if this changelog should not be released without human intervention.
-	Held bool
+	Held bool `yaml:"held,omitempty"`
 	// Notes is a markdown snippet that will be rendered just below the version header.
 	Notes string `yaml:"notes"`
 	// Changes is a list of changes that have been made since the last release.
@@ -43,12 +46,12 @@ func (c *Changelog) Merge(other *Changelog) {
 
 // Entry is a representation of a change that has been made in the code.
 type Entry struct {
-	// Message is a human-readable one-liner summarizing the change.
-	Message string
 	// Type holds which bump this change was: A bug fix, a new feature, etc. See EntryType.
-	Type EntryType
+	Type EntryType `yaml:"type"`
+	// Message is a human-readable one-liner summarizing the change.
+	Message string `yaml:"message"`
 	// Meta holds information about who made the change and where.
-	Meta EntryMeta
+	Meta EntryMeta `yaml:"meta,omitempty"`
 }
 
 // EntryType encodes the nature of the change.
@@ -101,16 +104,16 @@ func (e Entry) String() string {
 
 // EntryMeta holds information about who made the change and where.
 type EntryMeta struct {
-	Author string
-	PR     string
-	Commit string
+	Author string `yaml:"author,omitempty"`
+	PR     string `yaml:"pr,omitempty"`
+	Commit string `yaml:"commit,omitempty"`
 }
 
 // Dependency models a dependency that has been changed in the project.
 type Dependency struct {
-	Name string
-	From *semver.Version
-	To   *semver.Version
+	Name string          `yaml:"name"`
+	From *semver.Version `yaml:"from,omitempty"`
+	To   *semver.Version `yaml:"to,omitempty"`
 }
 
 // BumpType returns which version should be bumped due to this dependency update.
@@ -156,4 +159,55 @@ func (d Dependency) String() string {
 	}
 
 	return buf.String()
+}
+
+// plainDependency is a helper struct where To and From are strings rather than semver.Version. We use this struct
+// to marshal and unmarshal from YAML format because unfortunately, semver.Version does not implement yaml.Marshaler.
+type plainDependency struct {
+	Name string `yaml:"name"`
+	To   string `yaml:"to,omitempty"`
+	From string `yaml:"from,omitempty"`
+}
+
+// MarshalYAML copies the contents of Dependency to a plainDependency and returns it for the generic marshaler to
+// encode it.
+func (d Dependency) MarshalYAML() (interface{}, error) {
+	pd := plainDependency{
+		Name: d.Name,
+	}
+
+	if d.To != nil {
+		pd.To = d.To.Original()
+	}
+	if d.From != nil {
+		pd.From = d.From.Original()
+	}
+
+	return &pd, nil
+}
+
+// UnmarshalYAML decodes the node into a plainDependency and copies it over to the real Dependency.
+func (d *Dependency) UnmarshalYAML(value *yaml.Node) error {
+	pd := plainDependency{}
+	err := value.Decode(&pd)
+	if err != nil {
+		return fmt.Errorf("unmarshalling plain dependency: %w", err)
+	}
+
+	d.Name = pd.Name
+
+	if pd.To != "" {
+		d.To, err = semver.NewVersion(pd.To)
+		if err != nil {
+			return fmt.Errorf("parsing dependency.To %q: %w", pd.To, err)
+		}
+	}
+	if pd.From != "" {
+		d.From, err = semver.NewVersion(pd.From)
+		if err != nil {
+			return fmt.Errorf("parsing dependency.From %q: %w", pd.From, err)
+		}
+	}
+
+	return nil
 }
