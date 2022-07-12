@@ -61,8 +61,7 @@ func (m Merger) Merge(srcChangelog io.Reader, dst io.Writer) error {
 	if err != nil {
 		return fmt.Errorf("rendering new changelog: %w", err)
 	}
-	// We add two newlines to the new section to have it properly formatted in the rest of the doc.
-	newSection.WriteString("\n\n")
+	newSection.WriteString("\n")
 
 	scanner := bufio.NewScanner(srcChangelog)
 
@@ -77,7 +76,7 @@ func (m Merger) Merge(srcChangelog io.Reader, dst io.Writer) error {
 
 		switch {
 		case unreleasedHeader.MatchString(line):
-			log.Tracef("Unreleased header found, printing header and ignoring section")
+			log.Tracef("Unreleased header found, printing header and empty section")
 			_, _ = fmt.Fprintf(dst, "%s\n\n", line)
 			ignore = true
 		case heldHeader.MatchString(line):
@@ -89,9 +88,15 @@ func (m Merger) Merge(srcChangelog io.Reader, dst io.Writer) error {
 
 			// Copy the new section now before writing this header.
 			// Calls to this function on subsequent L2 headers are noop as the newSection buffer is already consumed.
-			_, err = io.Copy(dst, newSection)
+			written, err := io.Copy(dst, newSection)
 			if err != nil {
 				return fmt.Errorf("inserting new changelog: %w", err)
+			}
+
+			// If we just wrote something before a header, we add an extra newline so the header is not cuddled with the
+			// newly added section.
+			if written > 0 {
+				_, _ = fmt.Fprintln(dst, "")
 			}
 		}
 
@@ -104,6 +109,14 @@ func (m Merger) Merge(srcChangelog io.Reader, dst io.Writer) error {
 	}
 	if err := scanner.Err(); err != nil {
 		return fmt.Errorf("reading header: %w", err)
+	}
+
+	// If the changelog did not contain any existing L2 header other than Unreleased and Held, newSection will not have
+	// been inserted, so we copy it now again.
+	// If an L2 header existed, this is noop as the newSection reader has already been consumed.
+	_, err = io.Copy(dst, newSection)
+	if err != nil {
+		return fmt.Errorf("inserting new changelog: %w", err)
 	}
 
 	return nil

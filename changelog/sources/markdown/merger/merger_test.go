@@ -151,6 +151,103 @@ This is based on blah blah blah
 - This is in the past and should be preserved
 			`) + "\n",
 		},
+		{
+			name: "Simple_Changelog_First_Entry",
+			ch:   simpleChangelog,
+			original: strings.TrimSpace(`
+# Changelog
+This is based on blah blah blah
+
+## Unreleased
+
+### Bugfixes
+- This is a section
+- That will be deleted
+
+### Security
+- Completely wiped down from earth
+			`) + "\n",
+			expected: strings.TrimSpace(`
+# Changelog
+This is based on blah blah blah
+
+## Unreleased
+
+## v1.2.4 - 1993-09-21
+
+### 🐞 Bug fixes
+- Fixed this
+			`) + "\n",
+			// TODO: If no previous sections existed in the changelog, there will be two newlines at the end.
+		},
+		{
+			name: "Simple_Changelog_No_Previous_With_Unreleased",
+			ch:   simpleChangelog,
+			original: strings.TrimSpace(`
+# Changelog
+This is based on blah blah blah
+
+## Unreleased
+			`) + "\n",
+			expected: strings.TrimSpace(`
+# Changelog
+This is based on blah blah blah
+
+## Unreleased
+
+## v1.2.4 - 1993-09-21
+
+### 🐞 Bug fixes
+- Fixed this
+			`) + "\n",
+		},
+		{
+			name: "Simple_Changelog_No_Unreleased",
+			ch:   simpleChangelog,
+			original: strings.TrimSpace(`
+# Changelog
+This is based on blah blah blah
+
+## v1.2.3 - 20YY-DD-MM
+
+### Enhancements
+- This is in the past and should be preserved
+			`) + "\n",
+			expected: strings.TrimSpace(`
+# Changelog
+This is based on blah blah blah
+
+## v1.2.4 - 1993-09-21
+
+### 🐞 Bug fixes
+- Fixed this
+
+## v1.2.3 - 20YY-DD-MM
+
+### Enhancements
+- This is in the past and should be preserved
+			`) + "\n",
+		},
+		{
+			// This is an edge case where Merger does not behave extremely well.
+			// Merger cannot easily handle whether before the place where the new section will be inserted, so we took
+			// the decision to assume there will be a space before.
+			// This assumption does not hold if there are neither previous entries, nor an "Unreleased" header.
+			name: "Simple_Changelog_No_Previous_Without_Unreleased",
+			ch:   simpleChangelog,
+			original: strings.TrimSpace(`
+# Changelog
+This is based on blah blah blah
+`) + "\n",
+			expected: strings.TrimSpace(`
+# Changelog
+This is based on blah blah blah
+## v1.2.4 - 1993-09-21
+
+### 🐞 Bug fixes
+- Fixed this
+			`) + "\n",
+		},
 	} {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
