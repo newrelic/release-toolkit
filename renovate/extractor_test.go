@@ -58,7 +58,7 @@ func TestExtractor_Extract(t *testing.T) {
 * Bum chart's version
 * fix typo in the common library`},
 				{Message: "chore(deps): update helm release common-library-2 to v0.0.4"},
-				{Message: "chore(deps): update helm release common-library-3 to v1.2.3"},
+				{Message: "chore(deps): update helm release common-library-3/library to v1.2.3"},
 				{Message: "chore(deps): update helm release common-library-4 to v10.20.30"},
 				{Message: "chore(deps): update helm release common-library-5 to v1.1.2-prerelease+meta"},
 				{Message: "chore(deps): update helm release common-library-6 to v1.1.2+meta"},
@@ -81,7 +81,7 @@ func TestExtractor_Extract(t *testing.T) {
 			expectedDependencies: []changelog.Dependency{
 				{Name: "common-library-1", To: semver.MustParse("v1.0.4")},
 				{Name: "common-library-2", To: semver.MustParse("0.0.4")},
-				{Name: "common-library-3", To: semver.MustParse("1.2.3")},
+				{Name: "common-library-3/library", To: semver.MustParse("1.2.3")},
 				{Name: "common-library-4", To: semver.MustParse("10.20.30")},
 				{Name: "common-library-5", To: semver.MustParse("1.1.2-prerelease+meta")},
 				{Name: "common-library-6", To: semver.MustParse("1.1.2+meta")},
