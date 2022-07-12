@@ -3,7 +3,6 @@ package renovate
 import (
 	"fmt"
 	"regexp"
-	"sort"
 
 	"github.com/Masterminds/semver"
 	"github.com/newrelic/release-toolkit/changelog"
@@ -26,16 +25,12 @@ func NewExtractor(semverTagsGetter git.SemverTagsGetter, commitsGetter git.Commi
 }
 
 func (r Extractor) Extract() ([]changelog.Dependency, error) {
-	tags, err := r.semverTagsGetter.Get()
+	lastHash, err := r.semverTagsGetter.GetLastReleaseHash()
 	if err != nil {
-		return nil, fmt.Errorf("getting tags: %w", err)
+		return nil, fmt.Errorf("getting last release hash: %w", err)
 	}
 
-	sort.Slice(tags.Versions, func(i, j int) bool {
-		return tags.Versions[i].GreaterThan(tags.Versions[j])
-	})
-
-	gitCommits, err := r.commitsGetter.Get(tags.Hashes[tags.Versions[0]])
+	gitCommits, err := r.commitsGetter.Get(lastHash)
 	if err != nil {
 		return nil, fmt.Errorf("getting commits: %w", err)
 	}

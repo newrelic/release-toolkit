@@ -18,6 +18,7 @@ type SemverTags struct {
 
 type SemverTagsGetter interface {
 	Tags() (SemverTags, error)
+	GetLastReleaseHash() (string, error)
 }
 
 type RepoSemverTagsGetter struct {
@@ -115,4 +116,17 @@ func (s *RepoSemverTagsGetter) Tags() (SemverTags, error) {
 	}
 
 	return tags, nil
+}
+
+func (s *RepoSemverTagsGetter) GetLastReleaseHash() (string, error) {
+	tags, err := s.Get()
+	if err != nil {
+		return "", fmt.Errorf("getting tags: %w", err)
+	}
+
+	sort.Slice(tags.Versions, func(i, j int) bool {
+		return tags.Versions[i].GreaterThan(tags.Versions[j])
+	})
+
+	return tags.Hashes[tags.Versions[0]], nil
 }

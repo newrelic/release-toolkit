@@ -22,6 +22,10 @@ func (t *SemverTagsGetterMock) Get() (git.SemverTags, error) {
 	}, nil
 }
 
+func (t *SemverTagsGetterMock) GetLastReleaseHash() (string, error) {
+	return "", nil
+}
+
 type CommitsGetterMock struct {
 	CommitList []git.Commit
 }
