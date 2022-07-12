@@ -11,7 +11,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var helmReleaseRegex = regexp.MustCompile(`update .* ([\w-.]+) to ([^\s*]+)(?: \(([^\s]+)\))?`)
+var helmReleaseRegex = regexp.MustCompile(`update .* ([\w-/.]+) to ([^\s*]+)(?: \(([^\s]+)\))?`)
 
 type Extractor struct {
 	semverTagsGetter git.SemverTagsGetter
