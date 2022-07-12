@@ -50,6 +50,7 @@ var (
 // srcChangelog, and write to dst a new full changelog containing the entries specified in the changelog.Changelog
 // object that was passed to New.
 // The source file is left intact and the changelog.Changelog object supplied to New are not modified.
+//nolint:gocyclo,cyclop // Unreasonable amount of iferrnils raise complexity unfairly.
 func (m Merger) Merge(srcChangelog io.Reader, dst io.Writer) error {
 	newSection := &bytes.Buffer{}
 
@@ -77,46 +78,56 @@ func (m Merger) Merge(srcChangelog io.Reader, dst io.Writer) error {
 		switch {
 		case unreleasedHeader.MatchString(line):
 			log.Tracef("Unreleased header found, printing header and empty section")
-			_, _ = fmt.Fprintf(dst, "%s\n\n", line)
 			ignore = true
+
+			_, ioErr := fmt.Fprintf(dst, "%s\n\n", line)
+			if ioErr != nil {
+				return fmt.Errorf("writing changelog: %w", err)
+			}
+
 		case heldHeader.MatchString(line):
 			log.Tracef("Held header found, ignoring both header and section")
 			ignore = true
+
 		case l2Header.MatchString(line):
 			log.Tracef("L2 header found, including section")
 			ignore = false
 
 			// Copy the new section now before writing this header.
 			// Calls to this function on subsequent L2 headers are noop as the newSection buffer is already consumed.
-			written, err := io.Copy(dst, newSection)
-			if err != nil {
-				return fmt.Errorf("inserting new changelog: %w", err)
+			written, ioErr := io.Copy(dst, newSection)
+			if ioErr != nil {
+				return fmt.Errorf("writing changelog: %w", err)
 			}
 
 			// If we just wrote something before a header, we add an extra newline so the header is not cuddled with the
 			// newly added section.
 			if written > 0 {
-				_, _ = fmt.Fprintln(dst, "")
+				_, ioErr = fmt.Fprintln(dst, "")
+				if ioErr != nil {
+					return fmt.Errorf("writing changelog: %w", err)
+				}
 			}
 		}
 
 		if !ignore {
-			_, err = fmt.Fprintln(dst, line)
-			if err != nil {
-				return fmt.Errorf("copying line: %w", err)
+			_, ioErr := fmt.Fprintln(dst, line)
+			if ioErr != nil {
+				return fmt.Errorf("writing changelog: %w", err)
 			}
 		}
 	}
-	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("reading header: %w", err)
+
+	if ioErr := scanner.Err(); err != nil {
+		return fmt.Errorf("reading header: %w", ioErr)
 	}
 
 	// If the changelog did not contain any existing L2 header other than Unreleased and Held, newSection will not have
 	// been inserted, so we copy it now again.
 	// If an L2 header existed, this is noop as the newSection reader has already been consumed.
-	_, err = io.Copy(dst, newSection)
-	if err != nil {
-		return fmt.Errorf("inserting new changelog: %w", err)
+	_, ioErr := io.Copy(dst, newSection)
+	if ioErr != nil {
+		return fmt.Errorf("writing changelog: %w", err)
 	}
 
 	return nil
