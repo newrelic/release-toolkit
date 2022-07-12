@@ -18,7 +18,7 @@ type CommitsGetter interface {
 	Get(lastHash string) ([]Commit, error)
 }
 
-// RepoCommitsGetter gets commits from a git repository
+// RepoCommitsGetter gets commits from a git repository.
 type RepoCommitsGetter struct {
 	workDir      string
 	matchMessage *regexp.Regexp
