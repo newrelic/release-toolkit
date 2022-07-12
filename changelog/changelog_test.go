@@ -90,6 +90,31 @@ func TestChangelog_Merge(t *testing.T) {
 	}
 }
 
+func TestChangelog_Merge_Does_Duplicate_Entries(t *testing.T) {
+	// Current implementation does not deduplicate entries. This test attest this as intended behavior.
+	t.Parallel()
+
+	ch := changelog.Changelog{
+		Changes: []changelog.Entry{
+			{Message: "Change one", Type: changelog.TypeBugfix},
+		},
+		Dependencies: []changelog.Dependency{
+			{Name: "Dependency 1"},
+			{Name: "Dependency 2"},
+		},
+	}
+
+	ch.Merge(&ch)
+
+	if ch.Dependencies[0] != ch.Dependencies[2] {
+		t.Fatalf("Dependencies were deduplicated: %s != %s", ch.Dependencies[0].Name, ch.Dependencies[2].Name)
+	}
+
+	if ch.Changes[0] != ch.Changes[1] {
+		t.Fatalf("Changes were deduplicated: %s != %s", ch.Changes[0].Message, ch.Changes[1].Message)
+	}
+}
+
 func TestDependency_BumpType_Handles_Nils(t *testing.T) {
 	t.Parallel()
 
