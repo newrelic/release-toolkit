@@ -1,10 +1,10 @@
-package tag_test
+package version_test
 
 import (
 	"strings"
 	"testing"
 
-	"github.com/newrelic/release-toolkit/tag"
+	"github.com/newrelic/release-toolkit/version"
 )
 
 func TestStaticSource(t *testing.T) {
@@ -12,8 +12,8 @@ func TestStaticSource(t *testing.T) {
 
 	tagStr := "v1.2.3-beta"
 
-	ss := tag.Static(tagStr)
-	tags, err := ss.Tags()
+	ss := version.Static(tagStr)
+	tags, err := ss.Versions()
 	if err != nil {
 		t.Fatal(err)
 	}
