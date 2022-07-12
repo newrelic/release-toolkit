@@ -3,6 +3,7 @@ package app
 
 import (
 	"github.com/newrelic/release-toolkit/app/common"
+	"github.com/newrelic/release-toolkit/app/generate"
 	"github.com/newrelic/release-toolkit/app/isheld"
 	"github.com/newrelic/release-toolkit/app/nextversion"
 	"github.com/newrelic/release-toolkit/app/render"
@@ -28,6 +29,7 @@ func App() *cli.App {
 			isheld.Cmd,
 			render.Cmd,
 			nextversion.Cmd,
+			generate.Cmd,
 		},
 	}
 }
