@@ -1,6 +1,8 @@
 package git
 
 import (
+	"fmt"
+
 	"github.com/Masterminds/semver"
 )
 
@@ -16,7 +18,7 @@ func NewTagsSource(tagsGetter SemverTagsGetter) *TagsSource {
 func (s *TagsSource) Versions() ([]*semver.Version, error) {
 	tags, err := s.tagsGetter.Get()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("getting tags: %w", err)
 	}
 
 	return tags.Versions, nil
