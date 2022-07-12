@@ -1,10 +1,8 @@
-package tag_test
+package version_test
 
 import (
 	"strings"
 	"testing"
-
-	"github.com/newrelic/release-toolkit/tag"
 )
 
 func TestStaticSource(t *testing.T) {
@@ -12,7 +10,7 @@ func TestStaticSource(t *testing.T) {
 
 	tagStr := "v1.2.3-beta"
 
-	ss := tag.Static(tagStr)
+	ss := version.Static(tagStr)
 	tags, err := ss.Tags()
 	if err != nil {
 		t.Fatal(err)
@@ -23,7 +21,7 @@ func TestStaticSource(t *testing.T) {
 	}
 
 	unprefixedTag := strings.TrimPrefix(tagStr, "v")
-	if rt := tags[0].Version.String(); rt != unprefixedTag {
+	if rt := tags[0].String(); rt != unprefixedTag {
 		t.Fatalf("unexpected tag %q returned, expected %q", rt, tagStr)
 	}
 }

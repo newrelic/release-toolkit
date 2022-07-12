@@ -5,43 +5,42 @@ import (
 
 	"github.com/Masterminds/semver"
 	"github.com/newrelic/release-toolkit/changelog"
-	"github.com/newrelic/release-toolkit/commit"
+	"github.com/newrelic/release-toolkit/git"
 	"github.com/newrelic/release-toolkit/renovate"
-	"github.com/newrelic/release-toolkit/tag"
 	"github.com/stretchr/testify/assert"
 )
 
-type TagSourceMock struct {
+type SemverTagsGetterMock struct {
 	Hash string
 }
 
-func (t *TagSourceMock) Tags() ([]tag.Tag, error) {
-	return []tag.Tag{
-		{
-			Version: semver.MustParse("v1.2.3"),
-			Hash:    "a-hash",
-		},
+func (t *SemverTagsGetterMock) Get() (git.SemverTags, error) {
+	version := semver.MustParse("v1.2.3")
+	return git.SemverTags{
+		Versions: []*semver.Version{version},
+		Hashes:   map[*semver.Version]string{version: "a-hash"},
 	}, nil
 }
 
-type CommitSourceMock struct {
-	CommitList []commit.Commit
+type CommitsGetterMock struct {
+	CommitList []git.Commit
 }
 
-func (c *CommitSourceMock) Commits(_ string) ([]commit.Commit, error) {
+func (c *CommitsGetterMock) Get(_ string) ([]git.Commit, error) {
 	return c.CommitList, nil
 }
 
+//nolint:funlen
 func TestExtractor_Extract(t *testing.T) {
 	t.Parallel()
 	for _, tc := range []struct {
 		name                 string
-		commitMessages       []commit.Commit
+		commitMessages       []git.Commit
 		expectedDependencies []changelog.Dependency
 	}{
 		{
 			name: "Matching_and_not_matching-commits",
-			commitMessages: []commit.Commit{
+			commitMessages: []git.Commit{
 				{Message: `chore(deps): Another commit message v1.0.4 (#401)`},
 				{Message: "Non matching"},
 				{Message: "chore(deps): update helm release common-library-3 to v1.2.3"},
@@ -52,13 +51,13 @@ func TestExtractor_Extract(t *testing.T) {
 		},
 		{
 			name: "Matching_commits",
-			commitMessages: []commit.Commit{
-				{Message: `chore(deps): update helm release common-library-1 to v1.0.4 (#401)
+			commitMessages: []git.Commit{
+				{Message: `chore(deps): update helm release common-library-1 to v1.0.4 extra1
 
 * chore(deps): update helm release common-library to v1.0.4
 * Bum chart's version
 * fix typo in the common library`},
-				{Message: "chore(deps): update helm release common-library-2 to v0.0.4 (#402)"},
+				{Message: "chore(deps): update helm release common-library-2 to v0.0.4"},
 				{Message: "chore(deps): update helm release common-library-3 to v1.2.3"},
 				{Message: "chore(deps): update helm release common-library-4 to v10.20.30"},
 				{Message: "chore(deps): update helm release common-library-5 to v1.1.2-prerelease+meta"},
@@ -103,12 +102,49 @@ func TestExtractor_Extract(t *testing.T) {
 				{Name: "common-library-21", To: semver.MustParse("999999.999999.999999")},
 			},
 		},
+		{
+			name: "Matching_commits_with_meta",
+			commitMessages: []git.Commit{
+				{Message: "chore(deps): update helm release common-library-1 to v1.0.4 (#401) ", Author: "dependabot", Hash: "abcda222"},
+				{Message: "chore(deps): update helm release common-library-2 to v0.0.4 (#402)", Author: "dependabot", Hash: "abcda222"},
+				{Message: "chore(deps): update helm release common-library-3 to v1.2.3", Author: "dependabot", Hash: "abcda222"},
+			},
+			expectedDependencies: []changelog.Dependency{
+				{
+					Name: "common-library-1",
+					To:   semver.MustParse("v1.0.4"),
+					Meta: changelog.EntryMeta{
+						Author: "dependabot",
+						PR:     "#401",
+						Commit: "abcda222",
+					},
+				},
+				{
+					Name: "common-library-2",
+					To:   semver.MustParse("v0.0.4"),
+					Meta: changelog.EntryMeta{
+						Author: "dependabot",
+						PR:     "#402",
+						Commit: "abcda222",
+					},
+				},
+				{
+					Name: "common-library-3",
+					To:   semver.MustParse("v1.2.3"),
+					Meta: changelog.EntryMeta{
+						Author: "dependabot",
+						PR:     "",
+						Commit: "abcda222",
+					},
+				},
+			},
+		},
 	} {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			extractor := renovate.NewExtractor(&TagSourceMock{}, &CommitSourceMock{CommitList: tc.commitMessages})
+			extractor := renovate.NewExtractor(&SemverTagsGetterMock{}, &CommitsGetterMock{CommitList: tc.commitMessages})
 			dependencies, err := extractor.Extract()
 			if err != nil {
 				t.Fatalf("Error extracting renovate dependencies: %v", err)
@@ -117,6 +153,7 @@ func TestExtractor_Extract(t *testing.T) {
 			for k, dep := range dependencies {
 				assert.Equal(t, tc.expectedDependencies[k].Name, dep.Name)
 				assert.Equal(t, tc.expectedDependencies[k].To.String(), dep.To.String())
+				assert.Equal(t, tc.expectedDependencies[k].Meta, dep.Meta)
 			}
 		})
 	}

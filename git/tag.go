@@ -9,22 +9,28 @@ import (
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing"
-
-	"github.com/newrelic/release-toolkit/tag"
 )
 
-// TagsSource implements the `tag.Source` interface, using tags from a git repository as a source for previous versions.
-type TagsSource struct {
+type SemverTags struct {
+	Versions []*semver.Version
+	Hashes   map[*semver.Version]string
+}
+
+type SemverTagsGetter interface {
+	Get() (SemverTags, error)
+}
+
+type RepoSemverTagsGetter struct {
 	workDir  string
 	match    *regexp.Regexp
 	replacer *strings.Replacer
 }
 
-type TagOptionFunc func(s *TagsSource) error
+type TagOptionFunc func(s *RepoSemverTagsGetter) error
 
-// TagMatching returns an option that will cause Source to ignore tags or commits that do not match regex.
-func TagMatching(regex string) TagOptionFunc {
-	return func(s *TagsSource) error {
+// TagsMatching returns an option that will make the getter to ignore tags that do not match regex.
+func TagsMatching(regex string) TagOptionFunc {
+	return func(s *RepoSemverTagsGetter) error {
 		rgx, err := regexp.Compile(regex)
 		if err != nil {
 			return fmt.Errorf("compiling %q: %w", regex, err)
@@ -35,11 +41,11 @@ func TagMatching(regex string) TagOptionFunc {
 	}
 }
 
-// TagReplacing returns an option that will perform a string replacement on tags
+// TagsReplacing returns an option that will perform a string replacement on tags
 // that match the regex before attempting to parse them as versions.
 // It is useful to, for example, strip prefixes matched with TagMatching.
-func TagReplacing(existing, replacement string) TagOptionFunc {
-	return func(s *TagsSource) error {
+func TagsReplacing(existing, replacement string) TagOptionFunc {
+	return func(s *RepoSemverTagsGetter) error {
 		s.replacer = strings.NewReplacer(existing, replacement)
 		return nil
 	}
@@ -47,8 +53,8 @@ func TagReplacing(existing, replacement string) TagOptionFunc {
 
 var MatchAllTags = regexp.MustCompile("")
 
-func NewTagsSource(workDir string, opts ...TagOptionFunc) (*TagsSource, error) {
-	s := &TagsSource{
+func NewRepoSemverTagsGetter(workDir string, opts ...TagOptionFunc) (*RepoSemverTagsGetter, error) {
+	s := &RepoSemverTagsGetter{
 		workDir:  workDir,
 		match:    MatchAllTags,
 		replacer: strings.NewReplacer(),
@@ -63,18 +69,20 @@ func NewTagsSource(workDir string, opts ...TagOptionFunc) (*TagsSource, error) {
 	return s, nil
 }
 
-func (s *TagsSource) Tags() ([]tag.Tag, error) {
+func (s *RepoSemverTagsGetter) Get() (SemverTags, error) {
 	repo, err := git.PlainOpen(s.workDir)
 	if err != nil {
-		return nil, fmt.Errorf("opening git repo at %s: %w", s.workDir, err)
+		return SemverTags{}, fmt.Errorf("opening git repo at %s: %w", s.workDir, err)
 	}
 
 	repoTags, err := repo.Tags()
 	if err != nil {
-		return nil, fmt.Errorf("getting git tags: %w", err)
+		return SemverTags{}, fmt.Errorf("getting git tags: %w", err)
 	}
 
-	var tags []tag.Tag
+	tags := SemverTags{
+		Hashes: make(map[*semver.Version]string),
+	}
 
 	err = repoTags.ForEach(func(reference *plumbing.Reference) error {
 		ref := reference.Name()
@@ -97,14 +105,13 @@ func (s *TagsSource) Tags() ([]tag.Tag, error) {
 			return nil
 		}
 
-		tags = append(tags, tag.Tag{
-			Version: v,
-			Hash:    reference.Hash().String(),
-		})
+		tags.Versions = append(tags.Versions, v)
+		tags.Hashes[v] = reference.Hash().String()
+
 		return nil
 	})
 	if err != nil {
-		return nil, fmt.Errorf("iterating over tags: %w", err)
+		return SemverTags{}, fmt.Errorf("iterating over tags: %w", err)
 	}
 
 	return tags, nil

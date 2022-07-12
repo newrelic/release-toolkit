@@ -58,8 +58,6 @@ func TestCommitSource_Commits(t *testing.T) {
 		"2.0.0-beta",
 	)
 
-	lastTagHash := getLastTagHash(t, repodir)
-
 	for _, tc := range []struct {
 		name            string
 		commitHash      string
@@ -118,7 +116,7 @@ func TestCommitSource_Commits(t *testing.T) {
 		},
 		{
 			name:       "Existing_Hash_Default_Opts",
-			commitHash: lastTagHash,
+			commitHash: getThirdCommitHash(t, repodir),
 			expectedCommits: []string{
 				"2.0.0-beta\n",
 				"1.5.0\n",
@@ -129,12 +127,12 @@ func TestCommitSource_Commits(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			src, err := git.NewCommitSource(repodir, tc.opts...)
+			commitsGetter, err := git.NewRepoCommitsGetter(repodir, tc.opts...)
 			if err != nil {
 				t.Fatalf("Error creating git source: %v", err)
 			}
 
-			commits, err := src.Commits(tc.commitHash)
+			commits, err := commitsGetter.Get(tc.commitHash)
 			if err != nil {
 				t.Fatalf("Error fetching commits: %v", err)
 			}
@@ -149,19 +147,19 @@ func TestCommitSource_Commits(t *testing.T) {
 	}
 }
 
-func getLastTagHash(t *testing.T, repodir string) string {
-	tagSrc, err := git.NewTagsSource(repodir)
+func getThirdCommitHash(t *testing.T, repodir string) string {
+	tagsGetter, err := git.NewRepoSemverTagsGetter(repodir)
 	if err != nil {
 		t.Fatalf("Error creating git source: %v", err)
 	}
 
-	tags, err := tagSrc.Tags()
+	tags, err := tagsGetter.Get()
 	if err != nil {
 		t.Fatalf("Error fetching tags: %v", err)
 	}
 
-	sort.Slice(tags, func(i, j int) bool {
-		return tags[i].Version.GreaterThan(tags[j].Version)
+	sort.Slice(tags.Versions, func(i, j int) bool {
+		return tags.Versions[i].GreaterThan(tags.Versions[j])
 	})
-	return tags[2].Hash
+	return tags.Hashes[tags.Versions[2]]
 }

@@ -7,36 +7,35 @@ import (
 
 	"github.com/Masterminds/semver"
 	"github.com/newrelic/release-toolkit/changelog"
-	"github.com/newrelic/release-toolkit/commit"
-	"github.com/newrelic/release-toolkit/tag"
+	"github.com/newrelic/release-toolkit/git"
 	log "github.com/sirupsen/logrus"
 )
 
-var helmReleaseRegex = regexp.MustCompile(`chore\(deps\): update helm release (.*) to (v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)`)
+var helmReleaseRegex = regexp.MustCompile(`update .* ([\w-.]+) to ([^\s*]+)(?: \(([^\s]+)\))?`)
 
 type Extractor struct {
-	tagsSource   tag.Source
-	commitSource commit.Source
+	semverTagsGetter git.SemverTagsGetter
+	commitsGetter    git.CommitsGetter
 }
 
-func NewExtractor(tagSource tag.Source, commitSource commit.Source) Extractor {
+func NewExtractor(semverTagsGetter git.SemverTagsGetter, commitsGetter git.CommitsGetter) Extractor {
 	return Extractor{
-		tagsSource:   tagSource,
-		commitSource: commitSource,
+		semverTagsGetter: semverTagsGetter,
+		commitsGetter:    commitsGetter,
 	}
 }
 
 func (r Extractor) Extract() ([]changelog.Dependency, error) {
-	gitTags, err := r.tagsSource.Tags()
+	tags, err := r.semverTagsGetter.Get()
 	if err != nil {
 		return nil, fmt.Errorf("getting tags: %w", err)
 	}
 
-	sort.Slice(gitTags, func(i, j int) bool {
-		return gitTags[i].Version.GreaterThan(gitTags[j].Version)
+	sort.Slice(tags.Versions, func(i, j int) bool {
+		return tags.Versions[i].GreaterThan(tags.Versions[j])
 	})
 
-	gitCommits, err := r.commitSource.Commits(gitTags[0].Hash)
+	gitCommits, err := r.commitsGetter.Get(tags.Hashes[tags.Versions[0]])
 	if err != nil {
 		return nil, fmt.Errorf("getting commits: %w", err)
 	}
@@ -52,13 +51,18 @@ func (r Extractor) Extract() ([]changelog.Dependency, error) {
 		dependencyName := capturingGroups[1]
 		dependencyTo, err := semver.NewVersion(capturingGroups[2])
 		if err != nil {
-			log.Debugf("skipping dependency %q as it does not conform to semver %v", dependencyName, dependencyTo)
+			log.Debugf("skipping dependency %q as it doesn't conform to semver %v", dependencyName, dependencyTo)
 			continue
 		}
 
 		dependencies = append(dependencies, changelog.Dependency{
 			Name: dependencyName,
 			To:   dependencyTo,
+			Meta: changelog.EntryMeta{
+				Author: c.Author,
+				PR:     capturingGroups[3],
+				Commit: c.Hash,
+			},
 		})
 	}
 	return dependencies, nil
