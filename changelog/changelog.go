@@ -114,6 +114,7 @@ type Dependency struct {
 	Name string          `yaml:"name"`
 	From *semver.Version `yaml:"from,omitempty"`
 	To   *semver.Version `yaml:"to,omitempty"`
+	Meta EntryMeta 		 `yaml:"meta,omitempty"`
 }
 
 // BumpType returns which version should be bumped due to this dependency update.
