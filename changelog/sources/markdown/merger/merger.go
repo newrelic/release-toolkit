@@ -21,11 +21,17 @@ type Merger struct {
 	// ReleasedOn is a function that returns the date in which the new section was released. It defaults to time.Now.
 	ReleasedOn func() time.Time
 
+	// version holds the in which the new changelog was released.
 	version *semver.Version
-	ch      *changelog.Changelog
+	// ch is the already populated, partial changelog containing the latest changes.
+	ch *changelog.Changelog
 }
 
-// New creates a Merger that will integrate the supplied changelog mapped to the given version.
+// New creates a Merger that will integrate the supplied changelog.Changelog into a full Markdown document that contains
+// changelogs for older versions. The inserted section will be marked as being the changelog for the version specified
+// in the supplied semver.Version, and also marked as released on the date returned by Merger.ReleasedOn.
+// Merger is an immutable object and does not modify the changelog.Changelog object, nor the original document supplied
+// to Merge.
 func New(ch *changelog.Changelog, newVersion *semver.Version) Merger {
 	return Merger{
 		ReleasedOn: time.Now,
@@ -40,8 +46,10 @@ var (
 	l2Header         = regexp.MustCompile(`^##\s*\w`)
 )
 
-// Merge uses the configured changelog and version to read the current changelog from srcChangelog, and write the
-// updated one to dst.
+// Merge uses the configured changelog and version to read the current, full changelog in Markdown format from
+// srcChangelog, and write to dst a new full changelog containing the entries specified in the changelog.Changelog
+// object that was passed to New.
+// The source file is left intact and the changelog.Changelog object supplied to New are not modified.
 func (m Merger) Merge(srcChangelog io.Reader, dst io.Writer) error {
 	newSection := &bytes.Buffer{}
 
