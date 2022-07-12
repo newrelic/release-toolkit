@@ -110,6 +110,7 @@ type Dependency struct {
 	Name string
 	From *semver.Version
 	To   *semver.Version
+	Meta EntryMeta
 }
 
 // BumpType returns which version should be bumped due to this dependency update.
