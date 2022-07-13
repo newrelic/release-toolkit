@@ -2,6 +2,7 @@ package git
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/Masterminds/semver"
@@ -58,4 +59,30 @@ func (s *TagsSource) Versions() ([]*semver.Version, error) {
 	}
 
 	return versions, nil
+}
+
+func (s *TagsSource) LastReleaseHash() (string, error) {
+	tags, err := s.tagsGetter.Tags()
+	if err != nil {
+		return "", fmt.Errorf("getting tags: %w", err)
+	}
+
+	sort.Slice(tags, func(i, j int) bool {
+		tagNameCurrent := s.replacer.Replace(tags[i].Name)
+		vCurrent, innerErr := semver.NewVersion(tags[i].Name)
+		if innerErr != nil {
+			log.Debugf("skipping tag %q as it does not conform to semver %v", tagNameCurrent, innerErr)
+			return false
+		}
+
+		tagNameNext := s.replacer.Replace(tags[j].Name)
+		vNext, innerErr := semver.NewVersion(tags[j].Name)
+		if innerErr != nil {
+			log.Debugf("skipping tag %q as it does not conform to semver %v", tagNameNext, innerErr)
+			return true
+		}
+		return vCurrent.GreaterThan(vNext)
+	})
+
+	return tags[0].Hash, nil
 }

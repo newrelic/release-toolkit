@@ -3,8 +3,6 @@ package git
 import (
 	"fmt"
 	"regexp"
-	"sort"
-	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/src-d/go-git.v4"
@@ -95,17 +93,4 @@ func (s *RepoTagsGetter) Tags() ([]Tag, error) {
 	}
 
 	return tags, nil
-}
-
-func (s *RepoSemverTagsGetter) LastReleaseHash() (string, error) {
-	tags, err := s.Tags()
-	if err != nil {
-		return "", fmt.Errorf("getting tags: %w", err)
-	}
-
-	sort.Slice(tags.Versions, func(i, j int) bool {
-		return tags.Versions[i].GreaterThan(tags.Versions[j])
-	})
-
-	return tags.Hashes[tags.Versions[0]], nil
 }

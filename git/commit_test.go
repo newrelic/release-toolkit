@@ -3,7 +3,6 @@ package git_test
 import (
 	"fmt"
 	"os/exec"
-	"sort"
 	"strings"
 	"testing"
 
@@ -116,7 +115,7 @@ func TestCommitSource_Commits(t *testing.T) {
 		},
 		{
 			name:       "Existing_Hash_Default_Opts",
-			commitHash: getThirdCommitHash(t, repodir),
+			commitHash: getVersionCommitHash(t, repodir, "v1.4.0"),
 			expectedCommits: []string{
 				"2.0.0-beta\n",
 				"1.5.0\n",
@@ -145,21 +144,4 @@ func TestCommitSource_Commits(t *testing.T) {
 			assert.ElementsMatchf(t, tc.expectedCommits, strCommits, "Reported commits do not match")
 		})
 	}
-}
-
-func getThirdCommitHash(t *testing.T, repodir string) string {
-	tagsGetter, err := git.NewRepoSemverTagsGetter(repodir)
-	if err != nil {
-		t.Fatalf("Error creating git source: %v", err)
-	}
-
-	tags, err := tagsGetter.Tags()
-	if err != nil {
-		t.Fatalf("Error fetching tags: %v", err)
-	}
-
-	sort.Slice(tags.Versions, func(i, j int) bool {
-		return tags.Versions[i].GreaterThan(tags.Versions[j])
-	})
-	return tags.Hashes[tags.Versions[2]]
 }
