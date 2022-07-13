@@ -2,7 +2,6 @@ package git
 
 import (
 	"fmt"
-
 	"strings"
 
 	"github.com/Masterminds/semver"
@@ -51,7 +50,7 @@ func (s *TagsSource) Versions() ([]*semver.Version, error) {
 
 		v, innerErr := semver.NewVersion(tagName)
 		if innerErr != nil {
-			log.Debugf("skipping tag %q as it does not conform to semver %v", tagName, innerErr)
+			log.Infof("skipping tag %q as it does not conform to semver %v", tagName, innerErr)
 			continue
 		}
 
