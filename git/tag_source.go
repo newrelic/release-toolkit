@@ -44,7 +44,7 @@ func (s *TagsSource) Versions() ([]*semver.Version, error) {
 		return nil, fmt.Errorf("getting tags: %w", err)
 	}
 
-	var versions []*semver.Version
+	versions := make([]*semver.Version, 0)
 	for _, tag := range tags {
 		tagName := s.replacer.Replace(tag.Name)
 
