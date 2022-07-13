@@ -30,7 +30,7 @@ type CommitsGetterMock struct {
 	CommitList []git.Commit
 }
 
-func (c *CommitsGetterMock) Get(_ string) ([]git.Commit, error) {
+func (c *CommitsGetterMock) Commits(_ string) ([]git.Commit, error) {
 	return c.CommitList, nil
 }
 
