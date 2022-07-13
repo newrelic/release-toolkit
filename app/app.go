@@ -3,6 +3,7 @@ package app
 
 import (
 	"github.com/newrelic/release-toolkit/app/common"
+	"github.com/newrelic/release-toolkit/app/isheld"
 	"github.com/urfave/cli/v2"
 )
 
@@ -20,6 +21,9 @@ func App() *cli.App {
 				Value:   "changelog.yaml",
 				Usage:   "Path to the changelog.yaml file",
 			},
+		},
+		Commands: []*cli.Command{
+			isheld.Cmd,
 		},
 	}
 }
