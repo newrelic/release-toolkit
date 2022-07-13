@@ -10,7 +10,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var helmReleaseRegex = regexp.MustCompile(`[Bb]ump ([\w-/.]+) from ([^\s*]+) to ([^\s*]+)(?: \(([^\s]+)\))?`)
+var helmReleaseRegex = regexp.MustCompile(`[Bb]ump ([\w-/.]+) from ([^\s]+) to ([^\s]+)(?: \(([^\s]+)\))?`)
 
 type Extractor struct {
 	tagsReleaseGetter git.TagsReleaseGetter

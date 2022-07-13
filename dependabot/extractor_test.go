@@ -5,8 +5,8 @@ import (
 
 	"github.com/Masterminds/semver"
 	"github.com/newrelic/release-toolkit/changelog"
+	"github.com/newrelic/release-toolkit/dependabot"
 	"github.com/newrelic/release-toolkit/git"
-	"github.com/newrelic/release-toolkit/renovate"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -156,7 +156,7 @@ func TestExtractor_Extract(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			extractor := renovate.NewExtractor(&TagsReleaseGetterMock{}, &CommitsGetterMock{CommitList: tc.commitMessages})
+			extractor := dependabot.NewExtractor(&TagsReleaseGetterMock{}, &CommitsGetterMock{CommitList: tc.commitMessages})
 			dependencies, err := extractor.Extract()
 			if err != nil {
 				t.Fatalf("Error extracting renovate dependencies: %v", err)
