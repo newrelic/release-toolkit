@@ -109,16 +109,16 @@ func TestExtractor_Extract(t *testing.T) {
 		{
 			name: "Matching_commits_with_meta",
 			commitMessages: []git.Commit{
-				{Message: "chore(deps): update helm release common-library-1 to v1.0.4 (#401) ", Author: "dependabot", Hash: "abcda222"},
-				{Message: "chore(deps): update helm release common-library-2 to v0.0.4 (#402)", Author: "dependabot", Hash: "abcda222"},
-				{Message: "chore(deps): update helm release common-library-3 to v1.2.3", Author: "dependabot", Hash: "abcda222"},
+				{Message: "chore(deps): update helm release common-library-1 to v1.0.4 (#401) ", Author: "renovate", Hash: "abcda222"},
+				{Message: "chore(deps): update helm release common-library-2 to v0.0.4 (#402)", Author: "renovate", Hash: "abcda222"},
+				{Message: "chore(deps): update helm release common-library-3 to v1.2.3", Author: "renovate", Hash: "abcda222"},
 			},
 			expectedDependencies: []changelog.Dependency{
 				{
 					Name: "common-library-1",
 					To:   semver.MustParse("v1.0.4"),
 					Meta: changelog.EntryMeta{
-						Author: "dependabot",
+						Author: "renovate",
 						PR:     "#401",
 						Commit: "abcda222",
 					},
@@ -127,7 +127,7 @@ func TestExtractor_Extract(t *testing.T) {
 					Name: "common-library-2",
 					To:   semver.MustParse("v0.0.4"),
 					Meta: changelog.EntryMeta{
-						Author: "dependabot",
+						Author: "renovate",
 						PR:     "#402",
 						Commit: "abcda222",
 					},
@@ -136,7 +136,7 @@ func TestExtractor_Extract(t *testing.T) {
 					Name: "common-library-3",
 					To:   semver.MustParse("v1.2.3"),
 					Meta: changelog.EntryMeta{
-						Author: "dependabot",
+						Author: "renovate",
 						PR:     "",
 						Commit: "abcda222",
 					},
@@ -154,6 +154,7 @@ func TestExtractor_Extract(t *testing.T) {
 				t.Fatalf("Error extracting renovate dependencies: %v", err)
 			}
 
+			assert.Equal(t, len(tc.expectedDependencies), len(dependencies))
 			for k, dep := range dependencies {
 				assert.Equal(t, tc.expectedDependencies[k].Name, dep.Name)
 				assert.Equal(t, tc.expectedDependencies[k].To.String(), dep.To.String())
