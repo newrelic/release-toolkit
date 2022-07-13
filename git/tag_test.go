@@ -60,7 +60,7 @@ func TestRepoSemverTagsGetter_GetLastReleaseHash(t *testing.T) {
 				t.Fatalf("Error creating git source: %v", err)
 			}
 
-			hash, err := tagsGetter.GetLastReleaseHash()
+			hash, err := tagsGetter.LastReleaseHash()
 			if err != nil {
 				t.Fatalf("Error creating git source: %v", err)
 			}
@@ -76,7 +76,7 @@ func getVersionCommitHash(t *testing.T, repodir, version string, opts ...git.Tag
 		t.Fatalf("Error creating git source: %v", err)
 	}
 
-	tags, err := tagsGetter.Get()
+	tags, err := tagsGetter.Tags()
 	if err != nil {
 		t.Fatalf("Error fetching tags: %v", err)
 	}

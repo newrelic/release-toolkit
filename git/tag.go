@@ -3,6 +3,7 @@ package git
 import (
 	"fmt"
 	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/Masterminds/semver"
@@ -18,7 +19,7 @@ type SemverTags struct {
 
 type SemverTagsGetter interface {
 	Tags() (SemverTags, error)
-	GetLastReleaseHash() (string, error)
+	LastReleaseHash() (string, error)
 }
 
 type RepoSemverTagsGetter struct {
@@ -118,8 +119,8 @@ func (s *RepoSemverTagsGetter) Tags() (SemverTags, error) {
 	return tags, nil
 }
 
-func (s *RepoSemverTagsGetter) GetLastReleaseHash() (string, error) {
-	tags, err := s.Get()
+func (s *RepoSemverTagsGetter) LastReleaseHash() (string, error) {
+	tags, err := s.Tags()
 	if err != nil {
 		return "", fmt.Errorf("getting tags: %w", err)
 	}
