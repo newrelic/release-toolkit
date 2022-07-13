@@ -16,7 +16,7 @@ func NewTagsSource(tagsGetter SemverTagsGetter) *TagsSource {
 }
 
 func (s *TagsSource) Versions() ([]*semver.Version, error) {
-	tags, err := s.tagsGetter.Get()
+	tags, err := s.tagsGetter.Tags()
 	if err != nil {
 		return nil, fmt.Errorf("getting tags: %w", err)
 	}

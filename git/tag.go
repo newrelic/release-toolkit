@@ -17,7 +17,7 @@ type SemverTags struct {
 }
 
 type SemverTagsGetter interface {
-	Get() (SemverTags, error)
+	Tags() (SemverTags, error)
 }
 
 type RepoSemverTagsGetter struct {
@@ -69,7 +69,7 @@ func NewRepoSemverTagsGetter(workDir string, opts ...TagOptionFunc) (*RepoSemver
 	return s, nil
 }
 
-func (s *RepoSemverTagsGetter) Get() (SemverTags, error) {
+func (s *RepoSemverTagsGetter) Tags() (SemverTags, error) {
 	repo, err := git.PlainOpen(s.workDir)
 	if err != nil {
 		return SemverTags{}, fmt.Errorf("opening git repo at %s: %w", s.workDir, err)
