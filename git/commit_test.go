@@ -153,7 +153,7 @@ func getThirdCommitHash(t *testing.T, repodir string) string {
 		t.Fatalf("Error creating git source: %v", err)
 	}
 
-	tags, err := tagsGetter.Get()
+	tags, err := tagsGetter.Tags()
 	if err != nil {
 		t.Fatalf("Error fetching tags: %v", err)
 	}
