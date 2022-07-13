@@ -25,12 +25,12 @@ func NewExtractor(semverTagsGetter git.SemverTagsGetter, commitsGetter git.Commi
 }
 
 func (r Extractor) Extract() ([]changelog.Dependency, error) {
-	lastHash, err := r.semverTagsGetter.GetLastReleaseHash()
+	lastHash, err := r.semverTagsGetter.LastReleaseHash()
 	if err != nil {
 		return nil, fmt.Errorf("getting last release hash: %w", err)
 	}
 
-	gitCommits, err := r.commitsGetter.Get(lastHash)
+	gitCommits, err := r.commitsGetter.Commits(lastHash)
 	if err != nil {
 		return nil, fmt.Errorf("getting commits: %w", err)
 	}

@@ -14,7 +14,7 @@ type SemverTagsGetterMock struct {
 	Hash string
 }
 
-func (t *SemverTagsGetterMock) Get() (git.SemverTags, error) {
+func (t *SemverTagsGetterMock) Tags() (git.SemverTags, error) {
 	version := semver.MustParse("v1.2.3")
 	return git.SemverTags{
 		Versions: []*semver.Version{version},
@@ -22,7 +22,7 @@ func (t *SemverTagsGetterMock) Get() (git.SemverTags, error) {
 	}, nil
 }
 
-func (t *SemverTagsGetterMock) GetLastReleaseHash() (string, error) {
+func (t *SemverTagsGetterMock) LastReleaseHash() (string, error) {
 	return "", nil
 }
 
@@ -30,7 +30,7 @@ type CommitsGetterMock struct {
 	CommitList []git.Commit
 }
 
-func (c *CommitsGetterMock) Get(_ string) ([]git.Commit, error) {
+func (c *CommitsGetterMock) Commits(_ string) ([]git.Commit, error) {
 	return c.CommitList, nil
 }
 
