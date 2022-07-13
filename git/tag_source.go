@@ -9,7 +9,13 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+type TagsReleaseGetter interface {
+	Versions() ([]*semver.Version, error)
+	LastReleaseHash() (string, error)
+}
+
 // TagsSource implements the `version.Source` interface, using tags from a git repository as a source for previous versions.
+// It also implements TagsReleaseGetter to be used by extractor services
 type TagsSource struct {
 	tagsGetter TagsGetter
 	replacer   *strings.Replacer

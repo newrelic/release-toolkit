@@ -13,19 +13,19 @@ import (
 var helmReleaseRegex = regexp.MustCompile(`update .* ([\w-/.]+) to ([^\s*]+)(?: \(([^\s]+)\))?`)
 
 type Extractor struct {
-	semverTagsGetter git.SemverTagsGetter
-	commitsGetter    git.CommitsGetter
+	tagsReleaseGetter git.TagsReleaseGetter
+	commitsGetter     git.CommitsGetter
 }
 
-func NewExtractor(semverTagsGetter git.SemverTagsGetter, commitsGetter git.CommitsGetter) Extractor {
+func NewExtractor(tagsReleaseGetter git.TagsReleaseGetter, commitsGetter git.CommitsGetter) Extractor {
 	return Extractor{
-		semverTagsGetter: semverTagsGetter,
-		commitsGetter:    commitsGetter,
+		tagsReleaseGetter: tagsReleaseGetter,
+		commitsGetter:     commitsGetter,
 	}
 }
 
 func (r Extractor) Extract() ([]changelog.Dependency, error) {
-	lastHash, err := r.semverTagsGetter.LastReleaseHash()
+	lastHash, err := r.tagsReleaseGetter.LastReleaseHash()
 	if err != nil {
 		return nil, fmt.Errorf("getting last release hash: %w", err)
 	}

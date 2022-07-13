@@ -174,7 +174,7 @@ func TestRepoSemverTagsSource_LastReleaseHash(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			tagsGetter, err := git.NewRepoSemverTagsGetter(repodir, tc.tagOpts...)
+			tagsGetter, err := git.NewRepoTagsGetter(repodir, tc.tagOpts...)
 			if err != nil {
 				t.Fatalf("Error creating git source: %v", err)
 			}
@@ -192,7 +192,7 @@ func TestRepoSemverTagsSource_LastReleaseHash(t *testing.T) {
 }
 
 func getVersionCommitHash(t *testing.T, repodir, version string, opts ...git.TagOptionFunc) string {
-	tagsGetter, err := git.NewRepoSemverTagsGetter(repodir, opts...)
+	tagsGetter, err := git.NewRepoTagsGetter(repodir, opts...)
 	if err != nil {
 		t.Fatalf("Error creating git source: %v", err)
 	}
