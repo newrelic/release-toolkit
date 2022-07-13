@@ -10,7 +10,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var helmReleaseRegex = regexp.MustCompile(`update .* ([\w-/.]+) to ([^\s*]+)(?: \(([^\s]+)\))?`)
+var commitRegex = regexp.MustCompile(`update .* ([\w-/.]+) to ([^\s*]+)(?: \(([^\s]+)\))?`)
 
 type Extractor struct {
 	tagsReleaseGetter git.TagsReleaseGetter
@@ -38,7 +38,7 @@ func (r Extractor) Extract() ([]changelog.Dependency, error) {
 	dependencies := make([]changelog.Dependency, 0)
 
 	for _, c := range gitCommits {
-		capturingGroups := helmReleaseRegex.FindStringSubmatch(c.Message)
+		capturingGroups := commitRegex.FindStringSubmatch(c.Message)
 		if capturingGroups == nil {
 			log.Debugf("skipping commit  %s as it does not match renovate pattern", c.Message)
 			continue
