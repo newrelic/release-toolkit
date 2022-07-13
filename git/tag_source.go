@@ -9,7 +9,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// TagsSource implements the `tag.Source` interface, using tags from a git repository as a source for previous versions.
+// TagsSource implements the `version.Source` interface, using tags from a git repository as a source for previous versions.
 type TagsSource struct {
 	tagsGetter SemverTagsGetter
 	replacer   *strings.Replacer
