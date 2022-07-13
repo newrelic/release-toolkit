@@ -102,7 +102,7 @@ func TestTagSource_Versions(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			tagsGetter, err := git.NewRepoSemverTagsGetter(repodir, tc.tagOpts...)
+			tagsGetter, err := git.NewRepoTagsGetter(repodir, tc.tagOpts...)
 			if err != nil {
 				t.Fatalf("Error creating git source: %v", err)
 			}

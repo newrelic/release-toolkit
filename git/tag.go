@@ -40,7 +40,7 @@ func TagsMatching(regex string) TagOptionFunc {
 
 var MatchAllTags = regexp.MustCompile("")
 
-func NewRepoSemverTagsGetter(workDir string, opts ...TagOptionFunc) (*RepoTagsGetter, error) {
+func NewRepoTagsGetter(workDir string, opts ...TagOptionFunc) (*RepoTagsGetter, error) {
 	s := &RepoTagsGetter{
 		workDir: workDir,
 		match:   MatchAllTags,
