@@ -10,7 +10,7 @@ import (
 
 // TagsSource implements the `version.Source` interface, using tags from a git repository as a source for previous versions.
 type TagsSource struct {
-	tagsGetter SemverTagsGetter
+	tagsGetter TagsGetter
 	replacer   *strings.Replacer
 }
 
@@ -25,7 +25,7 @@ func TagSourceReplacing(existing, replacement string) TagSourceOptionFunc {
 	}
 }
 
-func NewTagsSource(tagsGetter SemverTagsGetter, opts ...TagSourceOptionFunc) *TagsSource {
+func NewTagsSource(tagsGetter TagsGetter, opts ...TagSourceOptionFunc) *TagsSource {
 	ts := &TagsSource{
 		tagsGetter: tagsGetter,
 		replacer:   strings.NewReplacer(),

@@ -14,7 +14,7 @@ type Tag struct {
 	Hash string
 }
 
-type SemverTagsGetter interface {
+type TagsGetter interface {
 	Tags() ([]Tag, error)
 }
 
