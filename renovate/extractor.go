@@ -30,7 +30,7 @@ func (r Extractor) Extract() ([]changelog.Dependency, error) {
 		return nil, fmt.Errorf("getting last release hash: %w", err)
 	}
 
-	gitCommits, err := r.commitsGetter.Get(lastHash)
+	gitCommits, err := r.commitsGetter.Commits(lastHash)
 	if err != nil {
 		return nil, fmt.Errorf("getting commits: %w", err)
 	}

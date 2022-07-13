@@ -15,7 +15,7 @@ type Commit struct {
 }
 
 type CommitsGetter interface {
-	Get(lastHash string) ([]Commit, error)
+	Commits(lastHash string) ([]Commit, error)
 }
 
 // RepoCommitsGetter gets commits from a git repository.
@@ -71,9 +71,9 @@ func NewRepoCommitsGetter(workDir string, opts ...CommitOptionFunc) (*RepoCommit
 	return s, nil
 }
 
-// Get returns all the commits from Head ordered from top to bottom
+// Commits returns all the commits from Head ordered from top to bottom
 // until LastHash, if lastHash is empty, all commits are returned.
-func (s *RepoCommitsGetter) Get(lastHash string) ([]Commit, error) {
+func (s *RepoCommitsGetter) Commits(lastHash string) ([]Commit, error) {
 	repo, err := git.PlainOpen(s.workDir)
 	if err != nil {
 		return nil, fmt.Errorf("opening git repo at %s: %w", s.workDir, err)

@@ -132,7 +132,7 @@ func TestCommitSource_Commits(t *testing.T) {
 				t.Fatalf("Error creating git source: %v", err)
 			}
 
-			commits, err := commitsGetter.Get(tc.commitHash)
+			commits, err := commitsGetter.Commits(tc.commitHash)
 			if err != nil {
 				t.Fatalf("Error fetching commits: %v", err)
 			}
