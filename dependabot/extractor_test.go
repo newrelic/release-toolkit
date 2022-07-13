@@ -5,24 +5,21 @@ import (
 
 	"github.com/Masterminds/semver"
 	"github.com/newrelic/release-toolkit/changelog"
-	"github.com/newrelic/release-toolkit/dependabot"
 	"github.com/newrelic/release-toolkit/git"
+	"github.com/newrelic/release-toolkit/renovate"
 	"github.com/stretchr/testify/assert"
 )
 
-type SemverTagsGetterMock struct {
+type TagsReleaseGetterMock struct {
 	Hash string
 }
 
-func (t *SemverTagsGetterMock) Tags() (git.SemverTags, error) {
+func (t *TagsReleaseGetterMock) Versions() ([]*semver.Version, error) {
 	version := semver.MustParse("v1.2.3")
-	return git.SemverTags{
-		Versions: []*semver.Version{version},
-		Hashes:   map[*semver.Version]string{version: "a-hash"},
-	}, nil
+	return []*semver.Version{version}, nil
 }
 
-func (t *SemverTagsGetterMock) LastReleaseHash() (string, error) {
+func (t *TagsReleaseGetterMock) LastReleaseHash() (string, error) {
 	return "", nil
 }
 
@@ -159,7 +156,7 @@ func TestExtractor_Extract(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			extractor := dependabot.NewExtractor(&SemverTagsGetterMock{}, &CommitsGetterMock{CommitList: tc.commitMessages})
+			extractor := renovate.NewExtractor(&TagsReleaseGetterMock{}, &CommitsGetterMock{CommitList: tc.commitMessages})
 			dependencies, err := extractor.Extract()
 			if err != nil {
 				t.Fatalf("Error extracting renovate dependencies: %v", err)
