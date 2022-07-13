@@ -15,7 +15,7 @@ type TagsReleaseGetter interface {
 }
 
 // TagsSource implements the `version.Source` interface, using tags from a git repository as a source for previous versions.
-// It also implements TagsReleaseGetter to be used by extractor services
+// It also implements TagsReleaseGetter to be used by extractor services.
 type TagsSource struct {
 	tagsGetter TagsGetter
 	replacer   *strings.Replacer
