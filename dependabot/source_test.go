@@ -10,9 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type tagsVersionGetterMock struct {
-	hash string
-}
+type tagsVersionGetterMock struct{}
 
 func (t *tagsVersionGetterMock) Versions() ([]*semver.Version, error) {
 	version := semver.MustParse("v1.2.3")
