@@ -7,6 +7,7 @@ import (
 	"github.com/newrelic/release-toolkit/app/isheld"
 	"github.com/newrelic/release-toolkit/app/nextversion"
 	"github.com/newrelic/release-toolkit/app/render"
+	"github.com/newrelic/release-toolkit/app/update"
 	"github.com/urfave/cli/v2"
 )
 
@@ -30,6 +31,7 @@ func App() *cli.App {
 			render.Cmd,
 			nextversion.Cmd,
 			generate.Cmd,
+			update.Cmd,
 		},
 	}
 }
