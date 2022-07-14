@@ -24,7 +24,7 @@ func NewSource(tagsReleaseGetter git.TagsReleaseGetter, commitsGetter git.Commit
 	}
 }
 
-func (r Source) Source() ([]changelog.Dependency, error) {
+func (r Source) Source() (*changelog.Changelog, error) {
 	lastHash, err := r.tagsReleaseGetter.LastReleaseHash()
 	if err != nil {
 		return nil, fmt.Errorf("getting last release hash: %w", err)
@@ -66,5 +66,5 @@ func (r Source) Source() ([]changelog.Dependency, error) {
 			},
 		})
 	}
-	return dependencies, nil
+	return &changelog.Changelog{Dependencies: dependencies}, nil
 }

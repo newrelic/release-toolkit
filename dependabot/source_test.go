@@ -157,13 +157,13 @@ func TestSource_Source(t *testing.T) {
 			t.Parallel()
 
 			source := dependabot.NewSource(&TagsReleaseGetterMock{}, &CommitsGetterMock{CommitList: tc.commitMessages})
-			dependencies, err := source.Source()
+			cl, err := source.Source()
 			if err != nil {
 				t.Fatalf("Error extracting renovate dependencies: %v", err)
 			}
 
-			assert.Equal(t, len(tc.expectedDependencies), len(dependencies))
-			for k, dep := range dependencies {
+			assert.Equal(t, len(tc.expectedDependencies), len(cl.Dependencies))
+			for k, dep := range cl.Dependencies {
 				assert.Equal(t, tc.expectedDependencies[k].Name, dep.Name)
 				assert.Equal(t, tc.expectedDependencies[k].To.String(), dep.To.String())
 				assert.Equal(t, tc.expectedDependencies[k].Meta, dep.Meta)
