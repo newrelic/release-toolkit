@@ -9,9 +9,9 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type TagsReleaseGetter interface {
+type TagsVersionGetter interface {
 	Versions() ([]*semver.Version, error)
-	LastReleaseHash() (string, error)
+	LastVersionHash() (string, error)
 }
 
 // TagsSource implements the `version.Source` interface, using tags from a git repository as a source for previous versions.
@@ -67,7 +67,7 @@ func (s *TagsSource) Versions() ([]*semver.Version, error) {
 	return versions, nil
 }
 
-func (s *TagsSource) LastReleaseHash() (string, error) {
+func (s *TagsSource) LastVersionHash() (string, error) {
 	tags, err := s.tagsGetter.Tags()
 	if err != nil {
 		return "", fmt.Errorf("getting tags: %w", err)

@@ -10,16 +10,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type TagsReleaseGetterMock struct {
+type TagsVersionGetterMock struct {
 	Hash string
 }
 
-func (t *TagsReleaseGetterMock) Versions() ([]*semver.Version, error) {
+func (t *TagsVersionGetterMock) Versions() ([]*semver.Version, error) {
 	version := semver.MustParse("v1.2.3")
 	return []*semver.Version{version}, nil
 }
 
-func (t *TagsReleaseGetterMock) LastReleaseHash() (string, error) {
+func (t *TagsVersionGetterMock) LastVersionHash() (string, error) {
 	return "", nil
 }
 
@@ -156,7 +156,7 @@ func TestSource_Source(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			source := dependabot.NewSource(&TagsReleaseGetterMock{}, &CommitsGetterMock{CommitList: tc.commitMessages})
+			source := dependabot.NewSource(&TagsVersionGetterMock{}, &CommitsGetterMock{CommitList: tc.commitMessages})
 			cl, err := source.Source()
 			if err != nil {
 				t.Fatalf("Error extracting dependabot dependencies: %v", err)
