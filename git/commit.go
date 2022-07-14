@@ -80,12 +80,7 @@ func (s *RepoCommitsGetter) Commits(lastHash string) ([]Commit, error) {
 		return nil, fmt.Errorf("opening git repo at %s: %w", s.workDir, err)
 	}
 
-	ref, err := repo.Head()
-	if err != nil {
-		return nil, fmt.Errorf("pointing to head: %w", err)
-	}
-
-	commitIter, err := repo.Log(&git.LogOptions{From: ref.Hash()})
+	commitIter, err := repo.Log(&git.LogOptions{Order: git.LogOrderCommitterTime})
 	if err != nil {
 		return nil, fmt.Errorf("getting git commits: %w", err)
 	}
