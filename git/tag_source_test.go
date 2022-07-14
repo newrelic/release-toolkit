@@ -124,7 +124,7 @@ func TestTagSource_Versions(t *testing.T) {
 	}
 }
 
-func TestRepoTagsSource_LastReleaseHash(t *testing.T) {
+func TestRepoTagsSource_LastVersionHash(t *testing.T) {
 	t.Parallel()
 	repodir := repoWithCommitsAndTags(t,
 		"v1.2.3",
