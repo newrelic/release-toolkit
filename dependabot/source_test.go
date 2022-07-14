@@ -10,25 +10,25 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type TagsVersionGetterMock struct {
-	Hash string
+type tagsVersionGetterMock struct {
+	hash string
 }
 
-func (t *TagsVersionGetterMock) Versions() ([]*semver.Version, error) {
+func (t *tagsVersionGetterMock) Versions() ([]*semver.Version, error) {
 	version := semver.MustParse("v1.2.3")
 	return []*semver.Version{version}, nil
 }
 
-func (t *TagsVersionGetterMock) LastVersionHash() (string, error) {
+func (t *tagsVersionGetterMock) LastVersionHash() (string, error) {
 	return "", nil
 }
 
-type CommitsGetterMock struct {
-	CommitList []git.Commit
+type commitsGetterMock struct {
+	commitList []git.Commit
 }
 
-func (c *CommitsGetterMock) Commits(_ string) ([]git.Commit, error) {
-	return c.CommitList, nil
+func (c *commitsGetterMock) Commits(_ string) ([]git.Commit, error) {
+	return c.commitList, nil
 }
 
 //nolint:funlen
@@ -153,7 +153,7 @@ func TestSource_Source(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			source := dependabot.NewSource(&TagsVersionGetterMock{}, &CommitsGetterMock{CommitList: tc.commitMessages})
+			source := dependabot.NewSource(&tagsVersionGetterMock{}, &commitsGetterMock{commitList: tc.commitMessages})
 			cl, err := source.Source()
 			if err != nil {
 				t.Fatalf("Error extracting dependabot dependencies: %v", err)
