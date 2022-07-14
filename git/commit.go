@@ -3,6 +3,7 @@ package git
 import (
 	"fmt"
 	"regexp"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/src-d/go-git.v4"
@@ -109,7 +110,7 @@ func (s *RepoCommitsGetter) Commits(lastHash string) ([]Commit, error) {
 		}
 
 		commits = append(commits, Commit{
-			Message: cm.Message,
+			Message: strings.TrimSuffix(cm.Message, "\n"),
 			Hash:    cm.Hash.String(),
 			Author:  cm.Author.Name,
 		})
