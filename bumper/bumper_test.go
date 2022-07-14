@@ -152,7 +152,7 @@ func TestBumper_BumpSource_Errors(t *testing.T) {
 
 type mockSource []string
 
-func (m mockSource) Tags() ([]*semver.Version, error) {
+func (m mockSource) Versions() ([]*semver.Version, error) {
 	versions := make([]*semver.Version, 0, len(m))
 	for _, v := range m {
 		versions = append(versions, semver.MustParse(v))

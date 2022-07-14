@@ -8,7 +8,7 @@ import (
 	"github.com/Masterminds/semver"
 	"github.com/newrelic/release-toolkit/bump"
 	"github.com/newrelic/release-toolkit/changelog"
-	"github.com/newrelic/release-toolkit/tag"
+	"github.com/newrelic/release-toolkit/version"
 )
 
 var ErrNoTags = errors.New("source did not return any tag")
@@ -48,8 +48,8 @@ func (b Bumper) Bump(v *semver.Version) (*semver.Version, error) {
 
 // BumpSource operates just like Bump, except it extracts tags from the supplied tag.Source and applies the bump
 // on the latest (in semver order) version it finds.
-func (b Bumper) BumpSource(source tag.Source) (*semver.Version, error) {
-	versions, err := source.Tags()
+func (b Bumper) BumpSource(source version.Source) (*semver.Version, error) {
+	versions, err := source.Versions()
 	if err != nil {
 		return nil, fmt.Errorf("getting versions from source: %w", err)
 	}

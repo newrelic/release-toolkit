@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/newrelic/release-toolkit/tag/git"
+	"github.com/newrelic/release-toolkit/git"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -46,9 +46,8 @@ func repoWithTags(t *testing.T, tags ...string) string {
 	return dir
 }
 
-func TestSource_Tags(t *testing.T) {
+func TestTagSource_Versions(t *testing.T) {
 	t.Parallel()
-
 	repodir := repoWithTags(t,
 		"v1.2.3",
 		"v1.3.0",
@@ -61,39 +60,41 @@ func TestSource_Tags(t *testing.T) {
 	)
 
 	for _, tc := range []struct {
-		name         string
-		opts         []git.OptionFunc
-		expectedTags []string
+		name          string
+		tagOpts       []git.TagOptionFunc
+		tagSourceOpts []git.TagSourceOptionFunc
+		expectedTags  []string
 	}{
 		{
 			name: "Default_Settings",
-			opts: nil,
 			expectedTags: []string{
-				"1.2.3",
-				"1.3.0",
-				"1.4.0",
-				"1.5.0",
 				"2.0.0-beta",
+				"1.5.0",
+				"1.4.0",
+				"1.3.0",
+				"1.2.3",
 			},
 		},
 		{
-			name: "Matching_Leading_v",
-			opts: []git.OptionFunc{git.Matching("^v")},
+			name:    "Matching_Leading_v",
+			tagOpts: []git.TagOptionFunc{git.TagsMatching("^v")},
 			expectedTags: []string{
-				"1.2.3",
-				"1.3.0",
 				"1.4.0",
+				"1.3.0",
+				"1.2.3",
 			},
 		},
 		{
 			name: "Matching_And_Replacing_Prefix",
-			opts: []git.OptionFunc{
-				git.Matching("^helm-chart-"),
-				git.Replacing("helm-chart-", ""),
+			tagOpts: []git.TagOptionFunc{
+				git.TagsMatching("^helm-chart-"),
+			},
+			tagSourceOpts: []git.TagSourceOptionFunc{
+				git.TagSourceReplacing("helm-chart-", ""),
 			},
 			expectedTags: []string{
-				"1.3.0",
 				"1.3.1",
+				"1.3.0",
 			},
 		},
 	} {
@@ -101,22 +102,24 @@ func TestSource_Tags(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			src, err := git.NewSource(repodir, tc.opts...)
+			tagsGetter, err := git.NewRepoTagsGetter(repodir, tc.tagOpts...)
 			if err != nil {
 				t.Fatalf("Error creating git source: %v", err)
 			}
 
-			tags, err := src.Tags()
+			src := git.NewTagsSource(tagsGetter, tc.tagSourceOpts...)
+
+			versions, err := src.Versions()
 			if err != nil {
 				t.Fatalf("Error fetching tags: %v", err)
 			}
 
-			strTags := make([]string, 0, len(tags))
-			for _, t := range tags {
-				strTags = append(strTags, t.String())
+			strVersions := make([]string, 0, len(versions))
+			for _, v := range versions {
+				strVersions = append(strVersions, v.String())
 			}
 
-			assert.ElementsMatchf(t, strTags, tc.expectedTags, "Reported tags do not match")
+			assert.ElementsMatchf(t, tc.expectedTags, strVersions, "Reported tags do not match")
 		})
 	}
 }
