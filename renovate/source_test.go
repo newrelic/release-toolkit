@@ -115,7 +115,7 @@ func TestSource_Source(t *testing.T) {
 					Name: "common-library-1",
 					To:   semver.MustParse("v1.0.4"),
 					Meta: changelog.EntryMeta{
-						PR:     "#401",
+						PR:     "401",
 						Commit: "abcda222",
 					},
 				},
@@ -123,7 +123,7 @@ func TestSource_Source(t *testing.T) {
 					Name: "common-library-2",
 					To:   semver.MustParse("v0.0.4"),
 					Meta: changelog.EntryMeta{
-						PR:     "#402",
+						PR:     "402",
 						Commit: "abcda222",
 					},
 				},

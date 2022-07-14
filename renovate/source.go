@@ -10,7 +10,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var commitRegex = regexp.MustCompile(`update .* ([\w-/.]+) to ([^\s*]+)(?: \(([^\s]+)\))?`)
+var commitRegex = regexp.MustCompile(`update .* ([\w-/.]+) to ([^\s*]+)(?: \(#([^\s]+)\))?`)
 
 type Source struct {
 	tagsVersionGetter git.TagsVersionGetter

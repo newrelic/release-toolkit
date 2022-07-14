@@ -124,7 +124,7 @@ func TestSource_Source(t *testing.T) {
 					From: semver.MustParse("4.0.2"),
 					To:   semver.MustParse("4.1"),
 					Meta: changelog.EntryMeta{
-						PR:     "#193",
+						PR:     "193",
 						Commit: "abcda222",
 					},
 				},
@@ -133,7 +133,7 @@ func TestSource_Source(t *testing.T) {
 					From: semver.MustParse("2"),
 					To:   semver.MustParse("4.0.2"),
 					Meta: changelog.EntryMeta{
-						PR:     "#116",
+						PR:     "116",
 						Commit: "abcda222",
 					},
 				},
