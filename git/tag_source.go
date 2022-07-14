@@ -2,13 +2,20 @@ package git
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/Masterminds/semver"
 	log "github.com/sirupsen/logrus"
 )
 
+type TagsVersionGetter interface {
+	Versions() ([]*semver.Version, error)
+	LastVersionHash() (string, error)
+}
+
 // TagsSource implements the `version.Source` interface, using tags from a git repository as a source for previous versions.
+// It also implements TagsVersionGetter to be used by extractor services.
 type TagsSource struct {
 	tagsGetter TagsGetter
 	replacer   *strings.Replacer
@@ -58,4 +65,30 @@ func (s *TagsSource) Versions() ([]*semver.Version, error) {
 	}
 
 	return versions, nil
+}
+
+func (s *TagsSource) LastVersionHash() (string, error) {
+	tags, err := s.tagsGetter.Tags()
+	if err != nil {
+		return "", fmt.Errorf("getting tags: %w", err)
+	}
+
+	sort.Slice(tags, func(i, j int) bool {
+		tagNameCurrent := s.replacer.Replace(tags[i].Name)
+		vCurrent, innerErr := semver.NewVersion(tags[i].Name)
+		if innerErr != nil {
+			log.Debugf("skipping tag %q as it does not conform to semver %v", tagNameCurrent, innerErr)
+			return false
+		}
+
+		tagNameNext := s.replacer.Replace(tags[j].Name)
+		vNext, innerErr := semver.NewVersion(tags[j].Name)
+		if innerErr != nil {
+			log.Debugf("skipping tag %q as it does not conform to semver %v", tagNameNext, innerErr)
+			return true
+		}
+		return vCurrent.GreaterThan(vNext)
+	})
+
+	return tags[0].Hash, nil
 }

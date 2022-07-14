@@ -123,3 +123,90 @@ func TestTagSource_Versions(t *testing.T) {
 		})
 	}
 }
+
+func TestRepoTagsSource_LastVersionHash(t *testing.T) {
+	t.Parallel()
+	repodir := repoWithCommitsAndTags(t,
+		"v1.2.3",
+		"v1.3.0",
+		"v1.4.0",
+		"1.5.0",
+		"0.1.1.2",
+		"helm-chart-1.3.0",
+		"helm-chart-1.3.1",
+		"2.0.0-beta",
+	)
+
+	for _, tc := range []struct {
+		name          string
+		tagOpts       []git.TagOptionFunc
+		tagSourceOpts []git.TagSourceOptionFunc
+		expectedHash  string
+	}{
+		{
+			name:         "Default_Settings",
+			expectedHash: getVersionCommitHash(t, repodir, "2.0.0-beta"),
+		},
+		{
+			name: "Matching_Leading_v",
+			tagOpts: []git.TagOptionFunc{
+				git.TagsMatching("^v"),
+			},
+			expectedHash: getVersionCommitHash(t, repodir, "v1.4.0"),
+		},
+		{
+			name: "Matching_And_Replacing_Prefix",
+			tagOpts: []git.TagOptionFunc{
+				git.TagsMatching("^helm-chart-"),
+			},
+			tagSourceOpts: []git.TagSourceOptionFunc{
+				git.TagSourceReplacing("helm-chart-", ""),
+			},
+			expectedHash: getVersionCommitHash(
+				t,
+				repodir,
+				"helm-chart-1.3.0",
+				git.TagsMatching("^helm-chart-"),
+			),
+		},
+	} {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			tagsGetter, err := git.NewRepoTagsGetter(repodir, tc.tagOpts...)
+			if err != nil {
+				t.Fatalf("Error creating git source: %v", err)
+			}
+
+			src := git.NewTagsSource(tagsGetter, tc.tagSourceOpts...)
+
+			hash, err := src.LastVersionHash()
+			if err != nil {
+				t.Fatalf("Error creating git source: %v", err)
+			}
+
+			assert.Equal(t, tc.expectedHash, hash, "Reported hasg does not match")
+		})
+	}
+}
+
+func getVersionCommitHash(t *testing.T, repodir, version string, opts ...git.TagOptionFunc) string {
+	tagsGetter, err := git.NewRepoTagsGetter(repodir, opts...)
+	if err != nil {
+		t.Fatalf("Error creating git source: %v", err)
+	}
+
+	tags, err := tagsGetter.Tags()
+	if err != nil {
+		t.Fatalf("Error fetching tags: %v", err)
+	}
+
+	for _, t := range tags {
+		if t.Name == version {
+			return t.Hash
+		}
+	}
+
+	return ""
+}
