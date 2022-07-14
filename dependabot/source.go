@@ -48,12 +48,10 @@ func (r Source) Source() (*changelog.Changelog, error) {
 		dependencyFrom, err := semver.NewVersion(capturingGroups[2])
 		if err != nil {
 			log.Debugf("skipping dependency %q as it doesn't conform to semver %v", dependencyName, dependencyFrom)
-			continue
 		}
 		dependencyTo, err := semver.NewVersion(capturingGroups[3])
 		if err != nil {
 			log.Debugf("skipping dependency %q as it doesn't conform to semver %v", dependencyName, dependencyTo)
-			continue
 		}
 
 		dependencies = append(dependencies, changelog.Dependency{
