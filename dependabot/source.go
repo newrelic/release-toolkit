@@ -61,7 +61,6 @@ func (r Source) Source() (*changelog.Changelog, error) {
 			Name: dependencyName,
 			To:   dependencyTo,
 			Meta: changelog.EntryMeta{
-				Author: c.Author,
 				PR:     capturingGroups[4],
 				Commit: c.Hash,
 			},

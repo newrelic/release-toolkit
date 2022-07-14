@@ -106,16 +106,15 @@ func TestSource_Source(t *testing.T) {
 		{
 			name: "Matching_commits_with_meta",
 			commitMessages: []git.Commit{
-				{Message: "chore(deps): update helm release common-library-1 to v1.0.4 (#401) ", Author: "renovate", Hash: "abcda222"},
-				{Message: "chore(deps): update helm release common-library-2 to v0.0.4 (#402)", Author: "renovate", Hash: "abcda222"},
-				{Message: "chore(deps): update helm release common-library-3 to v1.2.3", Author: "renovate", Hash: "abcda222"},
+				{Message: "chore(deps): update helm release common-library-1 to v1.0.4 (#401) ", Hash: "abcda222"},
+				{Message: "chore(deps): update helm release common-library-2 to v0.0.4 (#402)", Hash: "abcda222"},
+				{Message: "chore(deps): update helm release common-library-3 to v1.2.3", Hash: "abcda222"},
 			},
 			expectedDependencies: []changelog.Dependency{
 				{
 					Name: "common-library-1",
 					To:   semver.MustParse("v1.0.4"),
 					Meta: changelog.EntryMeta{
-						Author: "renovate",
 						PR:     "#401",
 						Commit: "abcda222",
 					},
@@ -124,7 +123,6 @@ func TestSource_Source(t *testing.T) {
 					Name: "common-library-2",
 					To:   semver.MustParse("v0.0.4"),
 					Meta: changelog.EntryMeta{
-						Author: "renovate",
 						PR:     "#402",
 						Commit: "abcda222",
 					},
@@ -133,7 +131,6 @@ func TestSource_Source(t *testing.T) {
 					Name: "common-library-3",
 					To:   semver.MustParse("v1.2.3"),
 					Meta: changelog.EntryMeta{
-						Author: "renovate",
 						PR:     "",
 						Commit: "abcda222",
 					},

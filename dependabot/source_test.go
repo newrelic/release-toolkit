@@ -114,9 +114,9 @@ func TestSource_Source(t *testing.T) {
 			name: "Matching_commits_with_meta",
 			commitMessages: []git.Commit{
 				{Message: `build(deps): bump actions/github-script from 4.0.2 to 4.1 (#193)
-		Bumps [actions/github-script](https://github.com/actions/github-script) from 4.0.2 to 4.1.`, Author: "dependabot", Hash: "abcda222"},
-				{Message: "Bump actions/github-script from 2 to 4.0.2 (#116)", Author: "dependabot", Hash: "abcda222"},
-				{Message: "chore(deps): bump github.com/spf13/viper from 1.7.0 to 1.10.1", Author: "dependabot", Hash: "abcda222"},
+		Bumps [actions/github-script](https://github.com/actions/github-script) from 4.0.2 to 4.1.`, Hash: "abcda222"},
+				{Message: "Bump actions/github-script from 2 to 4.0.2 (#116)", Hash: "abcda222"},
+				{Message: "chore(deps): bump github.com/spf13/viper from 1.7.0 to 1.10.1", Hash: "abcda222"},
 			},
 			expectedDependencies: []changelog.Dependency{
 				{
@@ -124,7 +124,6 @@ func TestSource_Source(t *testing.T) {
 					From: semver.MustParse("4.0.2"),
 					To:   semver.MustParse("4.1"),
 					Meta: changelog.EntryMeta{
-						Author: "dependabot",
 						PR:     "#193",
 						Commit: "abcda222",
 					},
@@ -134,7 +133,6 @@ func TestSource_Source(t *testing.T) {
 					From: semver.MustParse("2"),
 					To:   semver.MustParse("4.0.2"),
 					Meta: changelog.EntryMeta{
-						Author: "dependabot",
 						PR:     "#116",
 						Commit: "abcda222",
 					},
@@ -144,7 +142,6 @@ func TestSource_Source(t *testing.T) {
 					From: semver.MustParse("1.7.0"),
 					To:   semver.MustParse("1.10.1"),
 					Meta: changelog.EntryMeta{
-						Author: "dependabot",
 						PR:     "",
 						Commit: "abcda222",
 					},
