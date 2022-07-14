@@ -32,7 +32,7 @@ func (c *CommitsGetterMock) Commits(_ string) ([]git.Commit, error) {
 }
 
 //nolint:funlen
-func TestExtractor_Extract(t *testing.T) {
+func TestSource_Source(t *testing.T) {
 	t.Parallel()
 	for _, tc := range []struct {
 		name                 string
@@ -156,8 +156,8 @@ func TestExtractor_Extract(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			extractor := dependabot.NewExtractor(&TagsReleaseGetterMock{}, &CommitsGetterMock{CommitList: tc.commitMessages})
-			dependencies, err := extractor.Extract()
+			source := dependabot.NewSource(&TagsReleaseGetterMock{}, &CommitsGetterMock{CommitList: tc.commitMessages})
+			dependencies, err := source.Source()
 			if err != nil {
 				t.Fatalf("Error extracting renovate dependencies: %v", err)
 			}

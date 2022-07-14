@@ -12,19 +12,19 @@ import (
 
 var commitRegex = regexp.MustCompile(`update .* ([\w-/.]+) to ([^\s*]+)(?: \(([^\s]+)\))?`)
 
-type Extractor struct {
+type Source struct {
 	tagsReleaseGetter git.TagsReleaseGetter
 	commitsGetter     git.CommitsGetter
 }
 
-func NewExtractor(tagsReleaseGetter git.TagsReleaseGetter, commitsGetter git.CommitsGetter) Extractor {
-	return Extractor{
+func NewSource(tagsReleaseGetter git.TagsReleaseGetter, commitsGetter git.CommitsGetter) Source {
+	return Source{
 		tagsReleaseGetter: tagsReleaseGetter,
 		commitsGetter:     commitsGetter,
 	}
 }
 
-func (r Extractor) Extract() ([]changelog.Dependency, error) {
+func (r Source) Source() ([]changelog.Dependency, error) {
 	lastHash, err := r.tagsReleaseGetter.LastReleaseHash()
 	if err != nil {
 		return nil, fmt.Errorf("getting last release hash: %w", err)
