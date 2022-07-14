@@ -107,7 +107,6 @@ func (s *RepoCommitsGetter) Commits(lastHash string) ([]Commit, error) {
 		commits = append(commits, Commit{
 			Message: strings.TrimSuffix(cm.Message, "\n"),
 			Hash:    cm.Hash.String(),
-			Author:  cm.Author.Name,
 		})
 		cm, errCommit = commitIter.Next()
 	}
