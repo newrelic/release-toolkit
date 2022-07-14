@@ -42,7 +42,7 @@ func TestSource_Source(t *testing.T) {
 		{
 			name: "Matching_and_not_matching-commits",
 			commitMessages: []git.Commit{
-				{Message: `Whatever actions/github-script from 1.0.2 to 1.0.4.`},
+				{Message: "Whatever actions/github-script from 1.0.2 to 1.0.4."},
 				{Message: "Non matching"},
 				{Message: "chore(deps): bump common-library-2 from v0.0.3 to v0.0.4"},
 			},

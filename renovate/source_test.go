@@ -42,7 +42,7 @@ func TestSource_Source(t *testing.T) {
 		{
 			name: "Matching_and_not_matching-commits",
 			commitMessages: []git.Commit{
-				{Message: `chore(deps): Another commit message v1.0.4 (#401)`},
+				{Message: "chore(deps): Another commit message v1.0.4 (#401)"},
 				{Message: "Non matching"},
 				{Message: "chore(deps): update helm release common-library-3 to v1.2.3"},
 			},
