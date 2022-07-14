@@ -30,6 +30,7 @@ func (r Source) Source() (*changelog.Changelog, error) {
 		return nil, fmt.Errorf("getting last version hash: %w", err)
 	}
 
+	log.Debugf("Listing commits until last tag %q", lastHash)
 	gitCommits, err := r.commitsGetter.Commits(lastHash)
 	if err != nil {
 		return nil, fmt.Errorf("getting commits: %w", err)
