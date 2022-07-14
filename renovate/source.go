@@ -34,6 +34,9 @@ func (r Source) Source() (*changelog.Changelog, error) {
 	if err != nil {
 		return nil, fmt.Errorf("getting commits: %w", err)
 	}
+	if len(gitCommits) == 0 {
+		log.Infof("Renovate source did not find any commit since %q", lastHash)
+	}
 
 	dependencies := make([]changelog.Dependency, 0)
 
