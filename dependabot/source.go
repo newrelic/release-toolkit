@@ -40,7 +40,7 @@ func (r Source) Source() (*changelog.Changelog, error) {
 	for _, c := range gitCommits {
 		capturingGroups := commitRegex.FindStringSubmatch(c.Message)
 		if len(capturingGroups) == 0 {
-			log.Debugf("skipping commit  %s as it does not match renovate pattern", c.Message)
+			log.Debugf("skipping commit  %s as it does not match dependabot pattern", c.Message)
 			continue
 		}
 

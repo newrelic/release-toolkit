@@ -159,7 +159,7 @@ func TestSource_Source(t *testing.T) {
 			source := dependabot.NewSource(&TagsReleaseGetterMock{}, &CommitsGetterMock{CommitList: tc.commitMessages})
 			cl, err := source.Source()
 			if err != nil {
-				t.Fatalf("Error extracting renovate dependencies: %v", err)
+				t.Fatalf("Error extracting dependabot dependencies: %v", err)
 			}
 
 			assert.Equal(t, len(tc.expectedDependencies), len(cl.Dependencies))
