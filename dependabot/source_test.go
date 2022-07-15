@@ -160,6 +160,7 @@ func TestSource_Source(t *testing.T) {
 			assert.Equal(t, len(tc.expectedDependencies), len(cl.Dependencies))
 			for k, dep := range cl.Dependencies {
 				assert.Equal(t, tc.expectedDependencies[k].Name, dep.Name)
+				assert.Equal(t, tc.expectedDependencies[k].From.String(), dep.From.String())
 				assert.Equal(t, tc.expectedDependencies[k].To.String(), dep.To.String())
 				assert.Equal(t, tc.expectedDependencies[k].Meta, dep.Meta)
 			}
