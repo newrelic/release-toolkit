@@ -76,6 +76,14 @@ func TestSource_Source(t *testing.T) {
 				{Message: "chore(deps): update helm release common-library-19 to v1.2.3----RC-SNAPSHOT.12.9.1"},
 				{Message: "chore(deps): update helm release common-library-20 to v1.0.0+0.build.1-rc.10000aaa-kk-0.1"},
 				{Message: "chore(deps): update helm release common-library-21 to v999999.999999.999999"},
+				// From github.com/newrelic/nri-kubernetes.
+				{Message: "chore(deps): update newrelic/infrastructure-bundle docker tag to v2.7.6 (#280)"},
+				// From github.com/newrelic/infrastructure-bundle
+				{Message: "fix(deps): update module github.com/google/go-github/v39 to v39.2.0 (#123)"},
+				{Message: "chore(deps): update newrelic/infrastructure docker tag to v1.20.5 (#125)"},
+				{Message: "chore(deps): update integrations (#124)"},
+				{Message: "chore(deps): update aquasecurity/trivy-action action to v0.0.22 (#127)"},
+				{Message: "chore(deps): update dependency newrelic/nri-jmx to v2.6.0 (#129)"},
 			},
 			expectedDependencies: []changelog.Dependency{
 				{Name: "common-library-1", To: semver.MustParse("v1.0.4")},
@@ -99,6 +107,14 @@ func TestSource_Source(t *testing.T) {
 				{Name: "common-library-19", To: semver.MustParse("v1.2.3----RC-SNAPSHOT.12.9.1")},
 				{Name: "common-library-20", To: semver.MustParse("1.0.0+0.build.1-rc.10000aaa-kk-0.1")},
 				{Name: "common-library-21", To: semver.MustParse("999999.999999.999999")},
+				// From github.com/newrelic/nri-kubernetes
+				{Name: "newrelic/infrastructure-bundle", To: semver.MustParse("v2.7.6"), Meta: changelog.EntryMeta{PR: "280"}},
+				// From github.com/newrelic/infrastructure-bundle
+				{Name: "github.com/google/go-github/v39", To: semver.MustParse("v39.2.0"), Meta: changelog.EntryMeta{PR: "123"}},
+				{Name: "newrelic/infrastructure", To: semver.MustParse("v1.20.5"), Meta: changelog.EntryMeta{PR: "125"}},
+				{Name: "integrations", Meta: changelog.EntryMeta{PR: "124"}},
+				{Name: "aquasecurity/trivy-action", To: semver.MustParse("v0.0.22"), Meta: changelog.EntryMeta{PR: "127"}},
+				{Name: "newrelic/nri-jmx", To: semver.MustParse("v2.6.0"), Meta: changelog.EntryMeta{PR: "129"}},
 			},
 		},
 		{
