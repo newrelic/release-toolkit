@@ -59,6 +59,7 @@ func (r Source) Source() (*changelog.Changelog, error) {
 
 		dependencies = append(dependencies, changelog.Dependency{
 			Name: dependencyName,
+			From: dependencyFrom,
 			To:   dependencyTo,
 			Meta: changelog.EntryMeta{
 				PR:     capturingGroups[4],
