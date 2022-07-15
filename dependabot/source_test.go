@@ -78,6 +78,14 @@ func TestSource_Source(t *testing.T) {
 				{Message: "chore(deps): bump common-library-19 from v1.1.0----RC-SNAPSHOT.12.9.1 to v1.2.3----RC-SNAPSHOT.12.9.1"},
 				{Message: "chore(deps): bump common-library-20 from v0.1.0+0.build.1-rc.10000aaa-kk-0.1 to v1.0.0+0.build.1-rc.10000aaa-kk-0.1"},
 				{Message: "chore(deps): bump common-library-21 from v888888.999999.999999 to v999999.999999.999999"},
+				// From github.com/newrelic/nri-kafka
+				{Message: "Bump github.com/golangci/golangci-lint from 1.40.0 to 1.42.1 (#144)"},
+				{Message: "Bump github.com/Shopify/sarama from 1.30.1 to 1.31.0 (#152)"},
+				{Message: "Bump github.com/newrelic/infra-integrations-sdk (#150)"},
+				// From github.com/newrelic/nri-kubernetes
+				{Message: "build(deps): bump aquasecurity/trivy-action from 0.0.18 to 0.0.19 (#181)"},
+				{Message: "build(deps): bump actions/github-script from 4.0.2 to 4.1 (#193)"},
+				{Message: "build(deps): bump github.com/newrelic/infra-integrations-sdk from 3.6.8+incompatible to 3.7.0+incompatible (#236)"},
 			},
 			expectedDependencies: []changelog.Dependency{
 				{Name: "actions/github-script", From: semver.MustParse("4.0.2"), To: semver.MustParse("4.1")},
@@ -106,6 +114,14 @@ func TestSource_Source(t *testing.T) {
 				{Name: "common-library-19", From: semver.MustParse("1.1.0----RC-SNAPSHOT.12.9.1"), To: semver.MustParse("v1.2.3----RC-SNAPSHOT.12.9.1")},
 				{Name: "common-library-20", From: semver.MustParse("0.1.0+0.build.1-rc.10000aaa-kk-0.1"), To: semver.MustParse("1.0.0+0.build.1-rc.10000aaa-kk-0.1")},
 				{Name: "common-library-21", From: semver.MustParse("888888.999999.999999"), To: semver.MustParse("999999.999999.999999")},
+				// From github.com/newrelic/nri-kafka
+				{Name: "github.com/golangci/golangci-lint", From: semver.MustParse("1.40.0"), To: semver.MustParse("1.42.1"), Meta: changelog.EntryMeta{PR: "144"}},
+				{Name: "github.com/Shopify/sarama", From: semver.MustParse("1.30.1"), To: semver.MustParse("1.31.0"), Meta: changelog.EntryMeta{PR: "152"}},
+				{Name: "github.com/newrelic/infra-integrations-sdk", Meta: changelog.EntryMeta{PR: "150"}},
+				// From github.com/newrelic/nri-kubernetes
+				{Name: "aquasecurity/trivy-action", From: semver.MustParse("0.0.18"), To: semver.MustParse("0.0.19"), Meta: changelog.EntryMeta{PR: "181"}},
+				{Name: "actions/github-script", Meta: changelog.EntryMeta{PR: "150"}},
+				{Name: "github.com/newrelic/infra-integrations-sdk", From: semver.MustParse("3.6.8+incompatible"), To: semver.MustParse("3.7.0+incompatible"), Meta: changelog.EntryMeta{PR: "236"}},
 			},
 		},
 		{
