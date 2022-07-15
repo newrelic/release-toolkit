@@ -165,9 +165,10 @@ func (d Dependency) String() string {
 // plainDependency is a helper struct where To and From are strings rather than semver.Version. We use this struct
 // to marshal and unmarshal from YAML format because unfortunately, semver.Version does not implement yaml.Marshaler.
 type plainDependency struct {
-	Name string `yaml:"name"`
-	To   string `yaml:"to,omitempty"`
-	From string `yaml:"from,omitempty"`
+	Name string    `yaml:"name"`
+	To   string    `yaml:"to,omitempty"`
+	From string    `yaml:"from,omitempty"`
+	Meta EntryMeta `yaml:"meta,omitempty"`
 }
 
 // MarshalYAML copies the contents of Dependency to a plainDependency and returns it for the generic marshaler to
@@ -175,6 +176,7 @@ type plainDependency struct {
 func (d Dependency) MarshalYAML() (interface{}, error) {
 	pd := plainDependency{
 		Name: d.Name,
+		Meta: d.Meta,
 	}
 
 	if d.To != nil {
