@@ -185,7 +185,7 @@ func TestSource_Source(t *testing.T) {
 			}
 
 			extractor := renovate.NewSource(&tagsVersionGetterMock{}, &commitsGetterMock{commitList: tc.commitMessages})
-			cl, err := extractor.Source()
+			cl, err := extractor.Changelog()
 			if err != nil {
 				t.Fatalf("Error extracting renovate dependencies: %v", err)
 			}

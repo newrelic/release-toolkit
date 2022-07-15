@@ -174,7 +174,7 @@ func TestSource_Source(t *testing.T) {
 			t.Parallel()
 
 			source := dependabot.NewSource(&tagsVersionGetterMock{}, &commitsGetterMock{commitList: tc.commitMessages})
-			cl, err := source.Source()
+			cl, err := source.Changelog()
 			if err != nil {
 				t.Fatalf("Error extracting dependabot dependencies: %v", err)
 			}

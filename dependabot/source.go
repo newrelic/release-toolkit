@@ -24,7 +24,7 @@ func NewSource(tagsVersionGetter git.TagsVersionGetter, commitsGetter git.Commit
 	}
 }
 
-func (r Source) Source() (*changelog.Changelog, error) {
+func (r Source) Changelog() (*changelog.Changelog, error) {
 	lastHash, err := r.tagsVersionGetter.LastVersionHash()
 	if err != nil {
 		return nil, fmt.Errorf("getting last version hash: %w", err)
