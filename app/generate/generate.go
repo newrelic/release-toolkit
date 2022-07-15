@@ -67,7 +67,8 @@ var Cmd = &cli.Command{
 	Action: Generate,
 }
 
-// Generate is a command that creates a changelog.yaml file .
+// Generate is a command that creates a changelog.yaml file.
+//nolint:gocyclo,cyclop
 func Generate(cCtx *cli.Context) error {
 	yamlPath := cCtx.String(common.ChangelogFlag)
 	chFile, err := os.Create(yamlPath)
