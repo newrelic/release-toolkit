@@ -79,14 +79,14 @@ func Generate(cCtx *cli.Context) error {
 	combinedChangelog := &changelog.Changelog{}
 	sources := make([]changelog.Source, 0)
 
-	if !cCtx.Bool(renovateFlag) {
+	if cCtx.Bool(renovateFlag) {
 		sources, err = addRenovate(cCtx, sources)
 		if err != nil {
 			return fmt.Errorf("adding renovate source: %w", err)
 		}
 	}
 
-	if !cCtx.Bool(dependabotFlag) {
+	if cCtx.Bool(dependabotFlag) {
 		sources, err = addDependabot(cCtx, sources)
 		if err != nil {
 			return fmt.Errorf("adding dependabot source: %w", err)
