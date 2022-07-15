@@ -1,59 +1,63 @@
 package renderer
 
-const markdownTemplate = `
-## {{ .Version }} - {{ .Date }}
+const markdownTemplate = `{{- if .Version -}}
+## {{ .Version }}{{ with .Date }} - {{ . }}{{ end }}
 
-{{- with .Notes }}
+{{ end }}
 
+{{- with .Notes -}}
 {{ . }}
-{{- end }}
 
-{{- with .Sections }}
+{{ end }}
 
-{{- with .breaking }}
 
+{{- with .Sections -}}
+
+
+{{- with .breaking -}}
 ### ⚠️️ Breaking changes ⚠️
-
 {{- range . }}
 - {{ . }}
 {{- end }}
-{{- end }}
 
-{{- with .security }}
+{{ end }}
 
+
+{{- with .security -}}
 ### 🛡️ Security notices
-
 {{- range . }}
 - {{ . }}
 {{- end }}
-{{- end }}
 
-{{- with .enhancement }}
+{{ end }}
 
+
+{{- with .enhancement -}}
 ### 🚀 Enhancements
-
 {{- range . }}
 - {{ . }}
 {{- end }}
-{{- end }}
 
-{{- with .bugfix }}
+{{ end }}
 
+
+{{- with .bugfix -}}
 ### 🐞 Bug fixes
-
 {{- range . }}
 - {{ . }}
 {{- end }}
-{{- end }}
 
-{{- with .dependency }}
+{{ end }}
 
+
+{{- with .dependency -}}
 ### ⛓️ Dependencies
-
 {{- range . }}
 - {{ . }}
 {{- end }}
-{{- end }}
 
-{{- end }}
+{{ end }}
+
+
+{{- end }} {{- /* end .Sections */ -}}
 `

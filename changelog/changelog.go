@@ -152,11 +152,11 @@ func (d Dependency) String() string {
 	_, _ = fmt.Fprintf(buf, " %s", d.Name)
 
 	if d.From != nil {
-		_, _ = fmt.Fprintf(buf, " from v%s", d.From.String())
+		_, _ = fmt.Fprintf(buf, " from %s", d.From.Original())
 	}
 
 	if d.To != nil {
-		_, _ = fmt.Fprintf(buf, " to v%s", d.To.String())
+		_, _ = fmt.Fprintf(buf, " to %s", d.To.Original())
 	}
 
 	return buf.String()

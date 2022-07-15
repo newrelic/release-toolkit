@@ -17,17 +17,20 @@ type Stringer interface {
 	String() string
 }
 
+// Renderer outputs a human-readable, markdown version of a changelog.
 type Renderer struct {
+	// If non-nil, the output will include a level 2 header with the version to which this changelog corresponds.
+	Next *semver.Version
+	// If non-nil and Next is non-nil, the level 2 header including the version will also include the date returned by
+	// this function, signifying that the version to which this changelog corresponds was released on said date.
 	ReleasedOn func() time.Time
-	Next       *semver.Version
-	changelog  *changelog.Changelog
+
+	changelog *changelog.Changelog
 }
 
 func New(c *changelog.Changelog) Renderer {
 	return Renderer{
-		changelog:  c,
-		ReleasedOn: time.Now,
-		Next:       semver.MustParse("v0.0.0"),
+		changelog: c,
 	}
 }
 
@@ -38,6 +41,7 @@ type parsedChangelog struct {
 	Sections map[string][]Stringer
 }
 
+// Render writes the markdown representation of a changelog to the specified writer.
 func (r Renderer) Render(w io.Writer) error {
 	parsed := r.parse()
 	tpl, err := template.New("changelog").Parse(strings.TrimSpace(markdownTemplate))
@@ -45,9 +49,19 @@ func (r Renderer) Render(w io.Writer) error {
 		return fmt.Errorf("internal, parsing template: %w", err)
 	}
 
-	err = tpl.Execute(w, parsed)
+	// For templates to be sane and readable, we need to put spaces between sections _after_ them. This comes with the
+	// problem of the last section of the doc also printing those spaces, leading to two empty newlines.
+	// As we need to chomp those newlines, we must write to an intermediate buffer, trim it, and then copy back to the
+	// supplied writer.
+	buf := &strings.Builder{}
+	err = tpl.Execute(buf, parsed)
 	if err != nil {
 		return fmt.Errorf("populating template: %w", err)
+	}
+
+	_, err = fmt.Fprint(w, strings.TrimSpace(buf.String()))
+	if err != nil {
+		return fmt.Errorf("writing output to writer: %w", err)
 	}
 
 	return nil
@@ -55,10 +69,16 @@ func (r Renderer) Render(w io.Writer) error {
 
 func (r Renderer) parse() parsedChangelog {
 	parsed := parsedChangelog{
-		Version:  "v" + r.Next.String(),
-		Date:     r.ReleasedOn().Format("2006-01-02"),
 		Notes:    strings.TrimSpace(r.changelog.Notes),
 		Sections: map[string][]Stringer{},
+	}
+
+	if r.Next != nil {
+		parsed.Version = "v" + r.Next.String()
+	}
+
+	if r.ReleasedOn != nil {
+		parsed.Date = r.ReleasedOn().Format("2006-01-02")
 	}
 
 	for _, entry := range r.changelog.Changes {
