@@ -4,6 +4,7 @@ package app
 import (
 	"github.com/newrelic/release-toolkit/app/common"
 	"github.com/newrelic/release-toolkit/app/isheld"
+	"github.com/newrelic/release-toolkit/app/nextversion"
 	"github.com/newrelic/release-toolkit/app/render"
 	"github.com/urfave/cli/v2"
 )
@@ -26,6 +27,7 @@ func App() *cli.App {
 		Commands: []*cli.Command{
 			isheld.Cmd,
 			render.Cmd,
+			nextversion.Cmd,
 		},
 	}
 }
