@@ -192,6 +192,8 @@ func TestRepoTagsSource_LastVersionHash(t *testing.T) {
 }
 
 func getVersionCommitHash(t *testing.T, repodir, version string, opts ...git.TagOptionFunc) string {
+	t.Helper()
+
 	tagsGetter, err := git.NewRepoTagsGetter(repodir, opts...)
 	if err != nil {
 		t.Fatalf("Error creating git source: %v", err)
