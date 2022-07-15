@@ -50,4 +50,4 @@ jobs:
       - name: Codespell test
         uses: codespell-project/actions-codespell@master
         with:
-          ignore_words_list: nWe  # Causes codespell to trip on "\nWe"
+          ignore_words_list: nwe  # Causes codespell to trip on "\nWe"
