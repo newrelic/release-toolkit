@@ -84,6 +84,9 @@ func TestSource_Source(t *testing.T) {
 				{Message: "chore(deps): update integrations (#124)"},
 				{Message: "chore(deps): update aquasecurity/trivy-action action to v0.0.22 (#127)"},
 				{Message: "chore(deps): update dependency newrelic/nri-jmx to v2.6.0 (#129)"},
+				{Message: "chore(deps): update github actions to v2 (major) (#178)"},
+				{Message: "chore(deps): update github actions to v2.1 (minor) (#179)"},
+				{Message: "chore(deps): update github actions to v2.1.1 (patch) (#180)"},
 			},
 			expectedDependencies: []changelog.Dependency{
 				{Name: "common-library-1", To: semver.MustParse("v1.0.4")},
@@ -115,6 +118,9 @@ func TestSource_Source(t *testing.T) {
 				{Name: "integrations", Meta: changelog.EntryMeta{PR: "124"}},
 				{Name: "aquasecurity/trivy-action", To: semver.MustParse("v0.0.22"), Meta: changelog.EntryMeta{PR: "127"}},
 				{Name: "newrelic/nri-jmx", To: semver.MustParse("v2.6.0"), Meta: changelog.EntryMeta{PR: "129"}},
+				{Name: "github actions", To: semver.MustParse("v2.0.0"), Meta: changelog.EntryMeta{PR: "178"}},
+				{Name: "github actions", To: semver.MustParse("v2.1.0"), Meta: changelog.EntryMeta{PR: "179"}},
+				{Name: "github actions", To: semver.MustParse("v2.1.1"), Meta: changelog.EntryMeta{PR: "180"}},
 			},
 		},
 		{
@@ -165,7 +171,11 @@ func TestSource_Source(t *testing.T) {
 			assert.Equal(t, len(tc.expectedDependencies), len(cl.Dependencies))
 			for k, dep := range cl.Dependencies {
 				assert.Equal(t, tc.expectedDependencies[k].Name, dep.Name)
-				assert.Equal(t, tc.expectedDependencies[k].To.String(), dep.To.String())
+				if dep.To != nil {
+					assert.Equal(t, tc.expectedDependencies[k].To.String(), dep.To.String())
+				} else {
+					assert.Nil(t, tc.expectedDependencies[k].To)
+				}
 				assert.Equal(t, tc.expectedDependencies[k].Meta, dep.Meta)
 			}
 		})

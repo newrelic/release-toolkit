@@ -10,7 +10,9 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var commitRegex = regexp.MustCompile(`update .* ([\w-/.]+) to ([^\s*]+)(?: \(#([^\s]+)\))?`)
+var commitRegex = regexp.MustCompile(
+	`update(?: helm release)?(?: module)?(?: dependency)? (github actions|[\w-/.]+)(?: [Dd]ocker tag)?(?: actions)?(?: action)?(?: to )?([^\s*#]+)?(?: \(major\))?(?: \(minor\))?(?: \(patch\))?(?: \(#(\S+)\))?`,
+)
 
 type Source struct {
 	tagsVersionGetter git.TagsVersionGetter
