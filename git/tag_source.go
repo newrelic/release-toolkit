@@ -73,6 +73,10 @@ func (s *TagsSource) LastVersionHash() (string, error) {
 		return "", fmt.Errorf("getting tags: %w", err)
 	}
 
+	if tags == nil {
+		return "", nil
+	}
+
 	sort.Slice(tags, func(i, j int) bool {
 		tagNameCurrent := s.replacer.Replace(tags[i].Name)
 		vCurrent, innerErr := semver.NewVersion(tags[i].Name)

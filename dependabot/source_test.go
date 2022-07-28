@@ -84,7 +84,7 @@ func TestSource_Source(t *testing.T) {
 				{Message: "Bump github.com/newrelic/infra-integrations-sdk (#150)"},
 				// From github.com/newrelic/nri-kubernetes
 				{Message: "build(deps): bump aquasecurity/trivy-action from 0.0.18 to 0.0.19 (#181)"},
-				{Message: "build(deps): bump actions/github-script from 4.0.2 to 4.1 (#193)"},
+				{Message: "build(deps): bump actions/github-script (#193)"},
 				{Message: "build(deps): bump github.com/newrelic/infra-integrations-sdk from 3.6.8+incompatible to 3.7.0+incompatible (#236)"},
 			},
 			expectedDependencies: []changelog.Dependency{
@@ -120,7 +120,7 @@ func TestSource_Source(t *testing.T) {
 				{Name: "github.com/newrelic/infra-integrations-sdk", Meta: changelog.EntryMeta{PR: "150"}},
 				// From github.com/newrelic/nri-kubernetes
 				{Name: "aquasecurity/trivy-action", From: semver.MustParse("0.0.18"), To: semver.MustParse("0.0.19"), Meta: changelog.EntryMeta{PR: "181"}},
-				{Name: "actions/github-script", Meta: changelog.EntryMeta{PR: "150"}},
+				{Name: "actions/github-script", Meta: changelog.EntryMeta{PR: "193"}},
 				{Name: "github.com/newrelic/infra-integrations-sdk", From: semver.MustParse("3.6.8+incompatible"), To: semver.MustParse("3.7.0+incompatible"), Meta: changelog.EntryMeta{PR: "236"}},
 			},
 		},
@@ -176,8 +176,16 @@ func TestSource_Source(t *testing.T) {
 			assert.Equal(t, len(tc.expectedDependencies), len(cl.Dependencies))
 			for k, dep := range cl.Dependencies {
 				assert.Equal(t, tc.expectedDependencies[k].Name, dep.Name)
-				assert.Equal(t, tc.expectedDependencies[k].From.String(), dep.From.String())
-				assert.Equal(t, tc.expectedDependencies[k].To.String(), dep.To.String())
+				if dep.From != nil {
+					assert.Equal(t, tc.expectedDependencies[k].From.String(), dep.From.String())
+				} else {
+					assert.Nil(t, tc.expectedDependencies[k].From)
+				}
+				if dep.To != nil {
+					assert.Equal(t, tc.expectedDependencies[k].To.String(), dep.To.String())
+				} else {
+					assert.Nil(t, tc.expectedDependencies[k].To)
+				}
 				assert.Equal(t, tc.expectedDependencies[k].Meta, dep.Meta)
 			}
 		})

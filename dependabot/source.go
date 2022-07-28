@@ -10,7 +10,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var commitRegex = regexp.MustCompile(`[Bb]ump ([\w-/.]+) from ([^\s]+) to ([^\s]+)(?: \(#([^\s]+)\))?`)
+var commitRegex = regexp.MustCompile(`[Bb]ump ([\w-/.]+)(?: from )?(\S+)?(?: to )?(\S+)?(?: \(#(\S+)\))?`)
 
 type Source struct {
 	tagsVersionGetter git.TagsVersionGetter
