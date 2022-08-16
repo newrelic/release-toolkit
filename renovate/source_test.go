@@ -80,6 +80,7 @@ func TestSource_Source(t *testing.T) {
 				{Message: "chore(deps): update helm release common-library-19 to v1.2.3----RC-SNAPSHOT.12.9.1"},
 				{Message: "chore(deps): update helm release common-library-20 to v1.0.0+0.build.1-rc.10000aaa-kk-0.1"},
 				{Message: "chore(deps): update helm release common-library-21 to v999999.999999.999999"},
+				{Message: "update rust crate i-do-not-exist to v1.2.3"},
 				{Message: "update noprefix to v1.2.3"},
 				{Message: "update name with spaces to v1.2.3"},
 				{Message: "update fancy-module to v1.2.3"},
@@ -118,6 +119,8 @@ func TestSource_Source(t *testing.T) {
 				{Name: "common-library-19", To: semver.MustParse("v1.2.3----RC-SNAPSHOT.12.9.1")},
 				{Name: "common-library-20", To: semver.MustParse("1.0.0+0.build.1-rc.10000aaa-kk-0.1")},
 				{Name: "common-library-21", To: semver.MustParse("999999.999999.999999")},
+				// Intentional limitation: "rust crate" is not a known manager so the whole string is the dependency name
+				{Name: "rust crate i-do-not-exist", To: semver.MustParse("v1.2.3")},
 				{Name: "noprefix", To: semver.MustParse("v1.2.3")},
 				{Name: "name with spaces", To: semver.MustParse("v1.2.3")},
 				{Name: "fancy-module", To: semver.MustParse("v1.2.3")},
