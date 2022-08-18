@@ -2,7 +2,6 @@ package generate_test
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path"
@@ -38,6 +37,7 @@ func TestGenerate(t *testing.T) {
 	for _, tc := range []struct {
 		name     string
 		commits  []string
+		author   string
 		md       string
 		expected string
 		args     string
@@ -59,9 +59,10 @@ dependencies: []
 	`) + "\n",
 		},
 		{
-			name: "Markdown_Dependabot",
-			md:   mdChangelog,
-			args: "--renovate=false",
+			name:   "Markdown_Dependabot",
+			md:     mdChangelog,
+			args:   "--renovate=false",
+			author: "dependabot <dependabot@github.com>",
 			commits: []string{
 				"chore(deps): bump thisdep from 1.7.0 to 1.10.1",
 				"chore(deps): bump anotherdep from 0.0.1 to 0.0.2 (#69)",
@@ -87,9 +88,10 @@ dependencies:
 	`) + "\n",
 		},
 		{
-			name: "Markdown_Renovate",
-			md:   mdChangelog,
-			args: "--dependabot=false",
+			name:   "Markdown_Renovate",
+			md:     mdChangelog,
+			args:   "--dependabot=false",
+			author: "renovate[bot] <renovatebot@imadethisup.com>",
 			commits: []string{
 				"chore(deps): update newrelic/infrastructure-bundle docker tag to v2.7.2",
 				"chore(deps): update helm release common-library to v1.0.4 (#401)",
@@ -115,16 +117,15 @@ dependencies:
 	} {
 		//nolint:paralleltest
 		t.Run(tc.name, func(t *testing.T) {
-			tDir := repoWithCommits(t, tc.commits...)
+			tDir := repoWithCommits(t, tc.author, tc.commits...)
 
 			app := app.App()
 
 			yamlPath := path.Join(tDir, "changelog.yaml")
-			yamlFile, err := os.Create(yamlPath)
+			_, err := os.Create(yamlPath)
 			if err != nil {
 				t.Fatalf("Error creating yaml for test: %v", err)
 			}
-			_ = yamlFile.Close()
 
 			mdPath := path.Join(tDir, "CHANGELOG.md")
 			mdFile, err := os.Create(mdPath)
@@ -138,7 +139,7 @@ dependencies:
 				t.Fatalf("Error running app: %v", err)
 			}
 
-			yaml, err := ioutil.ReadFile(yamlPath)
+			yaml, err := os.ReadFile(yamlPath)
 			if err != nil {
 				t.Fatalf("Error reading file created by command: %v", err)
 			}
@@ -149,7 +150,7 @@ dependencies:
 	}
 }
 
-func repoWithCommits(t *testing.T, commits ...string) string {
+func repoWithCommits(t *testing.T, author string, commits ...string) string {
 	t.Helper()
 
 	dir := t.TempDir()
@@ -167,7 +168,7 @@ func repoWithCommits(t *testing.T, commits ...string) string {
 	for i, c := range commits {
 		cmds = append(cmds, fmt.Sprintf("touch file%d", i))
 		cmds = append(cmds, fmt.Sprintf("git add file%d", i))
-		cmds = append(cmds, fmt.Sprintf("git commit -m '%s'", c))
+		cmds = append(cmds, fmt.Sprintf("git commit --author '%s' -m '%s'", author, c))
 	}
 
 	for _, cmdline := range cmds {
