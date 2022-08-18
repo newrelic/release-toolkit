@@ -173,7 +173,7 @@ func tagVersionGetter(cCtx *cli.Context) (*git.TagsSource, error) {
 
 	tvsrc := git.NewTagsSource(src, versionOpts...)
 	if err != nil {
-		return nil, fmt.Errorf("creatin version source from git tag source: %w", err)
+		return nil, fmt.Errorf("creating version source from git tag source: %w", err)
 	}
 
 	return tvsrc, nil
