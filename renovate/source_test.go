@@ -34,24 +34,28 @@ func TestSource_Source(t *testing.T) {
 	t.Parallel()
 	for _, tc := range []struct {
 		name                 string
+		defaultAuthor        string
 		commitMessages       []git.Commit
 		expectedDependencies []changelog.Dependency
 	}{
 		{
-			name: "Matching_and_not_matching-commits",
+			name:          "Matching_and_not_matching-commits",
+			defaultAuthor: "renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
 			commitMessages: []git.Commit{
 				{Message: "chore(deps): Another commit message v1.0.4 (#401)"},
 				{Message: "Non matching"},
 				{Message: "chore(deps): update helm release common-library-3 to v1.2.3"},
+				{Message: "chore(deps): update helm release common-library-3 to v1.2.3", Author: "foobar"},
 			},
 			expectedDependencies: []changelog.Dependency{
 				{Name: "common-library-3", To: semver.MustParse("1.2.3")},
 			},
 		},
 		{
-			name: "Matching_commits",
+			name:          "Matching_commits",
+			defaultAuthor: "renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
 			commitMessages: []git.Commit{
-				{Message: `chore(deps): update helm release common-library-1 to v1.0.4 extra1
+				{Message: `chore(deps): update helm release common-library-1 to v1.0.4
 
 * chore(deps): update helm release common-library to v1.0.4
 * Bum chart's version
@@ -76,6 +80,22 @@ func TestSource_Source(t *testing.T) {
 				{Message: "chore(deps): update helm release common-library-19 to v1.2.3----RC-SNAPSHOT.12.9.1"},
 				{Message: "chore(deps): update helm release common-library-20 to v1.0.0+0.build.1-rc.10000aaa-kk-0.1"},
 				{Message: "chore(deps): update helm release common-library-21 to v999999.999999.999999"},
+				{Message: "update rust crate i-do-not-exist to v1.2.3"},
+				{Message: "update noprefix to v1.2.3"},
+				{Message: "update name with spaces to v1.2.3"},
+				{Message: "update fancy-module to v1.2.3"},
+				{Message: "update module to v1.2.3"},
+				// From github.com/newrelic/nri-kubernetes.
+				{Message: "chore(deps): update newrelic/infrastructure-bundle docker tag to v2.7.6 (#280)"},
+				// From github.com/newrelic/infrastructure-bundle
+				{Message: "fix(deps): update module github.com/google/go-github/v39 to v39.2.0 (#123)"},
+				{Message: "chore(deps): update newrelic/infrastructure docker tag to v1.20.5 (#125)"},
+				{Message: "chore(deps): update integrations (#124)"},
+				{Message: "chore(deps): update aquasecurity/trivy-action action to v0.0.22 (#127)"},
+				{Message: "chore(deps): update dependency newrelic/nri-jmx to v2.6.0 (#129)"},
+				{Message: "chore(deps): update github actions to v2 (major) (#178)"},
+				{Message: "chore(deps): update github actions to v2.1 (minor) (#179)"},
+				{Message: "chore(deps): update github actions to v2.1.1 (patch) (#180)"},
 			},
 			expectedDependencies: []changelog.Dependency{
 				{Name: "common-library-1", To: semver.MustParse("v1.0.4")},
@@ -99,12 +119,30 @@ func TestSource_Source(t *testing.T) {
 				{Name: "common-library-19", To: semver.MustParse("v1.2.3----RC-SNAPSHOT.12.9.1")},
 				{Name: "common-library-20", To: semver.MustParse("1.0.0+0.build.1-rc.10000aaa-kk-0.1")},
 				{Name: "common-library-21", To: semver.MustParse("999999.999999.999999")},
+				// Intentional limitation: "rust crate" is not a known manager so the whole string is the dependency name
+				{Name: "rust crate i-do-not-exist", To: semver.MustParse("v1.2.3")},
+				{Name: "noprefix", To: semver.MustParse("v1.2.3")},
+				{Name: "name with spaces", To: semver.MustParse("v1.2.3")},
+				{Name: "fancy-module", To: semver.MustParse("v1.2.3")},
+				{Name: "module", To: semver.MustParse("v1.2.3")},
+				// From github.com/newrelic/nri-kubernetes
+				{Name: "newrelic/infrastructure-bundle", To: semver.MustParse("v2.7.6"), Meta: changelog.EntryMeta{PR: "280"}},
+				// From github.com/newrelic/infrastructure-bundle
+				{Name: "github.com/google/go-github/v39", To: semver.MustParse("v39.2.0"), Meta: changelog.EntryMeta{PR: "123"}},
+				{Name: "newrelic/infrastructure", To: semver.MustParse("v1.20.5"), Meta: changelog.EntryMeta{PR: "125"}},
+				{Name: "integrations", Meta: changelog.EntryMeta{PR: "124"}},
+				{Name: "aquasecurity/trivy-action", To: semver.MustParse("v0.0.22"), Meta: changelog.EntryMeta{PR: "127"}},
+				{Name: "newrelic/nri-jmx", To: semver.MustParse("v2.6.0"), Meta: changelog.EntryMeta{PR: "129"}},
+				{Name: "github actions", To: semver.MustParse("v2.0.0"), Meta: changelog.EntryMeta{PR: "178"}},
+				{Name: "github actions", To: semver.MustParse("v2.1.0"), Meta: changelog.EntryMeta{PR: "179"}},
+				{Name: "github actions", To: semver.MustParse("v2.1.1"), Meta: changelog.EntryMeta{PR: "180"}},
 			},
 		},
 		{
-			name: "Matching_commits_with_meta",
+			name:          "Matching_commits_with_meta",
+			defaultAuthor: "renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
 			commitMessages: []git.Commit{
-				{Message: "chore(deps): update helm release common-library-1 to v1.0.4 (#401) ", Hash: "abcda222"},
+				{Message: "chore(deps): update helm release common-library-1 to v1.0.4 (#401)", Hash: "abcda222"},
 				{Message: "chore(deps): update helm release common-library-2 to v0.0.4 (#402)", Hash: "abcda222"},
 				{Message: "chore(deps): update helm release common-library-3 to v1.2.3", Hash: "abcda222"},
 			},
@@ -140,6 +178,12 @@ func TestSource_Source(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
+			for i := range tc.commitMessages {
+				if tc.commitMessages[i].Author == "" {
+					tc.commitMessages[i].Author = tc.defaultAuthor
+				}
+			}
+
 			extractor := renovate.NewSource(&tagsVersionGetterMock{}, &commitsGetterMock{commitList: tc.commitMessages})
 			cl, err := extractor.Source()
 			if err != nil {
@@ -149,7 +193,11 @@ func TestSource_Source(t *testing.T) {
 			assert.Equal(t, len(tc.expectedDependencies), len(cl.Dependencies))
 			for k, dep := range cl.Dependencies {
 				assert.Equal(t, tc.expectedDependencies[k].Name, dep.Name)
-				assert.Equal(t, tc.expectedDependencies[k].To.String(), dep.To.String())
+				if dep.To != nil {
+					assert.Equal(t, tc.expectedDependencies[k].To.String(), dep.To.String())
+				} else {
+					assert.Nil(t, tc.expectedDependencies[k].To)
+				}
 				assert.Equal(t, tc.expectedDependencies[k].Meta, dep.Meta)
 			}
 		})
