@@ -50,6 +50,7 @@ var (
 // srcChangelog, and write to dst a new full changelog containing the entries specified in the changelog.Changelog
 // object that was passed to New.
 // The source file is left intact and the changelog.Changelog object supplied to New are not modified.
+//
 //nolint:gocyclo,cyclop // Unreasonable amount of iferrnils raise complexity unfairly.
 func (m Merger) Merge(srcChangelog io.Reader, dst io.Writer) error {
 	newSection := &bytes.Buffer{}

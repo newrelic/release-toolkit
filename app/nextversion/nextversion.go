@@ -23,6 +23,7 @@ const (
 )
 
 // Cmd is the cli.Command object for the is-held command.
+//
 //nolint:gochecknoglobals // We could overengineer this to avoid the global command but I don't think it's worth it.
 var Cmd = &cli.Command{
 	Name:  "next-version",
@@ -62,6 +63,7 @@ Several flags can be specified to limit the set of tags that are scanned, and to
 
 // NextVersion is a command function which loads a changelog.yaml file from disk and computes what the next version
 // should be according to semver standards.
+//
 //nolint:gocyclo,cyclop
 func NextVersion(cCtx *cli.Context) error {
 	nextOverride, err := parseNextFlag(cCtx.String(nextFlag))

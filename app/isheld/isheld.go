@@ -13,6 +13,7 @@ import (
 const failFlag = "fail"
 
 // Cmd is the cli.Command object for the is-held command.
+//
 //nolint:gochecknoglobals // We could overengineer this to avoid the global command but I don't think it's worth it.
 var Cmd = &cli.Command{
 	Name:  "is-held",

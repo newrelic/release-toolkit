@@ -2,7 +2,6 @@ package render_test
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"strings"
@@ -144,7 +143,7 @@ This is a release note
 				t.Fatalf("Error running app: %v", err)
 			}
 
-			actual, err := ioutil.ReadFile(mdPath)
+			actual, err := os.ReadFile(mdPath)
 			if err != nil {
 				t.Fatalf("Error reading MD file: %v", err)
 			}
