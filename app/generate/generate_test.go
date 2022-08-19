@@ -175,6 +175,7 @@ func repoWithCommits(t *testing.T, author string, commits ...string) string {
 		"git init",
 		"git config user.email test@user.tld",
 		"git config user.name Test",
+		"git config commit.gpgsign false",
 		"touch a",
 		"git add a",
 		"git commit -m test",

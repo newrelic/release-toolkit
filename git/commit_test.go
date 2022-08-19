@@ -19,6 +19,7 @@ func repoWithCommitsAndTags(t *testing.T, commitsAndTags ...string) string {
 		"git init",
 		"git config user.email test@user.tld",
 		"git config user.name Test",
+		"git config commit.gpgsign false",
 	}
 
 	// Create an empty file, commit and tag it for each tag name.
