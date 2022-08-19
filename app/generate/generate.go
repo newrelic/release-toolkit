@@ -27,6 +27,7 @@ const (
 var ErrNoSources = errors.New("cannot generate changelog without at least one source enabled")
 
 // Cmd is the cli.Command object for the generate command.
+//
 //nolint:gochecknoglobals // We could overengineer this to avoid the global command but I don't think it's worth it.
 var Cmd = &cli.Command{
 	Name:  "generate",
@@ -68,6 +69,7 @@ var Cmd = &cli.Command{
 }
 
 // Generate is a command that creates a changelog.yaml file.
+//
 //nolint:gocyclo,cyclop
 func Generate(cCtx *cli.Context) error {
 	yamlPath := cCtx.String(common.ChangelogFlag)
