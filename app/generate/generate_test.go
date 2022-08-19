@@ -5,8 +5,11 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"regexp"
 	"strings"
 	"testing"
+
+	"github.com/newrelic/release-toolkit/git"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/newrelic/release-toolkit/app"
@@ -56,7 +59,7 @@ changes:
     - type: security
       message: Fixed a security issue that leaked all data
 dependencies: []
-	`) + "\n",
+			`) + "\n",
 		},
 		{
 			name:   "Markdown_Dependabot",
@@ -67,6 +70,9 @@ dependencies: []
 				"chore(deps): bump thisdep from 1.7.0 to 1.10.1",
 				"chore(deps): bump anotherdep from 0.0.1 to 0.0.2 (#69)",
 			},
+			// Note: meta.commit is actually the commit hash.
+			// As it is nontrivial to know the commit hash in advance, to make tests easier to write, test writers
+			// should specify the commit message instead. This test will replace it with the actual hash in runtime.
 			expected: strings.TrimSpace(`
 notes: |-
     ### Important announcement (note)
@@ -80,12 +86,15 @@ dependencies:
     - name: thisdep
       from: 1.7.0
       to: 1.10.1
+      meta:
+        commit: chore(deps): bump thisdep from 1.7.0 to 1.10.1
     - name: anotherdep
       from: 0.0.1
       to: 0.0.2
       meta:
         pr: "69"
-	`) + "\n",
+        commit: chore(deps): bump anotherdep from 0.0.1 to 0.0.2 (#69)
+			`) + "\n",
 		},
 		{
 			name:   "Markdown_Renovate",
@@ -96,6 +105,9 @@ dependencies:
 				"chore(deps): update newrelic/infrastructure-bundle docker tag to v2.7.2",
 				"chore(deps): update helm release common-library to v1.0.4 (#401)",
 			},
+			// Note: meta.commit is actually the commit hash.
+			// As it is nontrivial to know the commit hash in advance, to make tests easier to write, test writers
+			// should specify the commit message instead. This test will replace it with the actual hash in runtime.
 			expected: strings.TrimSpace(`
 notes: |-
     ### Important announcement (note)
@@ -108,16 +120,20 @@ changes:
 dependencies:
     - name: newrelic/infrastructure-bundle
       to: v2.7.2
+      meta:
+        commit: chore(deps): update newrelic/infrastructure-bundle docker tag to v2.7.2
     - name: common-library
       to: v1.0.4
       meta:
         pr: "401"
-	`) + "\n",
+        commit: chore(deps): update helm release common-library to v1.0.4 (#401)
+			`) + "\n",
 		},
 	} {
 		//nolint:paralleltest
 		t.Run(tc.name, func(t *testing.T) {
 			tDir := repoWithCommits(t, tc.author, tc.commits...)
+			tc.expected = calculateHashes(t, tDir, tc.expected)
 
 			app := app.App()
 
@@ -185,4 +201,55 @@ func repoWithCommits(t *testing.T, author string, commits ...string) string {
 	}
 
 	return dir
+}
+
+var metaCommitRegex = regexp.MustCompile(`^\s+commit: (.+)$`)
+
+// calculateHashes replaces messages in meta.commit with the hashes of those commits, as returned by the actual command.
+// As the generate command populates hashes in the yaml output, we need to know them for test data.
+// However, hardcoding hashes would lead to brittle tests. For this reason, we put the message as the hash
+// on the test data, which is then replaced by the hash in-disk using this helper.
+func calculateHashes(t *testing.T, repoPath string, yaml string) string {
+	t.Helper()
+
+	output := &strings.Builder{}
+
+	// Split lines stripping the trailing newline
+	lines := strings.Split(strings.TrimSpace(yaml), "\n")
+	for _, line := range lines {
+		matches := metaCommitRegex.FindStringSubmatch(line)
+		if len(matches) == 0 {
+			_, _ = fmt.Fprintln(output, line)
+			continue
+		}
+
+		message := matches[1]
+		_, _ = fmt.Fprintln(output, strings.ReplaceAll(line, message, hashFor(t, repoPath, message)))
+	}
+
+	return output.String()
+}
+
+// hashFor is a helper that returns the hash of a commit given its message.
+func hashFor(t *testing.T, repoPath string, message string) string {
+	t.Helper()
+
+	commitsGetter, err := git.NewRepoCommitsGetter(repoPath)
+	if err != nil {
+		t.Fatalf("Internal error resolving hashes: creating git source: %v", err)
+	}
+
+	commits, err := commitsGetter.Commits("")
+	if err != nil {
+		t.Fatalf("Internal error resolving hashes: fetching commits: %v", err)
+	}
+
+	for _, c := range commits {
+		if c.Message == message {
+			return c.Hash
+		}
+	}
+
+	t.Fatalf("Internal error resolving hashes: Could not find hash for commit %q", message)
+	return ""
 }
