@@ -67,5 +67,14 @@ func (r Source) Changelog() (*changelog.Changelog, error) {
 			},
 		})
 	}
-	return &changelog.Changelog{Dependencies: dependencies}, nil
+
+	// Reverse order in which dependencies appear in changelog, to put the oldest first.
+	// Commits are iterated in a newest-first order.
+	nDeps := len(dependencies)
+	sortedDependencies := make([]changelog.Dependency, nDeps)
+	for i := 0; i < nDeps; i++ {
+		sortedDependencies[nDeps-1-i] = dependencies[i]
+	}
+
+	return &changelog.Changelog{Dependencies: sortedDependencies}, nil
 }

@@ -25,8 +25,15 @@ type commitsGetterMock struct {
 	commitList []git.Commit
 }
 
+// Commits return the list of commits in reverse order, which is like the real commit getter would return them if
+// the first commit in the slice was committed first.
 func (c *commitsGetterMock) Commits(_ string) ([]git.Commit, error) {
-	return c.commitList, nil
+	var commits []git.Commit
+	for i := len(c.commitList) - 1; i >= 0; i-- {
+		commits = append(commits, c.commitList[i])
+	}
+
+	return commits, nil
 }
 
 //nolint:funlen
