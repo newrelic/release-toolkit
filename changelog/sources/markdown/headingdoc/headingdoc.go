@@ -30,7 +30,7 @@ var (
 	ErrNotDocument = errors.New("markdown ast node is not a document node")
 )
 
-// New takes a root (ast.Document) markdown node and buidls a Doc with it.
+// New takes a root (ast.Document) markdown node and builds a Doc with it.
 func New(root ast.Node) (*Doc, error) {
 	current := &Doc{}
 	docRoot := current
