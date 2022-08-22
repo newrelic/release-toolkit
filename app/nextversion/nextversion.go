@@ -6,6 +6,7 @@ import (
 
 	"github.com/Masterminds/semver"
 	"github.com/newrelic/release-toolkit/app/common"
+	"github.com/newrelic/release-toolkit/app/gha"
 	"github.com/newrelic/release-toolkit/bumper"
 	"github.com/newrelic/release-toolkit/changelog"
 	"github.com/newrelic/release-toolkit/git"
@@ -21,6 +22,8 @@ const (
 	nextFlag    = "next"
 	dirFlag     = "dir"
 )
+
+const nextVersionOutput = "next-version"
 
 // Cmd is the cli.Command object for the is-held command.
 //
@@ -66,6 +69,8 @@ Several flags can be specified to limit the set of tags that are scanned, and to
 //
 //nolint:gocyclo,cyclop
 func NextVersion(cCtx *cli.Context) error {
+	gh := gha.NewFromCli(cCtx)
+
 	nextOverride, err := parseNextFlag(cCtx.String(nextFlag))
 	if err != nil {
 		return err
@@ -91,6 +96,7 @@ func NextVersion(cCtx *cli.Context) error {
 	bmpr := bumper.New(ch)
 	next, err := bmpr.BumpSource(versionSrc)
 
+	nextStr := ""
 	switch {
 	case nextOverride != nil && next != nil:
 		if nextOverride.LessThan(next) {
@@ -98,18 +104,21 @@ func NextVersion(cCtx *cli.Context) error {
 		} else {
 			log.Infof("Overriding next version from autocomputed %v to %v", next.String(), nextOverride.String())
 		}
-		_, _ = fmt.Fprintf(cCtx.App.Writer, "v%s\n", nextOverride.String())
+		nextStr = nextOverride.String()
 
 	case nextOverride != nil && next == nil:
 		log.Infof("Could not compute automatic bump, using overridden version")
-		_, _ = fmt.Fprintf(cCtx.App.Writer, "v%s\n", nextOverride.String())
+		nextStr = nextOverride.String()
 
 	case nextOverride == nil && next != nil:
-		_, _ = fmt.Fprintf(cCtx.App.Writer, "v%s\n", next.String())
+		nextStr = next.String()
 
 	case nextOverride == nil && next == nil:
-		return fmt.Errorf("buming source: %w", err)
+		return fmt.Errorf("bumping source: %w", err)
 	}
+
+	_, _ = fmt.Fprintf(cCtx.App.Writer, "v%s\n", nextStr)
+	gh.SetOutput(nextVersionOutput, fmt.Sprintf("v%s", nextStr))
 
 	return nil
 }

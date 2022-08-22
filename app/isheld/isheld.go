@@ -5,12 +5,15 @@ import (
 	"os"
 
 	"github.com/newrelic/release-toolkit/app/common"
+	"github.com/newrelic/release-toolkit/app/gha"
 	"github.com/newrelic/release-toolkit/changelog"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/yaml.v3"
 )
 
 const failFlag = "fail"
+
+const isHeldOutput = "is-held"
 
 // Cmd is the cli.Command object for the is-held command.
 //
@@ -32,6 +35,8 @@ var Cmd = &cli.Command{
 // IsHeld is a command function which loads a changelog.yaml file from this, and prints to stdout whether it has the
 // Held flag set to true.
 func IsHeld(cCtx *cli.Context) error {
+	gh := gha.NewFromCli(cCtx)
+
 	chPath := cCtx.String(common.ChangelogFlag)
 	chFile, err := os.Open(chPath)
 	if err != nil {
@@ -44,7 +49,8 @@ func IsHeld(cCtx *cli.Context) error {
 		return fmt.Errorf("loading changelog from file: %w", err)
 	}
 
-	_, _ = fmt.Fprintf(cCtx.App.Writer, "%v", ch.Held)
+	_, _ = fmt.Fprintf(cCtx.App.Writer, "%v\n", ch.Held)
+	gh.SetOutput(isHeldOutput, ch.Held)
 
 	if cCtx.Bool("fail") && ch.Held {
 		return cli.Exit("", 1)

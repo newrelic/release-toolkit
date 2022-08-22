@@ -10,9 +10,8 @@ import (
 	"github.com/newrelic/release-toolkit/app"
 )
 
+//nolint:paralleltest
 func TestIsHeld(t *testing.T) {
-	t.Parallel()
-
 	app := app.App()
 
 	buf := &strings.Builder{}
@@ -32,12 +31,27 @@ changes:
     message: this is broken
 `)
 
-	err = app.Run(strings.Fields(fmt.Sprintf("rt -changelog %s is-held", filepath)))
-	if err != nil {
-		t.Fatalf("Error running app: %v", err)
-	}
+	for _, tc := range []struct {
+		cmd      string
+		expected string
+	}{
+		{
+			cmd:      fmt.Sprintf("rt -changelog %s is-held", filepath),
+			expected: "true\n",
+		},
+		{
+			cmd:      fmt.Sprintf("rt -gha=1 -changelog %s is-held", filepath),
+			expected: "true\n::set-output name=is-held::true\n",
+		},
+	} {
+		buf.Reset()
+		err = app.Run(strings.Fields(tc.cmd))
+		if err != nil {
+			t.Fatalf("Error running app: %v", err)
+		}
 
-	if actual := buf.String(); actual != "true" {
-		t.Fatalf("Expected 'true', app printed:\n%s", actual)
+		if actual := buf.String(); actual != tc.expected {
+			t.Fatalf("Expected %q, app printed: %q", tc.expected, actual)
+		}
 	}
 }

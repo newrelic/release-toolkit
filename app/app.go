@@ -24,6 +24,13 @@ func App() *cli.App {
 				Value:   "changelog.yaml",
 				Usage:   "Path to the changelog.yaml file",
 			},
+			// -gha tells commands to output workflow commands as understood by Github Actions.
+			&cli.BoolFlag{
+				Name:    common.GHAFlag,
+				EnvVars: []string{common.GHAEnv},
+				Value:   false,
+				Usage:   "Set to true to echo Workflow commands to stdout using the Github actions syntax",
+			},
 		},
 		Commands: []*cli.Command{
 			isheld.Cmd,
