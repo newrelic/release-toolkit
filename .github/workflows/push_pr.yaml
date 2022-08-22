@@ -50,7 +50,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
       - name: Run tests
-        run: go test -race ./...
+        # CLI autodetects whether it is running on GHA or not. If we let GHA set this to true, as it normally does,
+        # tests cases where GITHUB_ACTIONS is expected to be unset would fail.
+        run: GITHUB_ACTIONS=false go test -race ./...
 
   static-analysis:
     name: Static analysis and linting
