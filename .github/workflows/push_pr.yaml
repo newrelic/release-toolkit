@@ -35,6 +35,7 @@ jobs:
           go-version: '1.18'
       - uses: newrelic/newrelic-infra-checkers@v1
         with:
+          # Use full list of linters, rather than the (default) limited set.
           golangci-lint-config: golangci-lint
       - name: Semgrep
         uses: returntocorp/semgrep-action@v1
