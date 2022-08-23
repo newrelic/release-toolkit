@@ -9,6 +9,7 @@ jobs:
   rebase:
     name: Branch needs rebase
     runs-on: ubuntu-latest
+    if: github.event.pull_request
     steps:
       - uses: actions/checkout@v3
         with:
