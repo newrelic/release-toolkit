@@ -166,8 +166,8 @@ func (d Dependency) String() string {
 // to marshal and unmarshal from YAML format because unfortunately, semver.Version does not implement yaml.Marshaler.
 type plainDependency struct {
 	Name string    `yaml:"name"`
-	To   string    `yaml:"to,omitempty"`
 	From string    `yaml:"from,omitempty"`
+	To   string    `yaml:"to,omitempty"`
 	Meta EntryMeta `yaml:"meta,omitempty"`
 }
 
