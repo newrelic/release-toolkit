@@ -14,10 +14,11 @@ import (
 //nolint:paralleltest // urfave/cli cannot be tested concurrently.
 func TestNextVersion_Without_Repo(t *testing.T) {
 	for _, tc := range []struct {
-		name     string
-		yaml     string
-		expected string
-		args     string
+		name       string
+		yaml       string
+		expected   string
+		args       string
+		globalargs string
 	}{
 		{
 			name:     "Overrides_Next",
@@ -71,6 +72,17 @@ changes:
   message: Support has been removed
 			`),
 		},
+		{
+			name:       "Bumps_Major_GHA",
+			globalargs: "-gha=true",
+			args:       "-current v1.2.3",
+			expected:   "v2.0.0\n::set-output name=next-version::v2.0.0",
+			yaml: strings.TrimSpace(`
+changes:
+- type: breaking
+  message: Support has been removed
+			`),
+		},
 	} {
 		tc := tc
 		//nolint:paralleltest // urfave/cli cannot be tested concurrently.
@@ -90,7 +102,7 @@ changes:
 			buf := &strings.Builder{}
 			app.Writer = buf
 
-			err = app.Run(strings.Fields(fmt.Sprintf("rt -changelog %s next-version %s", yamlPath, tc.args)))
+			err = app.Run(strings.Fields(fmt.Sprintf("rt -changelog %s %s next-version %s", yamlPath, tc.globalargs, tc.args)))
 			if err != nil {
 				t.Fatalf("Error running app: %v", err)
 			}
