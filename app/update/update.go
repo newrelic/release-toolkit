@@ -1,7 +1,6 @@
 package update
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -19,8 +18,6 @@ const (
 	versionFlag = "version"
 	dateFlag    = "date"
 )
-
-var ErrEmptyDate = errors.New("version must not be empty")
 
 // Cmd is the cli.Command object for the is-held command.
 //
