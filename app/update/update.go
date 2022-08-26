@@ -19,7 +19,7 @@ const (
 	dateFlag    = "date"
 )
 
-// Cmd is the cli.Command object for the is-held command.
+// Cmd is the cli.Command object for the update-changelog command.
 //
 //nolint:gochecknoglobals // We could overengineer this to avoid the global command but I don't think it's worth it.
 var Cmd = &cli.Command{
@@ -52,8 +52,7 @@ var Cmd = &cli.Command{
 	Action: Update,
 }
 
-// Update is a command function which loads a changelog.yaml file from this, and prints to stdout whether it has the
-// Held flag set to true.
+// Update is a command function which loads a changelog.yaml file and merges it into an existing CHANGELOG.md document.
 func Update(cCtx *cli.Context) error {
 	chPath := cCtx.String(common.ChangelogFlag)
 	chFile, err := os.Open(chPath)
