@@ -7,10 +7,10 @@ import (
 
 	"github.com/newrelic/release-toolkit/app/common"
 	"github.com/newrelic/release-toolkit/changelog"
+	"github.com/newrelic/release-toolkit/changelog/sources/dependabot"
 	"github.com/newrelic/release-toolkit/changelog/sources/markdown"
-	"github.com/newrelic/release-toolkit/dependabot"
+	"github.com/newrelic/release-toolkit/changelog/sources/renovate"
 	"github.com/newrelic/release-toolkit/git"
-	"github.com/newrelic/release-toolkit/renovate"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/yaml.v3"
 )
