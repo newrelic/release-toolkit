@@ -37,7 +37,7 @@ var Cmd = &cli.Command{
 			Name:    versionFlag,
 			EnvVars: common.EnvFor(versionFlag),
 			Usage: "Version to stamp in the changelog section header. " +
-				"If omitted, no version header will be generated",
+				"If omitted, no version header will be generated.",
 			Value: "",
 		},
 		&cli.TimestampFlag{
