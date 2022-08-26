@@ -26,8 +26,9 @@ type Doc struct {
 }
 
 var (
-	ErrEmptyName   = errors.New("heading has no name")
-	ErrNotDocument = errors.New("markdown ast node is not a document node")
+	ErrEmptyName           = errors.New("heading has no name")
+	ErrNotDocument         = errors.New("markdown ast node is not a document node")
+	ErrUnsupportedL1Header = errors.New("only a single L1 header is allowed")
 )
 
 // New takes a root (ast.Document) markdown node and builds a Doc with it.
@@ -125,8 +126,7 @@ func (hd *Doc) append(node ast.Node) (*Doc, error) {
 
 	if heading.Level <= hd.Level {
 		if hd.Parent == nil {
-			log.Warnf("Header is a sibling of the top-level header, which is not supported. Dropping header")
-			return hd, nil
+			return nil, fmt.Errorf("unexpected additional L1 header %q found, %w", headingName(heading), ErrUnsupportedL1Header)
 		}
 
 		log.Trace("Header to be appended is the same or greater level as me, forwarding request to my parent")
