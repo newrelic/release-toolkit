@@ -8,6 +8,7 @@ import (
 	"github.com/newrelic/release-toolkit/app/nextversion"
 	"github.com/newrelic/release-toolkit/app/render"
 	"github.com/newrelic/release-toolkit/app/update"
+	"github.com/newrelic/release-toolkit/app/validate"
 	"github.com/urfave/cli/v2"
 )
 
@@ -39,6 +40,7 @@ func App() *cli.App {
 			nextversion.Cmd,
 			generate.Cmd,
 			update.Cmd,
+			validate.Cmd,
 		},
 	}
 }
