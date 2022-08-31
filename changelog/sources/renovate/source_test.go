@@ -5,8 +5,8 @@ import (
 
 	"github.com/Masterminds/semver"
 	"github.com/newrelic/release-toolkit/changelog"
+	"github.com/newrelic/release-toolkit/changelog/sources/renovate"
 	"github.com/newrelic/release-toolkit/git"
-	"github.com/newrelic/release-toolkit/renovate"
 	"github.com/stretchr/testify/assert"
 )
 

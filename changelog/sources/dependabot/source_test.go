@@ -5,7 +5,7 @@ import (
 
 	"github.com/Masterminds/semver"
 	"github.com/newrelic/release-toolkit/changelog"
-	"github.com/newrelic/release-toolkit/dependabot"
+	"github.com/newrelic/release-toolkit/changelog/sources/dependabot"
 	"github.com/newrelic/release-toolkit/git"
 	"github.com/stretchr/testify/assert"
 )
