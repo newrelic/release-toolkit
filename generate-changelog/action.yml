@@ -1,0 +1,42 @@
+name: Generate changelog
+description: Reads CHANGELOG.md files, bot commits, and other sources and generates a changelog with them
+inputs:
+  changelog:
+    description: Path to changelog.yaml, will be overwritten
+    required: false
+    default: changelog.yaml
+  md:
+    description: Path to CHANGELOG.md to source entries from (read-only)
+    required: false
+    default: CHANGELOG.md
+  renovate:
+    description: Extract dependency updates from renovate commits
+    required: false
+    default: "true"
+  dependabot:
+    description: Extract dependency updates from dependabot commits
+    required: false
+    default: "true"
+  dir:
+    description: Path to the root of the git repository to source bot commits from
+    required: false
+    default: "."
+  tag-prefix:
+    description: Find commits since latest matching this prefix
+    required: false
+    default: ""
+runs:
+  using: docker
+  image: ../Dockerfile
+  args:
+    - --changelog
+    - ${{ inputs.changelog }}
+    - generate
+    - --md
+    - ${{ inputs.md }}
+    - --renovate=${{ inputs.renovate }}
+    - --dependabot=${{ inputs.dependabot }}
+    - --dir
+    - ${{ inputs.dir }}
+    - --tag-prefix
+    - ${{ inputs.tag-prefix }}

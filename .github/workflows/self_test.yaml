@@ -1,0 +1,152 @@
+name: Self-test
+on:
+  pull_request:
+
+jobs:
+  is-held:
+    name: is-held action
+    runs-on: ubuntu-latest
+    env:
+      MOCK_REPO: ./mock_repo
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configure test repo
+        id: repo
+        shell: bash
+        run: |
+          mkdir $MOCK_REPO
+          cd $MOCK_REPO
+
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+
+          git init
+          for i in 1 2 3; do
+            touch file$i
+            git add file$i
+            git commit -m commit_$i
+          done
+          
+          cat > changelog.yaml <<EOF
+          held: true
+          EOF
+
+          cat > CHANGELOG.md <<EOF
+          # Changelog
+          The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+          and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+          ## Unreleased
+          ### Changed
+          - Added new feature here
+
+          ## 1.0.0 - 2017-06-20
+          ### Added
+          - New visual identity by [@tylerfortune8](https://github.com/tylerfortune8).
+          EOF
+      - uses: ./is-held
+        id: held
+        with:
+          changelog: ${{ env.MOCK_REPO }}/changelog.yaml
+      - if: ${{ ! steps.held.outputs.is-held }}
+        run: |
+          echo "is-held should have returned true" >&2
+          exit 1
+
+  generate-changelog:
+    name: generate-changelog action
+    runs-on: ubuntu-latest
+    env:
+      MOCK_REPO: ./mock_repo
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configure test repo
+        id: repo
+        shell: bash
+        run: |
+          mkdir $MOCK_REPO
+          cd $MOCK_REPO
+
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+
+          git init
+          for i in 1 2 3; do
+            touch file$i
+            git add file$i
+            git commit -m commit_$i
+          done
+
+          cat > CHANGELOG.md <<EOF
+          # Changelog
+          The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+          and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+          ## Unreleased
+          ### Enhancements
+          - Added new feature here
+
+          ## 1.0.0 - 2017-06-20
+          ### Added
+          - New visual identity by [@tylerfortune8](https://github.com/tylerfortune8).
+          EOF
+      - uses: ./generate-changelog
+        with:
+          changelog: ${{ env.MOCK_REPO }}/changelog.yaml
+          md: ${{ env.MOCK_REPO }}/CHANGELOG.md
+          dir: ${{ env.MOCK_REPO }}
+      - run: |
+          cat $MOCK_REPO/changelog.yaml
+
+          if [[ $(cat $MOCK_REPO/changelog.yaml | wc -c) -eq 0 ]]; then
+            echo "Changelog.yaml should not be empty" >&2
+            exit 1
+          fi
+          
+          if grep -e 'changes: \[\]' $MOCK_REPO/changelog.yaml; then
+            echo "Changelog.yaml should not have an empty changes section" >&2
+            exit 2
+          fi
+
+  next-version:
+    name: next-version action
+    runs-on: ubuntu-latest
+    env:
+      MOCK_REPO: ./mock_repo
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configure test repo
+        id: repo
+        shell: bash
+        run: |
+          mkdir $MOCK_REPO
+          cd $MOCK_REPO
+
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+
+          git init
+          for i in 1 2 3; do
+            touch file$i
+            git add file$i
+            git commit -m commit_$i
+          done
+          
+          git tag v1.2.3
+          
+          cat > changelog.yaml <<EOF
+          changes:
+            - type: breaking
+              message: this is broken
+          EOF
+
+      - uses: ./next-version
+        id: next-version
+        with:
+          changelog: ${{ env.MOCK_REPO }}/changelog.yaml
+          dir: ${{ env.MOCK_REPO }}
+      - run: |
+          if [[ "${{ steps.next-version.outputs.next-version }}" != "v2.0.0" ]]; then
+            echo "next-version should have returned v2.0.0" >&2
+            exit 1
+          fi

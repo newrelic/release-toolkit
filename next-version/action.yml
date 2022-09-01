@@ -1,0 +1,29 @@
+name: Next Version
+description: Compute next version according to changelog.yaml and semver conventions
+inputs:
+  changelog:
+    description: Path to changelog.yaml
+    required: false
+    default: changelog.yaml
+  dir:
+    description: Path to the root of the git repository to source tags from
+    required: false
+    default: "."
+  tag-prefix:
+    description: Get current version from latest semver tag matching this prefix
+    required: false
+    default: ""
+outputs:
+  next-version:
+    description: Semver next version, with leading v
+runs:
+  using: docker
+  image: ../Dockerfile
+  args:
+    - --changelog
+    - ${{ inputs.changelog }}
+    - next-version
+    - --dir
+    - ${{ inputs.dir }}
+    - --tag-prefix
+    - ${{ inputs.tag-prefix }}
