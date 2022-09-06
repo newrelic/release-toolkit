@@ -9,7 +9,6 @@ import (
 	"github.com/newrelic/release-toolkit/app/common"
 	"github.com/newrelic/release-toolkit/changelog"
 	"github.com/newrelic/release-toolkit/changelog/renderer"
-	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/yaml.v3"
 )
@@ -40,12 +39,13 @@ var Cmd = &cli.Command{
 				"If omitted, no version header will be generated",
 			Value: "",
 		},
-		&cli.StringFlag{
+		&cli.TimestampFlag{
 			Name:    dateFlag,
 			EnvVars: common.EnvFor(dateFlag),
 			Usage: "Date to stamp in the changelog section header, in YYYY-MM-DD format. " +
-				"If empty it will be omitted from the header. The literal 'now' can also be specified.",
-			Value: "now",
+				"If empty it will default to the current time (time.Now()).",
+			Value:  cli.NewTimestamp(time.Now()),
+			Layout: "2006-01-02",
 		},
 	},
 	Action: Render,
@@ -73,51 +73,25 @@ func Render(cCtx *cli.Context) error {
 	}
 
 	rnd := renderer.New(ch)
-	err = addDate(&rnd, cCtx.String(dateFlag))
-	if err != nil {
-		return err
+
+	if t := cCtx.Timestamp(dateFlag); t != nil {
+		tv := *t
+		rnd.ReleasedOn = func() time.Time {
+			return tv
+		}
 	}
 
-	err = addVersion(&rnd, cCtx.String(versionFlag))
-	if err != nil {
-		return err
+	if versionStr := cCtx.String(versionFlag); versionStr != "" {
+		version, vErr := semver.NewVersion(versionStr)
+		if vErr != nil {
+			return fmt.Errorf("parsing version %q: %w", versionStr, vErr)
+		}
+		rnd.Next = version
 	}
 
 	err = rnd.Render(mdFile)
 	if err != nil {
 		return fmt.Errorf("rendering changelog: %w", err)
-	}
-
-	return nil
-}
-
-func addDate(rnd *renderer.Renderer, dateStr string) error {
-	switch dateStr {
-	case "":
-		log.Infof("Generating changelog without a release date")
-	case "now":
-		rnd.ReleasedOn = time.Now
-	default:
-		date, err := time.Parse("2006-01-02", dateStr)
-		if err != nil {
-			return fmt.Errorf("parsing date %q: %w", dateStr, err)
-		}
-
-		rnd.ReleasedOn = func() time.Time {
-			return date
-		}
-	}
-
-	return nil
-}
-
-func addVersion(rnd *renderer.Renderer, versionStr string) error {
-	if versionStr != "" {
-		version, err := semver.NewVersion(versionStr)
-		if err != nil {
-			return fmt.Errorf("parsing version %q: %w", versionStr, err)
-		}
-		rnd.Next = version
 	}
 
 	return nil
