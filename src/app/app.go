@@ -5,6 +5,7 @@ import (
 	"github.com/newrelic/release-toolkit/app/common"
 	"github.com/newrelic/release-toolkit/app/generate"
 	"github.com/newrelic/release-toolkit/app/isheld"
+	"github.com/newrelic/release-toolkit/app/link"
 	"github.com/newrelic/release-toolkit/app/nextversion"
 	"github.com/newrelic/release-toolkit/app/render"
 	"github.com/newrelic/release-toolkit/app/update"
@@ -41,6 +42,7 @@ func App() *cli.App {
 			generate.Cmd,
 			update.Cmd,
 			validate.Cmd,
+			link.Cmd,
 		},
 	}
 }
