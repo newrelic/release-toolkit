@@ -4,14 +4,12 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/newrelic/release-toolkit/app/common"
 	"github.com/newrelic/release-toolkit/changelog"
-	"gopkg.in/yaml.v3"
-
 	"github.com/newrelic/release-toolkit/changelog/linker"
 	"github.com/newrelic/release-toolkit/changelog/linker/mapper"
-
-	"github.com/newrelic/release-toolkit/app/common"
 	"github.com/urfave/cli/v2"
+	"gopkg.in/yaml.v3"
 )
 
 const (
@@ -52,7 +50,7 @@ var Cmd = &cli.Command{
 //
 //nolint:gocyclo,cyclop
 func Link(cCtx *cli.Context) error {
-	chPath := cCtx.String(common.ChangelogFlag)
+	chPath := cCtx.String(common.YAMLFlag)
 
 	if cCtx.Bool(sampleFlag) {
 		sampleDic, err := sampleDictionary()

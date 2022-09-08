@@ -1,7 +1,7 @@
 name: Generate changelog
 description: Reads CHANGELOG.md files, bot commits, and other sources and generates a changelog with them
 inputs:
-  changelog:
+  yaml:
     description: Path to changelog.yaml, will be overwritten
     required: false
     default: changelog.yaml
@@ -29,8 +29,8 @@ runs:
   using: docker
   image: ../Dockerfile
   args:
-    - --changelog
-    - ${{ inputs.changelog }}
+    - --yaml
+    - ${{ inputs.yaml }}
     - generate
     - --md
     - ${{ inputs.md }}

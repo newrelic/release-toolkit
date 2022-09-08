@@ -1,7 +1,7 @@
 name: Render
 description: Renders a changelog.yaml as a markdown changelog section
 inputs:
-  changelog:
+  yaml:
     description: Path to changelog.yaml
     required: false
     default: changelog.yaml
@@ -20,8 +20,8 @@ runs:
   using: docker
   image: ../Dockerfile
   args:
-    - --changelog
-    - ${{ inputs.changelog }}
+    - --yaml
+    - ${{ inputs.yaml }}
     - render-changelog
     - --md
     - ${{ inputs.md }}

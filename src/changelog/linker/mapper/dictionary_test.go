@@ -7,7 +7,6 @@ import (
 
 	"github.com/Masterminds/semver"
 	"github.com/newrelic/release-toolkit/changelog"
-
 	"github.com/newrelic/release-toolkit/changelog/linker/mapper"
 )
 

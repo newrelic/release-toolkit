@@ -1,9 +1,9 @@
 package common
 
 const (
-	// ChangelogFlag is the command line flag to specify the path to a changelog.yaml file.
+	// YAMLFlag is the command line flag to specify the path to a changelog.yaml file.
 	// This flag is common and used by most commands.
-	ChangelogFlag = "changelog"
+	YAMLFlag = "yaml"
 
 	// GHAFlag is the flag used by commands to identify if they should output GHA-syntax to stdout.
 	GHAFlag = "gha"

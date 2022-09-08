@@ -72,7 +72,7 @@ var Cmd = &cli.Command{
 //
 //nolint:gocyclo,cyclop
 func Generate(cCtx *cli.Context) error {
-	yamlPath := cCtx.String(common.ChangelogFlag)
+	yamlPath := cCtx.String(common.YAMLFlag)
 	chFile, err := os.Create(yamlPath)
 	if err != nil {
 		return fmt.Errorf("opening changelog file %q: %w", yamlPath, err)

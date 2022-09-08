@@ -54,10 +54,10 @@ var Cmd = &cli.Command{
 // Render is a command function which loads a changelog.yaml file from this, and prints to stdout whether it has the
 // Held flag set to true.
 func Render(cCtx *cli.Context) error {
-	chPath := cCtx.String(common.ChangelogFlag)
+	chPath := cCtx.String(common.YAMLFlag)
 	chFile, err := os.Open(chPath)
 	if err != nil {
-		return fmt.Errorf("opening changelog file %q: %w", chPath, err)
+		return fmt.Errorf("opening changelog yaml file %q: %w", chPath, err)
 	}
 
 	ch := &changelog.Changelog{}

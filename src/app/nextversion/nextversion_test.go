@@ -102,7 +102,7 @@ changes:
 			buf := &strings.Builder{}
 			app.Writer = buf
 
-			err = app.Run(strings.Fields(fmt.Sprintf("rt -changelog %s %s next-version %s", yamlPath, tc.globalargs, tc.args)))
+			err = app.Run(strings.Fields(fmt.Sprintf("rt -yaml %s %s next-version %s", yamlPath, tc.globalargs, tc.args)))
 			if err != nil {
 				t.Fatalf("Error running app: %v", err)
 			}
@@ -244,7 +244,7 @@ changes:
 			buf := &strings.Builder{}
 			app.Writer = buf
 
-			err = app.Run(strings.Fields(fmt.Sprintf("rt -changelog %s next-version -dir %s %s", yamlPath, repoDir, tc.args)))
+			err = app.Run(strings.Fields(fmt.Sprintf("rt -yaml %s next-version -dir %s %s", yamlPath, repoDir, tc.args)))
 			if err != nil {
 				t.Fatalf("Error running app: %v", err)
 			}

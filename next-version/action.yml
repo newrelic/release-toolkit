@@ -1,7 +1,7 @@
 name: Next Version
 description: Compute next version according to changelog.yaml and semver conventions
 inputs:
-  changelog:
+  yaml:
     description: Path to changelog.yaml
     required: false
     default: changelog.yaml
@@ -20,8 +20,8 @@ runs:
   using: docker
   image: ../Dockerfile
   args:
-    - --changelog
-    - ${{ inputs.changelog }}
+    - --yaml
+    - ${{ inputs.yaml }}
     - next-version
     - --dir
     - ${{ inputs.dir }}

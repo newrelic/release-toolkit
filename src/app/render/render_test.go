@@ -138,7 +138,7 @@ This is a release note
 
 			mdPath := path.Join(tDir, "changelog.md")
 
-			err = app.Run(strings.Fields(fmt.Sprintf("rt -changelog %s render-changelog -md %s %s", yamlPath, mdPath, tc.args)))
+			err = app.Run(strings.Fields(fmt.Sprintf("rt -yaml %s render-changelog -md %s %s", yamlPath, mdPath, tc.args)))
 			if err != nil {
 				t.Fatalf("Error running app: %v", err)
 			}

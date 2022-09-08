@@ -54,7 +54,7 @@ var Cmd = &cli.Command{
 
 // Update is a command function which loads a changelog.yaml file and merges it into an existing CHANGELOG.md document.
 func Update(cCtx *cli.Context) error {
-	chPath := cCtx.String(common.ChangelogFlag)
+	chPath := cCtx.String(common.YAMLFlag)
 	chFile, err := os.Open(chPath)
 	if err != nil {
 		return fmt.Errorf("opening changelog file %q: %w", chPath, err)

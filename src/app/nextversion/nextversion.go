@@ -76,7 +76,7 @@ func NextVersion(cCtx *cli.Context) error {
 		return err
 	}
 
-	chPath := cCtx.String(common.ChangelogFlag)
+	chPath := cCtx.String(common.YAMLFlag)
 	chFile, err := os.Open(chPath)
 	if err != nil {
 		return fmt.Errorf("opening changelog file %q: %w", chPath, err)
