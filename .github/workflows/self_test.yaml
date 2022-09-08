@@ -47,7 +47,7 @@ jobs:
       - uses: ./is-held
         id: held
         with:
-          changelog: ${{ env.MOCK_REPO }}/changelog.yaml
+          yaml: ${{ env.MOCK_REPO }}/changelog.yaml
       - run: |
           if [[ "${{ steps.held.outputs.is-held }}" != "true" ]]; then
             echo "is-held should have returned true" >&2
@@ -93,9 +93,9 @@ jobs:
           EOF
       - uses: ./generate-changelog
         with:
-          changelog: ${{ env.MOCK_REPO }}/changelog.yaml
-          md: ${{ env.MOCK_REPO }}/CHANGELOG.md
-          dir: ${{ env.MOCK_REPO }}
+          yaml: ${{ env.MOCK_REPO }}/changelog.yaml
+          markdown: ${{ env.MOCK_REPO }}/CHANGELOG.md
+          git-root: ${{ env.MOCK_REPO }}
       - run: |
           cat $MOCK_REPO/changelog.yaml
 
@@ -143,8 +143,8 @@ jobs:
       - uses: ./next-version
         id: next-version
         with:
-          changelog: ${{ env.MOCK_REPO }}/changelog.yaml
-          dir: ${{ env.MOCK_REPO }}
+          yaml: ${{ env.MOCK_REPO }}/changelog.yaml
+          git-root: ${{ env.MOCK_REPO }}
       - run: |
           if [[ "${{ steps.next-version.outputs.next-version }}" != "v2.0.0" ]]; then
             echo "next-version should have returned v2.0.0" >&2
@@ -193,7 +193,7 @@ jobs:
           EOF
       - uses: ./link-changelog
         with:
-          changelog: ${{ env.MOCK_REPO }}/changelog.yaml
+          yaml: ${{ env.MOCK_REPO }}/changelog.yaml
           dictionary: ${{ env.MOCK_REPO }}/dictionary.yaml
       - run: |
           cat $MOCK_REPO/changelog.yaml
@@ -254,8 +254,8 @@ jobs:
           EOF
       - uses: ./render
         with:
-          changelog: ${{ env.MOCK_REPO }}/changelog.yaml
-          md: ${{ env.MOCK_REPO }}/CHANGELOG.partial.md
+          yaml: ${{ env.MOCK_REPO }}/changelog.yaml
+          markdown: ${{ env.MOCK_REPO }}/CHANGELOG.partial.md
           version: v1.2.3
           date: 1993-09-21
       - run: |
@@ -330,8 +330,8 @@ jobs:
           EOF
       - uses: ./update
         with:
-          changelog: ${{ env.MOCK_REPO }}/changelog.yaml
-          md: ${{ env.MOCK_REPO }}/existing.md
+          yaml: ${{ env.MOCK_REPO }}/changelog.yaml
+          markdown: ${{ env.MOCK_REPO }}/existing.md
           version: v1.2.3
           date: 1993-09-21
       - run: |
@@ -378,7 +378,7 @@ jobs:
       - uses: ./validate
         id: validate
         with:
-          md: ${{ env.MOCK_REPO }}/changelog.md
+          markdown: ${{ env.MOCK_REPO }}/changelog.md
           exit-code: 0
       - run: |
           if [[ "${{ steps.validate.outputs.valid }}" != "false" ]]; then

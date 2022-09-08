@@ -11,9 +11,9 @@ import (
 )
 
 const (
-	mdPathFlag   = "md"
-	exitCodeFlag = "exit-code"
-	validOutput  = "valid"
+	markdownPathFlag = "markdown"
+	exitCodeFlag     = "exit-code"
+	validOutput      = "valid"
 )
 
 // Cmd is the cli.Command object for the validate command.
@@ -24,8 +24,8 @@ var Cmd = &cli.Command{
 	Usage: "Prints errors if changelog has an invalid format.",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:    mdPathFlag,
-			EnvVars: common.EnvFor(mdPathFlag),
+			Name:    markdownPathFlag,
+			EnvVars: common.EnvFor(markdownPathFlag),
 			Usage:   "Validate specified changelog file.",
 			Value:   "CHANGELOG.md",
 		},
@@ -44,7 +44,7 @@ var Cmd = &cli.Command{
 func Validate(cCtx *cli.Context) error {
 	gh := gha.NewFromCli(cCtx)
 
-	mdPath := cCtx.String(mdPathFlag)
+	mdPath := cCtx.String(markdownPathFlag)
 	chFile, err := os.Open(mdPath)
 	if err != nil {
 		return fmt.Errorf("opening changelog file %q: %w", mdPath, err)

@@ -1,7 +1,7 @@
 name: Is Held
 description: Outputs whether automated releases should be skipped
 inputs:
-  changelog:
+  yaml:
     description: Path to changelog.yaml
     required: false
     default: changelog.yaml
@@ -12,6 +12,6 @@ runs:
   using: docker
   image: ../Dockerfile
   args:
-    - --changelog
-    - ${{ inputs.changelog }}
+    - --yaml
+    - ${{ inputs.yaml }}
     - is-held

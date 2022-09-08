@@ -1,11 +1,11 @@
 name: Next Version
 description: Compute next version according to changelog.yaml and semver conventions
 inputs:
-  changelog:
+  yaml:
     description: Path to changelog.yaml
     required: false
     default: changelog.yaml
-  dir:
+  git-root:
     description: Path to the root of the git repository to source tags from
     required: false
     default: "."
@@ -20,10 +20,10 @@ runs:
   using: docker
   image: ../Dockerfile
   args:
-    - --changelog
-    - ${{ inputs.changelog }}
+    - --yaml
+    - ${{ inputs.yaml }}
     - next-version
-    - --dir
-    - ${{ inputs.dir }}
+    - --git-root
+    - ${{ inputs.git-root }}
     - --tag-prefix
     - ${{ inputs.tag-prefix }}

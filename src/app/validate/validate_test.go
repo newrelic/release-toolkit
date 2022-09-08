@@ -149,7 +149,7 @@ This is a release note
 
 			_, _ = mdFile.WriteString(tc.md)
 
-			err = app.Run(strings.Fields(fmt.Sprintf("rt %s validate -md %s %s", tc.ghaArg, mdPath, tc.args)))
+			err = app.Run(strings.Fields(fmt.Sprintf("rt %s validate -markdown %s %s", tc.ghaArg, mdPath, tc.args)))
 			if err != nil {
 				t.Fatalf("Error running app: %v", err)
 			}

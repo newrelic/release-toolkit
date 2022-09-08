@@ -16,11 +16,11 @@ import (
 )
 
 const (
-	mdPathFlag     = "md"
-	renovateFlag   = "renovate"
-	dependabotFlag = "dependabot"
-	tagPrefixFlag  = "tag-prefix"
-	dirFlag        = "dir"
+	markdownPathFlag = "markdown"
+	renovateFlag     = "renovate"
+	dependabotFlag   = "dependabot"
+	tagPrefixFlag    = "tag-prefix"
+	gitRootFlag      = "git-root"
 )
 
 // ErrNoSources is returned if Generate is invoked without any source enabled.
@@ -34,8 +34,8 @@ var Cmd = &cli.Command{
 	Usage: "Builds a changelog.yaml file from multiple sources",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:    mdPathFlag,
-			EnvVars: common.EnvFor(mdPathFlag),
+			Name:    markdownPathFlag,
+			EnvVars: common.EnvFor(markdownPathFlag),
 			Usage:   "Gather changelog entries from the specified file",
 			Value:   "CHANGELOG.md",
 		},
@@ -59,8 +59,8 @@ var Cmd = &cli.Command{
 			Value:   "",
 		},
 		&cli.StringFlag{
-			Name:    dirFlag,
-			EnvVars: common.EnvFor(dirFlag),
+			Name:    gitRootFlag,
+			EnvVars: common.EnvFor(gitRootFlag),
 			Usage:   "Path to the git repo to get commits and tags for.",
 			Value:   "./",
 		},
@@ -72,7 +72,7 @@ var Cmd = &cli.Command{
 //
 //nolint:gocyclo,cyclop
 func Generate(cCtx *cli.Context) error {
-	yamlPath := cCtx.String(common.ChangelogFlag)
+	yamlPath := cCtx.String(common.YAMLFlag)
 	chFile, err := os.Create(yamlPath)
 	if err != nil {
 		return fmt.Errorf("opening changelog file %q: %w", yamlPath, err)
@@ -95,7 +95,7 @@ func Generate(cCtx *cli.Context) error {
 		}
 	}
 
-	if mdPath := cCtx.String(mdPathFlag); mdPath != "" {
+	if mdPath := cCtx.String(markdownPathFlag); mdPath != "" {
 		var mdFile *os.File
 		mdFile, err = os.Open(mdPath)
 		if err != nil {
@@ -133,7 +133,7 @@ func addRenovate(cCtx *cli.Context, sources []changelog.Source) ([]changelog.Sou
 		return nil, err
 	}
 
-	gitCommitGetter, err := git.NewRepoCommitsGetter(cCtx.String(dirFlag))
+	gitCommitGetter, err := git.NewRepoCommitsGetter(cCtx.String(gitRootFlag))
 	if err != nil {
 		return nil, fmt.Errorf("creating git commit getter: %w", err)
 	}
@@ -148,7 +148,7 @@ func addDependabot(cCtx *cli.Context, sources []changelog.Source) ([]changelog.S
 		return nil, err
 	}
 
-	gitCommitGetter, err := git.NewRepoCommitsGetter(cCtx.String(dirFlag))
+	gitCommitGetter, err := git.NewRepoCommitsGetter(cCtx.String(gitRootFlag))
 	if err != nil {
 		return nil, fmt.Errorf("creating git commit getter: %w", err)
 	}
@@ -163,7 +163,7 @@ func tagVersionGetter(cCtx *cli.Context) (*git.TagsSource, error) {
 		tagOpts = append(tagOpts, git.TagsMatching("^"+matching))
 	}
 
-	src, err := git.NewRepoTagsGetter(cCtx.String(dirFlag), tagOpts...)
+	src, err := git.NewRepoTagsGetter(cCtx.String(gitRootFlag), tagOpts...)
 	if err != nil {
 		return nil, fmt.Errorf("creating source for git tags: %w", err)
 	}

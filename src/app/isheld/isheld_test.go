@@ -36,11 +36,11 @@ changes:
 		expected string
 	}{
 		{
-			cmd:      fmt.Sprintf("rt -changelog %s is-held", filepath),
+			cmd:      fmt.Sprintf("rt -yaml %s is-held", filepath),
 			expected: "true\n",
 		},
 		{
-			cmd:      fmt.Sprintf("rt -gha=1 -changelog %s is-held", filepath),
+			cmd:      fmt.Sprintf("rt -gha=1 -yaml %s is-held", filepath),
 			expected: "true\n::set-output name=is-held::true\n",
 		},
 	} {

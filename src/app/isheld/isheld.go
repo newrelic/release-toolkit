@@ -37,10 +37,10 @@ var Cmd = &cli.Command{
 func IsHeld(cCtx *cli.Context) error {
 	gh := gha.NewFromCli(cCtx)
 
-	chPath := cCtx.String(common.ChangelogFlag)
+	chPath := cCtx.String(common.YAMLFlag)
 	chFile, err := os.Open(chPath)
 	if err != nil {
-		return fmt.Errorf("opening changelog file %q: %w", chPath, err)
+		return fmt.Errorf("opening changelog.yml file %q: %w", chPath, err)
 	}
 
 	ch := changelog.Changelog{}

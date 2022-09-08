@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/Masterminds/semver"
-
 	"github.com/newrelic/release-toolkit/changelog"
 )
 

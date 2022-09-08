@@ -1,7 +1,7 @@
 name: Validate
 description: Validates and prints errors if changelog has an invalid format
 inputs:
-  md:
+  markdown:
     description: Path to CHANGELOG.md to update
     required: false
     default: CHANGELOG.md
@@ -17,7 +17,7 @@ runs:
   image: ../Dockerfile
   args:
     - validate
-    - --md
-    - ${{ inputs.md }}
+    - --markdown
+    - ${{ inputs.markdown }}
     - --exit-code
     - ${{ inputs.exit-code }}

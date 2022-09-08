@@ -20,7 +20,7 @@ const (
 	tagPrefix   = "tag-prefix"
 	currentFlag = "current"
 	nextFlag    = "next"
-	dirFlag     = "dir"
+	gitRootFlag = "git-root"
 )
 
 const nextVersionOutput = "next-version"
@@ -55,8 +55,8 @@ Several flags can be specified to limit the set of tags that are scanned, and to
 			Value:   "",
 		},
 		&cli.StringFlag{
-			Name:    dirFlag,
-			EnvVars: common.EnvFor(dirFlag),
+			Name:    gitRootFlag,
+			EnvVars: common.EnvFor(gitRootFlag),
 			Usage:   "Path to the git repo to find tags on.",
 			Value:   "./",
 		},
@@ -76,7 +76,7 @@ func NextVersion(cCtx *cli.Context) error {
 		return err
 	}
 
-	chPath := cCtx.String(common.ChangelogFlag)
+	chPath := cCtx.String(common.YAMLFlag)
 	chFile, err := os.Open(chPath)
 	if err != nil {
 		return fmt.Errorf("opening changelog file %q: %w", chPath, err)
@@ -148,7 +148,7 @@ func source(cCtx *cli.Context) (version.Source, error) {
 		tagOpts = append(tagOpts, git.TagsMatching("^"+prefix))
 	}
 
-	tg, err := git.NewRepoTagsGetter(cCtx.String(dirFlag), tagOpts...)
+	tg, err := git.NewRepoTagsGetter(cCtx.String(gitRootFlag), tagOpts...)
 	if err != nil {
 		return nil, fmt.Errorf("building repo tags lister: %w", err)
 	}
