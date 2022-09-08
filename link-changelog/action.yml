@@ -1,0 +1,20 @@
+name: Link Changelog
+description: Tries to add links to the original changelog.yml for all its dependencies
+inputs:
+  changelog:
+    description: Path to changelog.yaml
+    required: false
+    default: changelog.yaml
+  dictionary:
+    description: Link dependency changelogs with the mappings in this dictionary
+    required: false
+    default: ""
+runs:
+  using: docker
+  image: ../Dockerfile
+  args:
+    - --changelog
+    - ${{ inputs.changelog }}
+    - link-changelog
+    - --dictionary
+    - ${{ inputs.dictionary }}
