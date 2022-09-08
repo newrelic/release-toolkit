@@ -5,7 +5,7 @@ inputs:
     description: Path to changelog.yaml
     required: false
     default: changelog.yaml
-  md:
+  markdown:
     description: Path to CHANGELOG.md to update
     required: false
     default: CHANGELOG.md
@@ -23,8 +23,8 @@ runs:
     - --yaml
     - ${{ inputs.yaml }}
     - update-changelog
-    - --md
-    - ${{ inputs.md }}
+    - --markdown
+    - ${{ inputs.markdown }}
     - --version
     - ${{ inputs.version }}
     - --date

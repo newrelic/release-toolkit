@@ -16,11 +16,11 @@ import (
 )
 
 const (
-	mdPathFlag     = "md"
-	renovateFlag   = "renovate"
-	dependabotFlag = "dependabot"
-	tagPrefixFlag  = "tag-prefix"
-	gitRootFlag    = "git-root"
+	markdownPathFlag = "markdown"
+	renovateFlag     = "renovate"
+	dependabotFlag   = "dependabot"
+	tagPrefixFlag    = "tag-prefix"
+	gitRootFlag      = "git-root"
 )
 
 // ErrNoSources is returned if Generate is invoked without any source enabled.
@@ -34,8 +34,8 @@ var Cmd = &cli.Command{
 	Usage: "Builds a changelog.yaml file from multiple sources",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:    mdPathFlag,
-			EnvVars: common.EnvFor(mdPathFlag),
+			Name:    markdownPathFlag,
+			EnvVars: common.EnvFor(markdownPathFlag),
 			Usage:   "Gather changelog entries from the specified file",
 			Value:   "CHANGELOG.md",
 		},
@@ -95,7 +95,7 @@ func Generate(cCtx *cli.Context) error {
 		}
 	}
 
-	if mdPath := cCtx.String(mdPathFlag); mdPath != "" {
+	if mdPath := cCtx.String(markdownPathFlag); mdPath != "" {
 		var mdFile *os.File
 		mdFile, err = os.Open(mdPath)
 		if err != nil {

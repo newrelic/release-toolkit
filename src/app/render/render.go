@@ -14,9 +14,9 @@ import (
 )
 
 const (
-	mdPathFlag  = "md"
-	versionFlag = "version"
-	dateFlag    = "date"
+	markdownPathFlag = "markdown"
+	versionFlag      = "version"
+	dateFlag         = "date"
 )
 
 // Cmd is the cli.Command object for the is-held command.
@@ -27,8 +27,8 @@ var Cmd = &cli.Command{
 	Usage: "Renders a changelog.yaml as a markdown changelog section.",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:    mdPathFlag,
-			EnvVars: common.EnvFor(mdPathFlag),
+			Name:    markdownPathFlag,
+			EnvVars: common.EnvFor(markdownPathFlag),
 			Usage:   "Path to the destination markdown file.",
 			Value:   "CHANGELOG.partial.md",
 		},
@@ -66,7 +66,7 @@ func Render(cCtx *cli.Context) error {
 		return fmt.Errorf("loading changelog from file: %w", err)
 	}
 
-	mdPath := cCtx.String(mdPathFlag)
+	mdPath := cCtx.String(markdownPathFlag)
 	mdFile, err := os.Create(mdPath)
 	if err != nil {
 		return fmt.Errorf("creating destination file at %q: %w", mdPath, err)

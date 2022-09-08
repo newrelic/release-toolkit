@@ -14,9 +14,9 @@ import (
 )
 
 const (
-	mdPathFlag  = "md"
-	versionFlag = "version"
-	dateFlag    = "date"
+	markdownPathFlag = "markdown"
+	versionFlag      = "version"
+	dateFlag         = "date"
 )
 
 // Cmd is the cli.Command object for the update-changelog command.
@@ -27,8 +27,8 @@ var Cmd = &cli.Command{
 	Usage: "Incorporates a changelog.yaml into a complete CHANGELOG.md.",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:     mdPathFlag,
-			EnvVars:  common.EnvFor(mdPathFlag),
+			Name:     markdownPathFlag,
+			EnvVars:  common.EnvFor(markdownPathFlag),
 			Usage:    "Path to the destination markdown file.",
 			Value:    "CHANGELOG.md",
 			Required: true,
@@ -66,7 +66,7 @@ func Update(cCtx *cli.Context) error {
 		return fmt.Errorf("loading changelog from file: %w", err)
 	}
 
-	currentMdPath := cCtx.String(mdPathFlag)
+	currentMdPath := cCtx.String(markdownPathFlag)
 	newMdPath := currentMdPath + ".new"
 	bakMdPath := currentMdPath + ".bak"
 

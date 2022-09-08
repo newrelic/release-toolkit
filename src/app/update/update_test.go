@@ -163,7 +163,7 @@ This is a release note
 			_, _ = mdFile.WriteString(tc.existing)
 			_ = mdFile.Close()
 
-			err = app.Run(strings.Fields(fmt.Sprintf("rt -yaml %s update-changelog -md %s %s", yamlPath, mdPath, tc.args)))
+			err = app.Run(strings.Fields(fmt.Sprintf("rt -yaml %s update-changelog -markdown %s %s", yamlPath, mdPath, tc.args)))
 			if err != nil {
 				t.Fatalf("Error running app: %v", err)
 			}
@@ -205,7 +205,7 @@ func TestRender_Fails_Without_Version(t *testing.T) {
 	_ = mdFile.Close()
 
 	err = app.Run([]string{
-		"rt", "-yaml", yamlPath, "update-changelog", "-md", mdPath,
+		"rt", "-yaml", yamlPath, "update-changelog", "-markdown", mdPath,
 	})
 
 	if !errors.Is(err, semver.ErrInvalidSemVer) {
@@ -247,7 +247,7 @@ Yada yada
 
 	err = app.Run(
 		[]string{
-			"rt", "-yaml", yamlPath, "update-changelog", "-md", mdPath, "-version", "v1.2.4",
+			"rt", "-yaml", yamlPath, "update-changelog", "-markdown", mdPath, "-version", "v1.2.4",
 		})
 	if err != nil {
 		t.Fatal(err)

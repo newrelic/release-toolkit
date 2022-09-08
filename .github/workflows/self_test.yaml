@@ -94,7 +94,7 @@ jobs:
       - uses: ./generate-changelog
         with:
           yaml: ${{ env.MOCK_REPO }}/changelog.yaml
-          md: ${{ env.MOCK_REPO }}/CHANGELOG.md
+          markdown: ${{ env.MOCK_REPO }}/CHANGELOG.md
           git-root: ${{ env.MOCK_REPO }}
       - run: |
           cat $MOCK_REPO/changelog.yaml
@@ -255,7 +255,7 @@ jobs:
       - uses: ./render
         with:
           yaml: ${{ env.MOCK_REPO }}/changelog.yaml
-          md: ${{ env.MOCK_REPO }}/CHANGELOG.partial.md
+          markdown: ${{ env.MOCK_REPO }}/CHANGELOG.partial.md
           version: v1.2.3
           date: 1993-09-21
       - run: |
@@ -331,7 +331,7 @@ jobs:
       - uses: ./update
         with:
           yaml: ${{ env.MOCK_REPO }}/changelog.yaml
-          md: ${{ env.MOCK_REPO }}/existing.md
+          markdown: ${{ env.MOCK_REPO }}/existing.md
           version: v1.2.3
           date: 1993-09-21
       - run: |
@@ -378,7 +378,7 @@ jobs:
       - uses: ./validate
         id: validate
         with:
-          md: ${{ env.MOCK_REPO }}/changelog.md
+          markdown: ${{ env.MOCK_REPO }}/changelog.md
           exit-code: 0
       - run: |
           if [[ "${{ steps.validate.outputs.valid }}" != "false" ]]; then

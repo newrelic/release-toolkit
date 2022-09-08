@@ -5,7 +5,7 @@ inputs:
     description: Path to changelog.yaml
     required: false
     default: changelog.yaml
-  md:
+  markdown:
     description: Path where the section (partial) changelog will be written
     required: false
     default: CHANGELOG.partial.md
@@ -23,8 +23,8 @@ runs:
     - --yaml
     - ${{ inputs.yaml }}
     - render-changelog
-    - --md
-    - ${{ inputs.md }}
+    - --markdown
+    - ${{ inputs.markdown }}
     - --version
     - ${{ inputs.version }}
     - --date
