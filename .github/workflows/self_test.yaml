@@ -48,10 +48,11 @@ jobs:
         id: held
         with:
           changelog: ${{ env.MOCK_REPO }}/changelog.yaml
-      - if: ${{ ! steps.held.outputs.is-held }}
-        run: |
-          echo "is-held should have returned true" >&2
-          exit 1
+      - run: |
+          if [[ "${{ steps.held.outputs.is-held }}" != "true" ]]; then
+            echo "is-held should have returned true" >&2
+            exit 1
+          fi
 
   generate-changelog:
     name: generate-changelog action
@@ -139,7 +140,6 @@ jobs:
             - type: breaking
               message: this is broken
           EOF
-
       - uses: ./next-version
         id: next-version
         with:
@@ -148,5 +148,240 @@ jobs:
       - run: |
           if [[ "${{ steps.next-version.outputs.next-version }}" != "v2.0.0" ]]; then
             echo "next-version should have returned v2.0.0" >&2
+            exit 1
+          fi
+
+  link-changelog:
+    name: link-changelog action
+    runs-on: ubuntu-latest
+    env:
+      MOCK_REPO: ./mock_repo
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configure test repo
+        id: repo
+        shell: bash
+        run: |
+          mkdir $MOCK_REPO
+          cd $MOCK_REPO
+
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+
+          git init
+          for i in 1 2 3; do
+            touch file$i
+            git add file$i
+            git commit -m commit_$i
+          done
+          
+          cat > dictionary.yaml <<EOF
+          dictionary:            
+            infrastructure-agent: "https://github.com/newrelic/infrastructure-agent/releases/tag/{{.To.Original}}"
+          EOF
+
+          cat > changelog.yaml <<EOF
+          changes:
+            - type: breaking
+              message: this is broken
+          dependencies:
+            - name: infrastructure-agent
+              to: v1.2.3
+            - name: github.com/spf13/viper
+              from: 4.0.3
+              to: 4.1.2
+          EOF
+      - uses: ./link-changelog
+        with:
+          changelog: ${{ env.MOCK_REPO }}/changelog.yaml
+          dictionary: ${{ env.MOCK_REPO }}/dictionary.yaml
+      - run: |
+          cat $MOCK_REPO/changelog.yaml
+          
+          if ! grep -e 'changelog: https://github.com/newrelic/infrastructure-agent/releases/tag/v1.2.3' $MOCK_REPO/changelog.yaml; then
+            echo "Changelog.yaml should have infrastructure-agent changelog linked" >&2
+            exit 2
+          fi
+
+          if ! grep -e 'changelog: https://github.com/spf13/viper/releases/tag/4.1.2' $MOCK_REPO/changelog.yaml; then
+            echo "Changelog.yaml should have viper changelog linked" >&2
+            exit 2
+          fi
+
+  render-changelog:
+    name: render-changelog action
+    runs-on: ubuntu-latest
+    env:
+      MOCK_REPO: ./mock_repo
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configure test repo
+        id: repo
+        shell: bash
+        run: |
+          mkdir $MOCK_REPO
+          cd $MOCK_REPO
+
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+
+          git init
+          for i in 1 2 3; do
+            touch file$i
+            git add file$i
+            git commit -m commit_$i
+          done
+
+          cat > changelog.yaml <<EOF
+          notes: |-
+            ### Important announcement (note)
+        
+            This is a release note
+          changes:
+            - type: breaking
+              message: Support has been removed
+          EOF
+          
+          head -c -1 > expected-changelog.md <<EOF
+          ## v1.2.3 - 1993-09-21
+          
+          ### Important announcement (note)
+          
+          This is a release note
+          
+          ### ⚠️️ Breaking changes ⚠️
+          - Support has been removed
+          EOF
+      - uses: ./render
+        with:
+          changelog: ${{ env.MOCK_REPO }}/changelog.yaml
+          md: ${{ env.MOCK_REPO }}/CHANGELOG.partial.md
+          version: v1.2.3
+          date: 1993-09-21
+      - run: |
+          cat $MOCK_REPO/expected-changelog.md
+          
+          if ! cmp --silent ${{ env.MOCK_REPO }}/expected-changelog.md ${{ env.MOCK_REPO }}/CHANGELOG.partial.md; then
+            echo "CHANGELOG.partial.md should be equal to the expected" >&2
+            exit 2
+          fi
+
+  update-changelog:
+    name: update-changelog action
+    runs-on: ubuntu-latest
+    env:
+      MOCK_REPO: ./mock_repo
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configure test repo
+        id: repo
+        shell: bash
+        run: |
+          mkdir $MOCK_REPO
+          cd $MOCK_REPO
+
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+
+          git init
+          for i in 1 2 3; do
+            touch file$i
+            git add file$i
+            git commit -m commit_$i
+          done
+
+          cat > changelog.yaml <<EOF
+          notes: |-
+            ### Important announcement (note)
+          
+            This is a release note
+          changes:
+            - type: breaking
+              message: Support has been removed
+          EOF
+          
+          cat > existing.md <<EOF
+          # Changelog
+            This is based on blah blah blah
+          
+          ## v1.2.3 - 20YY-DD-MM
+          
+          ### Enhancements
+          - This is in the past and should be preserved
+          EOF
+          
+          cat > expected-changelog.md <<EOF
+          # Changelog
+            This is based on blah blah blah
+          
+          ## v1.2.3 - 1993-09-21
+          
+          ### Important announcement (note)
+          
+          This is a release note
+          
+          ### ⚠️️ Breaking changes ⚠️
+          - Support has been removed
+          
+          ## v1.2.3 - 20YY-DD-MM
+          
+          ### Enhancements
+          - This is in the past and should be preserved
+          EOF
+      - uses: ./update
+        with:
+          changelog: ${{ env.MOCK_REPO }}/changelog.yaml
+          md: ${{ env.MOCK_REPO }}/existing.md
+          version: v1.2.3
+          date: 1993-09-21
+      - run: |
+          cat $MOCK_REPO/existing.md
+          
+          if ! cmp ${{ env.MOCK_REPO }}/expected-changelog.md ${{ env.MOCK_REPO }}/existing.md; then
+            echo "Changleog was not updated to its expected contents" >&2
+            exit 2
+          fi
+
+  validate-changelog:
+    name: validate action
+    runs-on: ubuntu-latest
+    env:
+      MOCK_REPO: ./mock_repo
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configure test repo
+        id: repo
+        shell: bash
+        run: |
+          mkdir $MOCK_REPO
+          cd $MOCK_REPO
+
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+
+          git init
+          for i in 1 2 3; do
+            touch file$i
+            git add file$i
+            git commit -m commit_$i
+          done
+          
+          cat > changelog.md <<EOF
+          # Wrong-Changelog
+            This is based on blah blah blah
+          
+          ## v1.2.3 - 20YY-DD-MM
+          
+          ### Enhancements
+          - This is in the past and should be preserved
+          EOF
+      - uses: ./validate
+        id: validate
+        with:
+          md: ${{ env.MOCK_REPO }}/changelog.md
+          exit-code: 0
+      - run: |
+          if [[ "${{ steps.validate.outputs.valid }}" != "false" ]]; then
+            echo "valid should have returned false" >&2
             exit 1
           fi
