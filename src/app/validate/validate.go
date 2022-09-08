@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/newrelic/release-toolkit/app/common"
+	"github.com/newrelic/release-toolkit/app/gha"
 	"github.com/newrelic/release-toolkit/changelog/sources/markdown"
 	"github.com/urfave/cli/v2"
 )
@@ -12,6 +13,7 @@ import (
 const (
 	mdPathFlag   = "md"
 	exitCodeFlag = "exit-code"
+	validOutput  = "valid"
 )
 
 // Cmd is the cli.Command object for the validate command.
@@ -40,6 +42,8 @@ var Cmd = &cli.Command{
 // Validate is a command function which loads a changelog.yaml file, and prints to stderr
 // all the errors found.
 func Validate(cCtx *cli.Context) error {
+	gh := gha.NewFromCli(cCtx)
+
 	mdPath := cCtx.String(mdPathFlag)
 	chFile, err := os.Open(mdPath)
 	if err != nil {
@@ -56,6 +60,7 @@ func Validate(cCtx *cli.Context) error {
 	for _, err := range errs {
 		_, _ = fmt.Fprintln(cCtx.App.ErrWriter, err)
 	}
+	gh.SetOutput(validOutput, len(errs) == 0)
 
 	exitCode := cCtx.Int(exitCodeFlag)
 	if len(errs) > 0 && exitCode != 0 {
