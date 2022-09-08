@@ -17,6 +17,7 @@ const (
 	markdownPathFlag = "markdown"
 	versionFlag      = "version"
 	dateFlag         = "date"
+	shortenDepsFlag  = "shorten_deps"
 )
 
 // Cmd is the cli.Command object for the update-changelog command.
@@ -47,6 +48,12 @@ var Cmd = &cli.Command{
 				"If empty it will default to the current time (time.Now()).",
 			Value:  cli.NewTimestamp(time.Now()),
 			Layout: "2006-01-02",
+		},
+		&cli.BoolFlag{
+			Name:    shortenDepsFlag,
+			EnvVars: common.EnvFor(shortenDepsFlag),
+			Usage:   "If set, dependencies with full-route names will be shortened to the last segment.",
+			Value:   false,
 		},
 	},
 	Action: Update,
@@ -85,7 +92,8 @@ func Update(cCtx *cli.Context) error {
 		return fmt.Errorf("parsing version: %w", err)
 	}
 
-	mrg := merger.New(ch, version)
+	shortenDeps := cCtx.Bool(shortenDepsFlag)
+	mrg := merger.New(ch, version, merger.ShortenDeps(shortenDeps))
 	if t := cCtx.Timestamp(dateFlag); t != nil {
 		tv := *t
 		mrg.ReleasedOn = func() time.Time {

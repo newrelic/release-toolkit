@@ -83,6 +83,88 @@ This is a release note
 			`) + "\n",
 		},
 		{
+			name: "Changelog_Now_Long_Dependency_Without_Shorten_Deps",
+			args: "-version v1.2.4",
+			yaml: strings.TrimSpace(`
+notes: |-
+    ### Important announcement (note)
+
+    This is a release note
+dependencies:
+- name: github.com/golangci/golangci-lint
+  from: 0.0.1
+  to: 0.1.0
+			`),
+			existing: strings.TrimSpace(`
+# Changelog
+This is based on blah blah blah
+
+## v1.2.3 - 20YY-DD-MM
+
+### Enhancements
+- This is in the past and should be preserved
+			`) + "\n",
+			expected: strings.TrimSpace(`
+# Changelog
+This is based on blah blah blah
+
+## v1.2.4 - {NOW}
+
+### Important announcement (note)
+
+This is a release note
+
+### ⛓️ Dependencies
+- Upgraded github.com/golangci/golangci-lint from 0.0.1 to 0.1.0
+
+## v1.2.3 - 20YY-DD-MM
+
+### Enhancements
+- This is in the past and should be preserved
+			`) + "\n",
+		},
+		{
+			name: "Changelog_Now_Long_Dependency_With_Shorten_Deps",
+			args: "-version v1.2.4 -shorten_deps=true",
+			yaml: strings.TrimSpace(`
+notes: |-
+    ### Important announcement (note)
+
+    This is a release note
+dependencies:
+- name: github.com/golangci/golangci-lint
+  from: 0.0.1
+  to: 0.1.0
+			`),
+			existing: strings.TrimSpace(`
+# Changelog
+This is based on blah blah blah
+
+## v1.2.3 - 20YY-DD-MM
+
+### Enhancements
+- This is in the past and should be preserved
+			`) + "\n",
+			expected: strings.TrimSpace(`
+# Changelog
+This is based on blah blah blah
+
+## v1.2.4 - {NOW}
+
+### Important announcement (note)
+
+This is a release note
+
+### ⛓️ Dependencies
+- Upgraded golangci-lint from 0.0.1 to 0.1.0
+
+## v1.2.3 - 20YY-DD-MM
+
+### Enhancements
+- This is in the past and should be preserved
+			`) + "\n",
+		},
+		{
 			name: "Full_Changelog_With_Date",
 			args: "-version v1.2.4 -date 1993-09-21",
 			yaml: strings.TrimSpace(`
