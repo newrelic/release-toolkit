@@ -128,14 +128,14 @@ func TestTagSource_Versions(t *testing.T) {
 func TestRepoTagsSource_LastVersionHash(t *testing.T) {
 	t.Parallel()
 	repodir := repoWithCommitsAndTags(t,
-		"v1.2.3",
-		"v1.3.0",
-		"v1.4.0",
-		"1.5.0",
-		"0.1.1.2",
-		"helm-chart-1.3.0",
-		"helm-chart-1.3.1",
-		"2.0.0-beta",
+		testCommitTag{"v1.2.3", []string{"v1.2.3"}},
+		testCommitTag{"v1.3.0", []string{"v1.3.0"}},
+		testCommitTag{"v1.4.0", []string{"v1.4.0"}},
+		testCommitTag{"1.5.0", []string{"1.5.0"}},
+		testCommitTag{"0.1.1.2", []string{"0.1.1.2"}},
+		testCommitTag{"helm-chart-1.3.0", []string{"helm-chart-1.3.0"}},
+		testCommitTag{"helm-chart-1.3.1", []string{"helm-chart-1.3.1"}},
+		testCommitTag{"2.0.0-beta", []string{"2.0.0-beta"}},
 	)
 
 	for _, tc := range []struct {

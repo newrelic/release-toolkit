@@ -2,7 +2,9 @@ package git_test
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -10,7 +12,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func repoWithCommitsAndTags(t *testing.T, commitsAndTags ...string) string {
+type testCommitTag struct {
+	msgTag string
+	files  []string
+}
+
+func repoWithCommitsAndTags(t *testing.T, commitsAndTags ...testCommitTag) string {
 	t.Helper()
 
 	dir := t.TempDir()
@@ -22,12 +29,21 @@ func repoWithCommitsAndTags(t *testing.T, commitsAndTags ...string) string {
 		"git config commit.gpgsign false",
 	}
 
-	// Create an empty file, commit and tag it for each tag name.
-	for _, t := range commitsAndTags {
-		cmds = append(cmds, fmt.Sprintf("touch %s", t))
-		cmds = append(cmds, fmt.Sprintf("git add %s", t))
-		cmds = append(cmds, fmt.Sprintf("git commit -m %s", t))
-		cmds = append(cmds, fmt.Sprintf("git tag %s", t))
+	// Create empty files, commit and tag it for each msgTag name.
+	for _, ct := range commitsAndTags {
+		for _, file := range ct.files {
+			path := filepath.Dir(file)
+			if path != "." {
+				if err := os.Mkdir(filepath.Join(dir, path), os.ModePerm); err != nil && os.IsNotExist(err) {
+					t.Fatalf("Error creating dir: %v", err)
+				}
+			}
+			cmds = append(cmds, fmt.Sprintf("touch %s", file))
+			cmds = append(cmds, fmt.Sprintf("git add %s", file))
+		}
+
+		cmds = append(cmds, fmt.Sprintf("git commit -m %s", ct.msgTag))
+		cmds = append(cmds, fmt.Sprintf("git tag %s", ct.msgTag))
 	}
 
 	for _, cmdline := range cmds {
@@ -51,50 +67,20 @@ func repoWithCommitsAndTags(t *testing.T, commitsAndTags ...string) string {
 func TestCommitSource_Commits(t *testing.T) {
 	t.Parallel()
 	repodir := repoWithCommitsAndTags(t,
-		"v1.2.3",
-		"v1.3.0",
-		"v1.4.0",
-		"1.5.0",
-		"2.0.0-beta",
+		testCommitTag{"v1.2.3", []string{"v1.2.3"}},
+		testCommitTag{"v1.3.0", []string{"v1.3.0"}},
+		testCommitTag{"v1.4.0", []string{"v1.4.0"}},
+		testCommitTag{"1.5.0", []string{"1.5.0"}},
+		testCommitTag{"2.0.0-beta", []string{"2.0.0-beta"}},
 	)
 
 	for _, tc := range []struct {
 		name            string
 		commitHash      string
-		opts            []git.CommitOptionFunc
 		expectedCommits []string
 	}{
 		{
 			name: "Empty_Hash_Default_Opts",
-			expectedCommits: []string{
-				"2.0.0-beta",
-				"1.5.0",
-				"v1.4.0",
-				"v1.3.0",
-				"v1.2.3",
-			},
-		},
-		{
-			name: "Empty_Hash_Matching_Leading_v",
-			opts: []git.CommitOptionFunc{git.CommitMessageMatching("^v")},
-			expectedCommits: []string{
-				"v1.4.0",
-				"v1.3.0",
-				"v1.2.3",
-			},
-		},
-		{
-			name: "Empty_Hash_Matching_Author",
-			opts: []git.CommitOptionFunc{
-				git.CommitAuthorMatching("unknown-author"),
-			},
-			expectedCommits: nil,
-		},
-		{
-			name: "Empty_Hash_Not_Matching_Author",
-			opts: []git.CommitOptionFunc{
-				git.CommitAuthorMatching("Test"),
-			},
 			expectedCommits: []string{
 				"2.0.0-beta",
 				"1.5.0",
@@ -127,11 +113,7 @@ func TestCommitSource_Commits(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			commitsGetter, err := git.NewRepoCommitsGetter(repodir, tc.opts...)
-			if err != nil {
-				t.Fatalf("Error creating git source: %v", err)
-			}
-
+			commitsGetter := git.NewRepoCommitsGetter(repodir)
 			commits, err := commitsGetter.Commits(tc.commitHash)
 			if err != nil {
 				t.Fatalf("Error fetching commits: %v", err)
