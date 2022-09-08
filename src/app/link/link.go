@@ -31,7 +31,7 @@ var Cmd = &cli.Command{
 			EnvVars: common.EnvFor(dictionaryPathFlag),
 			Usage: "Path to a dictionary file mapping dependencies to their changelogs. " +
 				"A dictionary is a YAML file with a root dictionary object, which contains a map from " +
-				"dependency names to d a template that will be rendered into a URL pointing to its changelog." +
+				"dependency names to a template that will be rendered into a URL pointing to its changelog." +
 				"The template link must be in Go tpl format and typically will include the {{.To.Original}} variable" +
 				"that will be replaced by the last bumped version (execute link-changelog with --sample flag to see a dictionary.yml sample)",
 			Value: "",
