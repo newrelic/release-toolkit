@@ -1,0 +1,31 @@
+name: Render
+description: Renders a changelog.yaml as a markdown changelog section
+inputs:
+  changelog:
+    description: Path to changelog.yaml
+    required: false
+    default: changelog.yaml
+  md:
+    description: Path where the section (partial) changelog will be written
+    required: false
+    default: CHANGELOG.partial.md
+  version:
+    description: Version to stamp in the changelog section header (no version header if omitted)
+    required: false
+    default: ""
+  date:
+    description: Date to stamp in the changelog section header, in YYYY-MM-DD format. Defaults to the current time if unspecified.
+    required: false
+runs:
+  using: docker
+  image: ../Dockerfile
+  args:
+    - --changelog
+    - ${{ inputs.changelog }}
+    - render-changelog
+    - --md
+    - ${{ inputs.md }}
+    - --version
+    - ${{ inputs.version }}
+    - --date
+    - ${{ inputs.date }}
