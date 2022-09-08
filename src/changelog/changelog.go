@@ -114,7 +114,9 @@ type Dependency struct {
 	Name string          `yaml:"name"`
 	From *semver.Version `yaml:"from,omitempty"`
 	To   *semver.Version `yaml:"to,omitempty"`
-	Meta EntryMeta       `yaml:"meta,omitempty"`
+	// Link to the changelog for the release of this dependency.
+	Changelog string    `yaml:"changelog"`
+	Meta      EntryMeta `yaml:"meta,omitempty"`
 }
 
 // BumpType returns which version should be bumped due to this dependency update.
@@ -159,24 +161,30 @@ func (d Dependency) String() string {
 		_, _ = fmt.Fprintf(buf, " to %s", d.To.Original())
 	}
 
+	if d.Changelog != "" {
+		_, _ = fmt.Fprintf(buf, " [Changelog](%s)", d.Changelog)
+	}
+
 	return buf.String()
 }
 
 // plainDependency is a helper struct where To and From are strings rather than semver.Version. We use this struct
 // to marshal and unmarshal from YAML format because unfortunately, semver.Version does not implement yaml.Marshaler.
 type plainDependency struct {
-	Name string    `yaml:"name"`
-	From string    `yaml:"from,omitempty"`
-	To   string    `yaml:"to,omitempty"`
-	Meta EntryMeta `yaml:"meta,omitempty"`
+	Name      string    `yaml:"name"`
+	From      string    `yaml:"from,omitempty"`
+	To        string    `yaml:"to,omitempty"`
+	Changelog string    `yaml:"changelog,omitempty"`
+	Meta      EntryMeta `yaml:"meta,omitempty"`
 }
 
 // MarshalYAML copies the contents of Dependency to a plainDependency and returns it for the generic marshaler to
 // encode it.
 func (d Dependency) MarshalYAML() (interface{}, error) {
 	pd := plainDependency{
-		Name: d.Name,
-		Meta: d.Meta,
+		Name:      d.Name,
+		Changelog: d.Changelog,
+		Meta:      d.Meta,
 	}
 
 	if d.To != nil {
@@ -198,6 +206,7 @@ func (d *Dependency) UnmarshalYAML(value *yaml.Node) error {
 	}
 
 	d.Name = pd.Name
+	d.Changelog = pd.Changelog
 
 	if pd.To != "" {
 		d.To, err = semver.NewVersion(pd.To)
