@@ -149,7 +149,7 @@ dependencies:
 			}
 			_, _ = mdFile.WriteString(tc.md)
 
-			err = app.Run(strings.Fields(fmt.Sprintf("rt --yaml %s generate -dir %s -md %s %s", yamlPath, tDir, mdPath, tc.args)))
+			err = app.Run(strings.Fields(fmt.Sprintf("rt --yaml %s generate -git-root %s -md %s %s", yamlPath, tDir, mdPath, tc.args)))
 			if err != nil {
 				t.Fatalf("Error running app: %v", err)
 			}

@@ -5,7 +5,7 @@ inputs:
     description: Path to changelog.yaml
     required: false
     default: changelog.yaml
-  dir:
+  git-root:
     description: Path to the root of the git repository to source tags from
     required: false
     default: "."
@@ -23,7 +23,7 @@ runs:
     - --yaml
     - ${{ inputs.yaml }}
     - next-version
-    - --dir
-    - ${{ inputs.dir }}
+    - --git-root
+    - ${{ inputs.git-root }}
     - --tag-prefix
     - ${{ inputs.tag-prefix }}

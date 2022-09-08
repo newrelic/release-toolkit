@@ -20,7 +20,7 @@ const (
 	renovateFlag   = "renovate"
 	dependabotFlag = "dependabot"
 	tagPrefixFlag  = "tag-prefix"
-	dirFlag        = "dir"
+	gitRootFlag    = "git-root"
 )
 
 // ErrNoSources is returned if Generate is invoked without any source enabled.
@@ -59,8 +59,8 @@ var Cmd = &cli.Command{
 			Value:   "",
 		},
 		&cli.StringFlag{
-			Name:    dirFlag,
-			EnvVars: common.EnvFor(dirFlag),
+			Name:    gitRootFlag,
+			EnvVars: common.EnvFor(gitRootFlag),
 			Usage:   "Path to the git repo to get commits and tags for.",
 			Value:   "./",
 		},
@@ -133,7 +133,7 @@ func addRenovate(cCtx *cli.Context, sources []changelog.Source) ([]changelog.Sou
 		return nil, err
 	}
 
-	gitCommitGetter, err := git.NewRepoCommitsGetter(cCtx.String(dirFlag))
+	gitCommitGetter, err := git.NewRepoCommitsGetter(cCtx.String(gitRootFlag))
 	if err != nil {
 		return nil, fmt.Errorf("creating git commit getter: %w", err)
 	}
@@ -148,7 +148,7 @@ func addDependabot(cCtx *cli.Context, sources []changelog.Source) ([]changelog.S
 		return nil, err
 	}
 
-	gitCommitGetter, err := git.NewRepoCommitsGetter(cCtx.String(dirFlag))
+	gitCommitGetter, err := git.NewRepoCommitsGetter(cCtx.String(gitRootFlag))
 	if err != nil {
 		return nil, fmt.Errorf("creating git commit getter: %w", err)
 	}
@@ -163,7 +163,7 @@ func tagVersionGetter(cCtx *cli.Context) (*git.TagsSource, error) {
 		tagOpts = append(tagOpts, git.TagsMatching("^"+matching))
 	}
 
-	src, err := git.NewRepoTagsGetter(cCtx.String(dirFlag), tagOpts...)
+	src, err := git.NewRepoTagsGetter(cCtx.String(gitRootFlag), tagOpts...)
 	if err != nil {
 		return nil, fmt.Errorf("creating source for git tags: %w", err)
 	}

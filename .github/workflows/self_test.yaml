@@ -95,7 +95,7 @@ jobs:
         with:
           yaml: ${{ env.MOCK_REPO }}/changelog.yaml
           md: ${{ env.MOCK_REPO }}/CHANGELOG.md
-          dir: ${{ env.MOCK_REPO }}
+          git-root: ${{ env.MOCK_REPO }}
       - run: |
           cat $MOCK_REPO/changelog.yaml
 
@@ -144,7 +144,7 @@ jobs:
         id: next-version
         with:
           yaml: ${{ env.MOCK_REPO }}/changelog.yaml
-          dir: ${{ env.MOCK_REPO }}
+          git-root: ${{ env.MOCK_REPO }}
       - run: |
           if [[ "${{ steps.next-version.outputs.next-version }}" != "v2.0.0" ]]; then
             echo "next-version should have returned v2.0.0" >&2

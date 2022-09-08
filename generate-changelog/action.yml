@@ -17,7 +17,7 @@ inputs:
     description: Extract dependency updates from dependabot commits
     required: false
     default: "true"
-  dir:
+  git-root:
     description: Path to the root of the git repository to source bot commits from
     required: false
     default: "."
@@ -36,7 +36,7 @@ runs:
     - ${{ inputs.md }}
     - --renovate=${{ inputs.renovate }}
     - --dependabot=${{ inputs.dependabot }}
-    - --dir
-    - ${{ inputs.dir }}
+    - --git-root
+    - ${{ inputs.git-root }}
     - --tag-prefix
     - ${{ inputs.tag-prefix }}
