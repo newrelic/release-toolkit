@@ -1,0 +1,23 @@
+name: Validate
+description: Validates and prints errors if changelog has an invalid format
+inputs:
+  md:
+    description: Path to CHANGELOG.md to update
+    required: false
+    default: CHANGELOG.md
+  exit-code:
+    description: Get current version from latest semver tag matching this prefix
+    required: false
+    default: "1"
+outputs:
+  valid:
+    description: Returns `true` if the changelog is valid
+runs:
+  using: docker
+  image: ../Dockerfile
+  args:
+    - validate
+    - --md
+    - ${{ inputs.md }}
+    - --exit-code
+    - ${{ inputs.exit-code }}
