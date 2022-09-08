@@ -1,18 +1,24 @@
 package git
 
 import (
+	"errors"
 	"fmt"
-	"regexp"
+	"io"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
 	"gopkg.in/src-d/go-git.v4"
+	"gopkg.in/src-d/go-git.v4/plumbing"
+	"gopkg.in/src-d/go-git.v4/plumbing/object"
 )
+
+// EmptyTreeID is the universal git empty tree sha1.
+const EmptyTreeID = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
 
 type Commit struct {
 	Message string
 	Hash    string
 	Author  string
+	Files   []string
 }
 
 type CommitsGetter interface {
@@ -21,55 +27,13 @@ type CommitsGetter interface {
 
 // RepoCommitsGetter gets commits from a git repository.
 type RepoCommitsGetter struct {
-	workDir      string
-	matchMessage *regexp.Regexp
-	matchAuthor  *regexp.Regexp
+	workDir string
 }
 
-type CommitOptionFunc func(s *RepoCommitsGetter) error
-
-// CommitMessageMatching returns an option that will cause Source to ignore commits with Message not matching regex.
-func CommitMessageMatching(regex string) CommitOptionFunc {
-	return func(s *RepoCommitsGetter) error {
-		rgx, err := regexp.Compile(regex)
-		if err != nil {
-			return fmt.Errorf("compiling %q: %w", regex, err)
-		}
-
-		s.matchMessage = rgx
-		return nil
+func NewRepoCommitsGetter(workDir string) *RepoCommitsGetter {
+	return &RepoCommitsGetter{
+		workDir: workDir,
 	}
-}
-
-// CommitAuthorMatching returns an option that will cause Source to ignore commits with Author not matching regex.
-func CommitAuthorMatching(regex string) CommitOptionFunc {
-	return func(s *RepoCommitsGetter) error {
-		rgx, err := regexp.Compile(regex)
-		if err != nil {
-			return fmt.Errorf("compiling %q: %w", regex, err)
-		}
-
-		s.matchAuthor = rgx
-		return nil
-	}
-}
-
-var MatchAllCommits = regexp.MustCompile("")
-
-func NewRepoCommitsGetter(workDir string, opts ...CommitOptionFunc) (*RepoCommitsGetter, error) {
-	s := &RepoCommitsGetter{
-		workDir:      workDir,
-		matchMessage: MatchAllCommits,
-		matchAuthor:  MatchAllCommits,
-	}
-
-	for _, opt := range opts {
-		if err := opt(s); err != nil {
-			return nil, fmt.Errorf("applyng option: %w", err)
-		}
-	}
-
-	return s, nil
 }
 
 // Commits returns all the commits from Head ordered from top to bottom
@@ -84,23 +48,54 @@ func (s *RepoCommitsGetter) Commits(lastHash string) ([]Commit, error) {
 	if err != nil {
 		return nil, fmt.Errorf("getting git commits: %w", err)
 	}
+	defer commitIter.Close()
 
-	var commits []Commit
+	var prevWasLastHash bool
+	gitCommits := make([]*object.Commit, 0)
 
-	for cm, errCommit := commitIter.Next(); errCommit == nil; {
-		if cm.Hash.String() == lastHash {
+	for {
+		cm, errCommit := commitIter.Next()
+		if errCommit != nil && !errors.Is(errCommit, io.EOF) {
+			return nil, fmt.Errorf("iterating git commits: %w", errCommit)
+		}
+
+		if prevWasLastHash || cm == nil {
 			break
 		}
 
-		if !s.matchMessage.MatchString(cm.Message) {
-			log.Debugf("skipping commit %q as message does not match %q", cm.Message, s.matchMessage.String())
-			cm, errCommit = commitIter.Next()
-			continue
+		// Get also LastHash to be able to compare it with last in list
+		if cm.Hash.String() == lastHash {
+			prevWasLastHash = true
 		}
 
-		if !s.matchAuthor.MatchString(cm.Author.Name) {
-			log.Debugf("skipping commit %q as it author does not match %q", cm.Author, s.matchAuthor.String())
-			cm, errCommit = commitIter.Next()
+		gitCommits = append(gitCommits, cm)
+	}
+
+	return s.commitsWithChangedFiles(lastHash, gitCommits)
+}
+
+// commitsWithChanges iterates the list of commits and populates a list with changed files.
+func (s *RepoCommitsGetter) commitsWithChangedFiles(lastHash string, gitCommits []*object.Commit) ([]Commit, error) {
+	commits := make([]Commit, 0)
+
+	for k, cm := range gitCommits {
+		currentTree, err := cm.Tree()
+		if err != nil {
+			return nil, fmt.Errorf("getting commit tree: %w", err)
+		}
+
+		prevTree, err := s.getPreviousCommitTree(k, gitCommits)
+		if err != nil {
+			return nil, fmt.Errorf("getting previous commit tree: %w", err)
+		}
+
+		// Get changes between current commit and previous
+		changes, err := prevTree.Diff(currentTree)
+		if err != nil {
+			return nil, fmt.Errorf("getting diff between commits: %w", err)
+		}
+
+		if cm.Hash.String() == lastHash {
 			continue
 		}
 
@@ -108,11 +103,35 @@ func (s *RepoCommitsGetter) Commits(lastHash string) ([]Commit, error) {
 			Message: strings.TrimSuffix(cm.Message, "\n"),
 			Hash:    cm.Hash.String(),
 			Author:  cm.Author.String(),
+			Files:   s.getChangedFiles(changes),
 		})
-		cm, errCommit = commitIter.Next()
 	}
 
-	commitIter.Close()
-
 	return commits, nil
+}
+
+//nolint:wrapcheck
+func (s *RepoCommitsGetter) getPreviousCommitTree(positionInList int, commitList []*object.Commit) (*object.Tree, error) {
+	if positionInList < len(commitList)-1 {
+		return commitList[positionInList+1].Tree()
+	}
+
+	// When no previous commit exits, we get the empty tree
+	return &object.Tree{
+		Hash: plumbing.NewHash(EmptyTreeID),
+	}, nil
+}
+
+func (s *RepoCommitsGetter) getChangedFiles(changes []*object.Change) []string {
+	changedFiles := make([]string, 0)
+	for _, change := range changes {
+		empty := object.ChangeEntry{}
+		if change.From != empty {
+			changedFiles = append(changedFiles, change.From.Name)
+			continue
+		}
+		changedFiles = append(changedFiles, change.To.Name)
+	}
+
+	return changedFiles
 }

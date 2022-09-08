@@ -21,6 +21,8 @@ const (
 	dependabotFlag   = "dependabot"
 	tagPrefixFlag    = "tag-prefix"
 	gitRootFlag      = "git-root"
+	includedDirsFlag = "included-dirs"
+	excludedDirsFlag = "excluded-dirs"
 )
 
 // ErrNoSources is returned if Generate is invoked without any source enabled.
@@ -45,6 +47,18 @@ var Cmd = &cli.Command{
 			Usage:   "Gather changelog entries from renovate commits since last tag",
 			Value:   true,
 		},
+		&cli.StringSliceFlag{
+			Name:    includedDirsFlag,
+			EnvVars: common.EnvFor(includedDirsFlag),
+			Usage: `Only scan commits scoping at least one file in any of the following comma-separated directories, relative to repository root (--dir) ` +
+				`(Paths may not start with "/" or contain ".." or "." tokens)`,
+		},
+		&cli.StringSliceFlag{
+			Name:    excludedDirsFlag,
+			EnvVars: common.EnvFor(includedDirsFlag),
+			Usage: `Exclude commits whose changes only impact files in specified dirs relative to repository root (--dir) (separated by comma) ` +
+				`(Paths may not start with "/" or contain ".." or "." tokens)`,
+		},
 		&cli.BoolFlag{
 			Name:    dependabotFlag,
 			EnvVars: common.EnvFor(dependabotFlag),
@@ -68,6 +82,8 @@ var Cmd = &cli.Command{
 	Action: Generate,
 }
 
+type appendDepSrc func([]changelog.Source, git.TagsVersionGetter, git.CommitsGetter) []changelog.Source
+
 // Generate is a command that creates a changelog.yaml file.
 //
 //nolint:gocyclo,cyclop
@@ -81,15 +97,24 @@ func Generate(cCtx *cli.Context) error {
 	combinedChangelog := &changelog.Changelog{}
 	sources := make([]changelog.Source, 0)
 
+	includedDirs := cCtx.StringSlice(includedDirsFlag)
+	excludedDirs := cCtx.StringSlice(excludedDirsFlag)
+
 	if cCtx.Bool(renovateFlag) {
-		sources, err = addRenovate(cCtx, sources)
+		appendDep := func(sources []changelog.Source, tgv git.TagsVersionGetter, getter git.CommitsGetter) []changelog.Source {
+			return append(sources, renovate.NewSource(tgv, getter))
+		}
+		sources, err = addDepSource(cCtx, sources, includedDirs, excludedDirs, appendDep)
 		if err != nil {
 			return fmt.Errorf("adding renovate source: %w", err)
 		}
 	}
 
 	if cCtx.Bool(dependabotFlag) {
-		sources, err = addDependabot(cCtx, sources)
+		appendDep := func(sources []changelog.Source, tgv git.TagsVersionGetter, getter git.CommitsGetter) []changelog.Source {
+			return append(sources, dependabot.NewSource(tgv, getter))
+		}
+		sources, err = addDepSource(cCtx, sources, includedDirs, excludedDirs, appendDep)
 		if err != nil {
 			return fmt.Errorf("adding dependabot source: %w", err)
 		}
@@ -127,34 +152,23 @@ func Generate(cCtx *cli.Context) error {
 	return nil
 }
 
-func addRenovate(cCtx *cli.Context, sources []changelog.Source) ([]changelog.Source, error) {
+func addDepSource(cCtx *cli.Context, sources []changelog.Source, includedDirs, excludedDirs []string, appendDep appendDepSrc) ([]changelog.Source, error) {
 	tvg, err := tagVersionGetter(cCtx)
 	if err != nil {
 		return nil, err
 	}
 
-	gitCommitGetter, err := git.NewRepoCommitsGetter(cCtx.String(gitRootFlag))
-	if err != nil {
-		return nil, fmt.Errorf("creating git commit getter: %w", err)
+	gitCommitGetter := git.NewRepoCommitsGetter(cCtx.String(gitRootFlag))
+
+	if len(includedDirs) > 0 || len(excludedDirs) > 0 {
+		commitFilter, err := git.NewCommitFilter(gitCommitGetter, git.IncludedDirs(includedDirs...), git.ExcludedDirs(excludedDirs...))
+		if err != nil {
+			return nil, fmt.Errorf("creating git commit filter: %w", err)
+		}
+		return appendDep(sources, tvg, commitFilter), nil
 	}
 
-	sources = append(sources, renovate.NewSource(tvg, gitCommitGetter))
-	return sources, nil
-}
-
-func addDependabot(cCtx *cli.Context, sources []changelog.Source) ([]changelog.Source, error) {
-	tvg, err := tagVersionGetter(cCtx)
-	if err != nil {
-		return nil, err
-	}
-
-	gitCommitGetter, err := git.NewRepoCommitsGetter(cCtx.String(gitRootFlag))
-	if err != nil {
-		return nil, fmt.Errorf("creating git commit getter: %w", err)
-	}
-
-	sources = append(sources, dependabot.NewSource(tvg, gitCommitGetter))
-	return sources, nil
+	return appendDep(sources, tvg, gitCommitGetter), nil
 }
 
 func tagVersionGetter(cCtx *cli.Context) (*git.TagsSource, error) {

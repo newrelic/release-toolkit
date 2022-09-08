@@ -128,6 +128,121 @@ dependencies:
         commit: chore(deps): update helm release common-library to v1.0.4 (#401)
 			`) + "\n",
 		},
+		{
+			name:   "Markdown_Renovate_Filter_IncludedDirs_notIncluded",
+			md:     mdChangelog,
+			args:   "--dependabot=false --included-dirs=invented,another-invented",
+			author: "renovate[bot] <renovatebot@imadethisup.com>",
+			commits: []string{
+				"chore(deps): update newrelic/infrastructure-bundle docker tag to v2.7.2",
+				"chore(deps): update helm release common-library to v1.0.4 (#401)",
+			},
+			// Note: meta.commit is actually the commit hash.
+			// As it is nontrivial to know the commit hash in advance, to make tests easier to write, test writers
+			// should specify the commit message instead. This test will replace it with the actual hash in runtime.
+			expected: strings.TrimSpace(`
+notes: |-
+    ### Important announcement (note)
+    This is a release note
+changes:
+    - type: breaking
+      message: Support has been removed
+    - type: security
+      message: Fixed a security issue that leaked all data
+dependencies: []
+			`) + "\n",
+		},
+		{
+			name:   "Markdown_Renovate_Filter_ExcludedDirs_Included",
+			md:     mdChangelog,
+			args:   "--dependabot=false --excluded-dirs=invented",
+			author: "renovate[bot] <renovatebot@imadethisup.com>",
+			commits: []string{
+				"chore(deps): update newrelic/infrastructure-bundle docker tag to v2.7.2",
+				"chore(deps): update helm release common-library to v1.0.4 (#401)",
+			},
+			// Note: meta.commit is actually the commit hash.
+			// As it is nontrivial to know the commit hash in advance, to make tests easier to write, test writers
+			// should specify the commit message instead. This test will replace it with the actual hash in runtime.
+			expected: strings.TrimSpace(`
+notes: |-
+    ### Important announcement (note)
+    This is a release note
+changes:
+    - type: breaking
+      message: Support has been removed
+    - type: security
+      message: Fixed a security issue that leaked all data
+dependencies:
+    - name: newrelic/infrastructure-bundle
+      to: v2.7.2
+      meta:
+        commit: chore(deps): update newrelic/infrastructure-bundle docker tag to v2.7.2
+    - name: common-library
+      to: v1.0.4
+      meta:
+        pr: "401"
+        commit: chore(deps): update helm release common-library to v1.0.4 (#401)
+			`) + "\n",
+		},
+		{
+			name:   "Markdown_Dependabot_Filter_IncludedDirs_notIncluded",
+			md:     mdChangelog,
+			args:   "--renovate=false --included-dirs=invented,another-invented",
+			author: "dependabot <dependabot@github.com>",
+			commits: []string{
+				"chore(deps): bump thisdep from 1.7.0 to 1.10.1",
+				"chore(deps): bump anotherdep from 0.0.1 to 0.0.2 (#69)",
+			},
+			// Note: meta.commit is actually the commit hash.
+			// As it is nontrivial to know the commit hash in advance, to make tests easier to write, test writers
+			// should specify the commit message instead. This test will replace it with the actual hash in runtime.
+			expected: strings.TrimSpace(`
+notes: |-
+    ### Important announcement (note)
+    This is a release note
+changes:
+    - type: breaking
+      message: Support has been removed
+    - type: security
+      message: Fixed a security issue that leaked all data
+dependencies: []`) + "\n",
+		},
+		{
+			name:   "Markdown_Dependabot_Filter_ExcludedDirs_Included",
+			md:     mdChangelog,
+			args:   "--renovate=false --excluded-dirs=invented",
+			author: "dependabot <dependabot@github.com>",
+			commits: []string{
+				"chore(deps): bump thisdep from 1.7.0 to 1.10.1",
+				"chore(deps): bump anotherdep from 0.0.1 to 0.0.2 (#69)",
+			},
+			// Note: meta.commit is actually the commit hash.
+			// As it is nontrivial to know the commit hash in advance, to make tests easier to write, test writers
+			// should specify the commit message instead. This test will replace it with the actual hash in runtime.
+			expected: strings.TrimSpace(`
+notes: |-
+    ### Important announcement (note)
+    This is a release note
+changes:
+    - type: breaking
+      message: Support has been removed
+    - type: security
+      message: Fixed a security issue that leaked all data
+dependencies:
+    - name: thisdep
+      from: 1.7.0
+      to: 1.10.1
+      meta:
+        commit: chore(deps): bump thisdep from 1.7.0 to 1.10.1
+    - name: anotherdep
+      from: 0.0.1
+      to: 0.0.2
+      meta:
+        pr: "69"
+        commit: chore(deps): bump anotherdep from 0.0.1 to 0.0.2 (#69)
+			`) + "\n",
+		},
 	} {
 		//nolint:paralleltest
 		t.Run(tc.name, func(t *testing.T) {
@@ -234,10 +349,7 @@ func calculateHashes(t *testing.T, repoPath string, yaml string) string {
 func hashFor(t *testing.T, repoPath string, message string) string {
 	t.Helper()
 
-	commitsGetter, err := git.NewRepoCommitsGetter(repoPath)
-	if err != nil {
-		t.Fatalf("Internal error resolving hashes: creating git source: %v", err)
-	}
+	commitsGetter := git.NewRepoCommitsGetter(repoPath)
 
 	commits, err := commitsGetter.Commits("")
 	if err != nil {
