@@ -27,5 +27,3 @@ runs:
     - ${{ inputs.markdown }}
     - --version
     - ${{ inputs.version }}
-    - --date
-    - ${{ inputs.date }}

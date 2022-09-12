@@ -243,7 +243,7 @@ jobs:
           EOF
           
           head -c -1 > expected-changelog.md <<EOF
-          ## v1.2.3 - 1993-09-21
+          ## v1.2.3 - $(date +%Y-%m-%d)
           
           ### Important announcement (note)
           
@@ -257,7 +257,6 @@ jobs:
           yaml: ${{ env.MOCK_REPO }}/changelog.yaml
           markdown: ${{ env.MOCK_REPO }}/CHANGELOG.partial.md
           version: v1.2.3
-          date: 1993-09-21
       - run: |
           cat $MOCK_REPO/expected-changelog.md
           
@@ -314,7 +313,7 @@ jobs:
           # Changelog
             This is based on blah blah blah
           
-          ## v1.2.3 - 1993-09-21
+          ## v1.2.3 - $(date +%Y-%m-%d)
           
           ### Important announcement (note)
           
@@ -328,12 +327,11 @@ jobs:
           ### Enhancements
           - This is in the past and should be preserved
           EOF
-      - uses: ./update
+      - uses: ./update-changelog
         with:
           yaml: ${{ env.MOCK_REPO }}/changelog.yaml
           markdown: ${{ env.MOCK_REPO }}/existing.md
           version: v1.2.3
-          date: 1993-09-21
       - run: |
           cat $MOCK_REPO/existing.md
           

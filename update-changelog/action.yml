@@ -1,4 +1,4 @@
-name: Update
+name: Update Changelog
 description: Incorporate a changelog.yaml into a complete CHANGELOG.md
 inputs:
   yaml:
@@ -13,9 +13,6 @@ inputs:
     description: Version to stamp in the changelog section header (no version header if omitted)
     required: false
     default: ""
-  date:
-    description: Date to stamp in the changelog section header, in YYYY-MM-DD format. Defaults to the current time if unspecified.
-    required: false
 runs:
   using: docker
   image: ../Dockerfile
@@ -27,5 +24,3 @@ runs:
     - ${{ inputs.markdown }}
     - --version
     - ${{ inputs.version }}
-    - --date
-    - ${{ inputs.date }}
