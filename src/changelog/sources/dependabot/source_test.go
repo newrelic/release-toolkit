@@ -96,6 +96,8 @@ func TestSource_Source(t *testing.T) {
 				{Message: "build(deps): bump aquasecurity/trivy-action from 0.0.18 to 0.0.19 (#181)"},
 				{Message: "build(deps): bump actions/github-script (#193)"},
 				{Message: "build(deps): bump github.com/newrelic/infra-integrations-sdk from 3.6.8+incompatible to 3.7.0+incompatible (#236)"},
+				// From github.com/newrelic/release-toolkit
+				{Message: "build(deps): bump github.com/urfave/cli/v2 from 2.14.0 to 2.14.1 in /src (#65)"},
 			},
 			expectedDependencies: []changelog.Dependency{
 				{Name: "actions/github-script", From: semver.MustParse("4.0.2"), To: semver.MustParse("4.1")},
@@ -135,6 +137,8 @@ func TestSource_Source(t *testing.T) {
 				{Name: "aquasecurity/trivy-action", From: semver.MustParse("0.0.18"), To: semver.MustParse("0.0.19"), Meta: changelog.EntryMeta{PR: "181"}},
 				{Name: "actions/github-script", Meta: changelog.EntryMeta{PR: "193"}},
 				{Name: "github.com/newrelic/infra-integrations-sdk", From: semver.MustParse("3.6.8+incompatible"), To: semver.MustParse("3.7.0+incompatible"), Meta: changelog.EntryMeta{PR: "236"}},
+				// From github.com/newrelic/release-toolkit
+				{Name: "github.com/urfave/cli/v2", From: semver.MustParse("2.14.0"), To: semver.MustParse("2.14.1"), Meta: changelog.EntryMeta{PR: "65"}},
 			},
 		},
 		{
