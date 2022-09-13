@@ -25,6 +25,14 @@ inputs:
     description: Find commits since latest matching this prefix
     required: false
     default: ""
+  included-dirs:
+    description: Only scan commits scoping at least one file in any of the following comma-separated directories
+    required: false
+    default: ""
+  excluded-dirs:
+    description: Exclude commits whose changes only impact files in specified dirs relative to repository root
+    required: false
+    default: ""
 runs:
   using: docker
   image: ../Dockerfile
@@ -40,3 +48,7 @@ runs:
     - ${{ inputs.git-root }}
     - --tag-prefix
     - ${{ inputs.tag-prefix }}
+    - --included-dirs
+    - ${{ inputs.included-dirs }}
+    - --excluded-dirs
+    - ${{ inputs.excluded-dirs }}
