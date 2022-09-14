@@ -73,7 +73,7 @@ func Link(cCtx *cli.Context) error {
 	}
 	chFile.Close()
 
-	mappers := []linker.Mapper{mapper.Github{}}
+	mappers := make([]linker.Mapper, 0)
 
 	if dicPath := cCtx.String(dictionaryPathFlag); dicPath != "" {
 		dicFile, errPath := os.Open(dicPath)
@@ -86,6 +86,8 @@ func Link(cCtx *cli.Context) error {
 		}
 		mappers = append(mappers, dic)
 	}
+
+	mappers = append(mappers, mapper.Github{})
 
 	link := linker.New(mappers...)
 	err = link.Link(ch)

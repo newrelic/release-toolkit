@@ -21,6 +21,30 @@ func TestLink(t *testing.T) {
 		expected   string
 	}{
 		{
+			name: "Dictionary_Takes_Precedence",
+			chlog: strings.TrimSpace(`
+notes: ""
+changes: []
+dependencies:
+- name: github.com/spf13/viper
+  from: 4.0.3
+  to: 4.1.2
+			`),
+			dictionary: strings.TrimSpace(`
+dictionary:
+  github.com/spf13/viper: "https://github.com/spf13/viper/releases/tag/my-custom-viper-{{.To.Original}}"
+			`),
+			expected: strings.TrimLeft(`
+notes: ""
+changes: []
+dependencies:
+    - name: github.com/spf13/viper
+      from: 4.0.3
+      to: 4.1.2
+      changelog: https://github.com/spf13/viper/releases/tag/my-custom-viper-4.1.2
+`, "\n"),
+		},
+		{
 			name: "Adds_Dependency_Changelogs",
 			chlog: strings.TrimSpace(`
 notes: |-
