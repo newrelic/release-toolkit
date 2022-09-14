@@ -61,6 +61,42 @@ dependencies: []
 			`) + "\n",
 		},
 		{
+			name: "Markdown_Only_Dependencies",
+			md: strings.TrimSpace(`
+# Changelog
+This is based on blah blah blah
+
+## Unreleased
+
+## v1.2.3 - 20YY-DD-MM
+
+### Enhancements
+- This is in the past and should not be included
+			`) + "\n",
+			args:   "",
+			author: "dependabot <dependabot@github.com>",
+			commits: []string{
+				"chore(deps): bump thisdep from 1.7.0 to 1.10.1",
+				"chore(deps): bump anotherdep from 0.0.1 to 0.0.2 (#69)",
+			},
+			expected: strings.TrimSpace(`
+notes: ""
+changes: []
+dependencies:
+    - name: thisdep
+      from: 1.7.0
+      to: 1.10.1
+      meta:
+        commit: chore(deps): bump thisdep from 1.7.0 to 1.10.1
+    - name: anotherdep
+      from: 0.0.1
+      to: 0.0.2
+      meta:
+        pr: "69"
+        commit: chore(deps): bump anotherdep from 0.0.1 to 0.0.2 (#69)
+			`) + "\n",
+		},
+		{
 			name:   "Markdown_Dependabot",
 			md:     mdChangelog,
 			args:   "--renovate=false",
