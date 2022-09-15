@@ -3,6 +3,7 @@ package dependabot
 import (
 	"fmt"
 	"regexp"
+	"sort"
 
 	"github.com/Masterminds/semver"
 	"github.com/newrelic/release-toolkit/changelog"
@@ -70,11 +71,9 @@ func (r Source) Changelog() (*changelog.Changelog, error) {
 
 	// Reverse order in which dependencies appear in changelog, to put the oldest first.
 	// Commits are iterated in a newest-first order.
-	nDeps := len(dependencies)
-	sortedDependencies := make([]changelog.Dependency, nDeps)
-	for i := 0; i < nDeps; i++ {
-		sortedDependencies[nDeps-1-i] = dependencies[i]
-	}
+	sort.SliceStable(dependencies, func(i, j int) bool {
+		return j < i
+	})
 
-	return &changelog.Changelog{Dependencies: sortedDependencies}, nil
+	return &changelog.Changelog{Dependencies: dependencies}, nil
 }
