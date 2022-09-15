@@ -6,7 +6,7 @@ inputs:
     required: false
     default: CHANGELOG.md
   exit-code:
-    description: Get current version from latest semver tag matching this prefix
+    description: Exit code when errors are found
     required: false
     default: "1"
 outputs:
