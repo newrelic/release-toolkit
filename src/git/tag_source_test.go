@@ -166,7 +166,7 @@ func TestRepoTagsSource_LastVersionHash(t *testing.T) {
 			expectedHash: getVersionCommitHash(
 				t,
 				repodir,
-				"helm-chart-1.3.0",
+				"helm-chart-1.3.1",
 				git.TagsMatching("^helm-chart-"),
 			),
 		},
@@ -187,7 +187,7 @@ func TestRepoTagsSource_LastVersionHash(t *testing.T) {
 				t.Fatalf("Error creating git source: %v", err)
 			}
 
-			assert.Equal(t, tc.expectedHash, hash, "Reported hasg does not match")
+			assert.Equal(t, tc.expectedHash, hash, "Reported hash does not match")
 		})
 	}
 }

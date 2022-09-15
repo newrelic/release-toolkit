@@ -51,7 +51,7 @@ func (s *TagsSource) Versions() ([]*semver.Version, error) {
 		return nil, fmt.Errorf("getting tags: %w", err)
 	}
 
-	versions := make([]*semver.Version, 0)
+	versions := make([]*semver.Version, 0, len(tags))
 	for _, tag := range tags {
 		tagName := s.replacer.Replace(tag.Name)
 
@@ -73,26 +73,34 @@ func (s *TagsSource) LastVersionHash() (string, error) {
 		return "", fmt.Errorf("getting tags: %w", err)
 	}
 
-	if tags == nil {
+	type semverTag struct {
+		tag     Tag
+		version *semver.Version
+	}
+
+	versions := make([]semverTag, 0, len(tags))
+	for _, tag := range tags {
+		tagName := s.replacer.Replace(tag.Name)
+
+		v, innerErr := semver.NewVersion(tagName)
+		if innerErr != nil {
+			log.Infof("skipping tag %q as it does not conform to semver %v", tagName, innerErr)
+			continue
+		}
+
+		versions = append(versions, semverTag{
+			tag: tag, version: v,
+		})
+	}
+
+	sort.Slice(versions, func(i, j int) bool {
+		// Inverted less to sort from newer to older.
+		return versions[i].version.GreaterThan(versions[j].version)
+	})
+
+	if len(versions) == 0 {
 		return "", nil
 	}
 
-	sort.Slice(tags, func(i, j int) bool {
-		tagNameCurrent := s.replacer.Replace(tags[i].Name)
-		vCurrent, innerErr := semver.NewVersion(tags[i].Name)
-		if innerErr != nil {
-			log.Debugf("skipping tag %q as it does not conform to semver %v", tagNameCurrent, innerErr)
-			return false
-		}
-
-		tagNameNext := s.replacer.Replace(tags[j].Name)
-		vNext, innerErr := semver.NewVersion(tags[j].Name)
-		if innerErr != nil {
-			log.Debugf("skipping tag %q as it does not conform to semver %v", tagNameNext, innerErr)
-			return true
-		}
-		return vCurrent.GreaterThan(vNext)
-	})
-
-	return tags[0].Hash, nil
+	return versions[0].tag.Hash, nil
 }
