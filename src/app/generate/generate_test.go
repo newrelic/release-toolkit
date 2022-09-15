@@ -37,13 +37,37 @@ This is a release note
 //nolint:funlen,paralleltest
 func TestGenerate(t *testing.T) {
 	for _, tc := range []struct {
-		name     string
-		commits  []string
-		author   string
-		md       string
-		expected string
-		args     string
+		name           string
+		commits        []string
+		author         string
+		md             string
+		expected       string
+		outputExpected string
+		args           string
+		preCmdArgs     string
 	}{
+		{
+			name:       "Empty_Changelog_gha",
+			args:       "--exit-code=0",
+			preCmdArgs: "--gha=1",
+			md: strings.TrimSpace(`
+# Changelog
+This is based on blah blah blah
+
+## Unreleased
+
+## v1.2.3 - 20YY-DD-MM
+
+### Enhancements
+- This is in the past and should not be included
+			`),
+			outputExpected: "::set-output name=empty-changelog::true\n",
+			expected: strings.TrimSpace(`
+notes: ""
+changes: []
+dependencies: []
+			`) + "\n",
+		},
 		{
 			name: "Markdown_Only",
 			md:   mdChangelog,
@@ -251,6 +275,9 @@ dependencies:
 
 			app := app.App()
 
+			buf := &strings.Builder{}
+			app.Writer = buf
+
 			yamlPath := path.Join(tDir, "changelog.yaml")
 			_, err := os.Create(yamlPath)
 			if err != nil {
@@ -264,7 +291,7 @@ dependencies:
 			}
 			_, _ = mdFile.WriteString(tc.md)
 
-			err = app.Run(strings.Fields(fmt.Sprintf("rt --yaml %s generate -git-root %s -markdown %s %s", yamlPath, tDir, mdPath, tc.args)))
+			err = app.Run(strings.Fields(fmt.Sprintf("rt --yaml %s %s generate -git-root %s -markdown %s %s", yamlPath, tc.preCmdArgs, tDir, mdPath, tc.args)))
 			if err != nil {
 				t.Fatalf("Error running app: %v", err)
 			}
@@ -275,6 +302,9 @@ dependencies:
 			}
 			if diff := cmp.Diff(tc.expected, string(yaml)); diff != "" {
 				t.Fatalf("Output YAML is not as expected:\n%s", diff)
+			}
+			if actual := buf.String(); actual != tc.outputExpected {
+				t.Fatalf("Expected %q, app printed: %q", tc.outputExpected, actual)
 			}
 		})
 	}

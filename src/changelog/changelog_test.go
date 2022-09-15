@@ -93,6 +93,48 @@ func TestChangelog_Merge(t *testing.T) {
 	}
 }
 
+func TestChangelog_Empty(t *testing.T) {
+	t.Parallel()
+
+	const numChangelogFields = 4
+
+	for _, tc := range []struct {
+		name      string
+		changelog *changelog.Changelog
+		expected  bool
+	}{
+		{
+			name: "Changelog_Is_Not_Empty",
+			changelog: &changelog.Changelog{
+				Changes: []changelog.Entry{
+					{Message: "Change one", Type: changelog.TypeBugfix},
+				},
+				Dependencies: []changelog.Dependency{
+					{Name: "Dependency 1"},
+					{Name: "Dependency 2"},
+				},
+			},
+			expected: false,
+		},
+		{
+			name:      "Changelog_Is_Empty",
+			changelog: &changelog.Changelog{},
+			expected:  true,
+		},
+	} {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			if tc.expected != tc.changelog.Empty() {
+				t.Fatalf("Expected %t got %t", tc.expected, tc.changelog.Empty())
+			}
+			if len(reflect.VisibleFields(reflect.TypeOf(changelog.Changelog{}))) != numChangelogFields {
+				t.Fatal("Inconsistency detected, the number of checked fields in Empty() function is lower than Changelog's fields")
+			}
+		})
+	}
+}
+
 func TestChangelog_Merge_Does_Duplicate_Entries(t *testing.T) {
 	// Current implementation does not deduplicate entries. This test attest this as intended behavior.
 	t.Parallel()
