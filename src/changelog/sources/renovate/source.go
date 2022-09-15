@@ -3,6 +3,7 @@ package renovate
 import (
 	"fmt"
 	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/Masterminds/semver"
@@ -53,9 +54,13 @@ func (r Source) Changelog() (*changelog.Changelog, error) {
 			continue
 		}
 
+		bodyDependencies := r.bodyDependencies(c.Message)
 		// We later reverse the whole dependency list, but want the body dependencies to stay in the same order.
 		// For this reason we reverse bodyDependencies here.
-		bodyDependencies := reverse(r.bodyDependencies(c.Message))
+		sort.SliceStable(bodyDependencies, func(i, j int) bool {
+			return j < i
+		})
+
 		commitDependencies = append(commitDependencies, bodyDependencies...)
 
 		if len(bodyDependencies) == 0 {
@@ -72,7 +77,9 @@ func (r Source) Changelog() (*changelog.Changelog, error) {
 
 	// Reverse order in which dependencies appear in changelog, to put the oldest first.
 	// Commits are iterated in a newest-first order.
-	dependencies = reverse(dependencies)
+	sort.SliceStable(dependencies, func(i, j int) bool {
+		return j < i
+	})
 
 	return &changelog.Changelog{Dependencies: dependencies}, nil
 }
@@ -183,16 +190,6 @@ func (r Source) bodyDependencies(commitBody string) []changelog.Dependency {
 	}
 
 	return bodyDeps
-}
-
-func reverse(deps []changelog.Dependency) []changelog.Dependency {
-	nDeps := len(deps)
-	sortedDependencies := make([]changelog.Dependency, nDeps)
-	for i := 0; i < nDeps; i++ {
-		sortedDependencies[nDeps-1-i] = deps[i]
-	}
-
-	return sortedDependencies
 }
 
 func dependencyName(rawName string) string {
