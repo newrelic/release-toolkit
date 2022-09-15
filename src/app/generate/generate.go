@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/newrelic/release-toolkit/app/common"
+	"github.com/newrelic/release-toolkit/app/gha"
 	"github.com/newrelic/release-toolkit/changelog"
 	"github.com/newrelic/release-toolkit/changelog/sources/dependabot"
 	"github.com/newrelic/release-toolkit/changelog/sources/markdown"
@@ -23,7 +24,10 @@ const (
 	gitRootFlag      = "git-root"
 	includedDirsFlag = "included-dirs"
 	excludedDirsFlag = "excluded-dirs"
+	exitCodeFlag     = "exit-code"
 )
+
+const emptyChangelogOutput = "empty-changelog"
 
 // ErrNoSources is returned if Generate is invoked without any source enabled.
 var ErrNoSources = errors.New("cannot generate changelog without at least one source enabled")
@@ -78,6 +82,12 @@ var Cmd = &cli.Command{
 			Usage:   "Path to the git repo to get commits and tags for.",
 			Value:   "./",
 		},
+		&cli.IntFlag{
+			Name:    exitCodeFlag,
+			EnvVars: common.EnvFor(exitCodeFlag),
+			Usage:   "Exit code if generated changelog is empty",
+			Value:   1,
+		},
 	},
 	Action: Generate,
 }
@@ -88,6 +98,8 @@ type appendDepSrc func([]changelog.Source, git.TagsVersionGetter, git.CommitsGet
 //
 //nolint:gocyclo,cyclop
 func Generate(cCtx *cli.Context) error {
+	gh := gha.NewFromCli(cCtx)
+
 	yamlPath := cCtx.String(common.YAMLFlag)
 	chFile, err := os.Create(yamlPath)
 	if err != nil {
@@ -147,6 +159,13 @@ func Generate(cCtx *cli.Context) error {
 	err = yaml.NewEncoder(chFile).Encode(combinedChangelog)
 	if err != nil {
 		return fmt.Errorf("writing changelog to %q: %w", yamlPath, err)
+	}
+
+	gh.SetOutput(emptyChangelogOutput, combinedChangelog.Empty())
+
+	exitCode := cCtx.Int(exitCodeFlag)
+	if combinedChangelog.Empty() && exitCode != 0 {
+		return cli.Exit("changelog is empty", exitCode)
 	}
 
 	return nil

@@ -33,6 +33,10 @@ inputs:
     description: Exclude commits whose changes only impact files in specified dirs relative to repository root
     required: false
     default: ""
+  exit-code:
+    description: Exit code if changelog is empty
+    required: false
+    default: "1"
 runs:
   using: docker
   image: ../Dockerfile
@@ -52,3 +56,5 @@ runs:
     - ${{ inputs.included-dirs }}
     - --excluded-dirs
     - ${{ inputs.excluded-dirs }}
+    - --exit-code
+    - ${{ inputs.exit-code }}

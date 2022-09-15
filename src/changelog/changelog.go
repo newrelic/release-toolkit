@@ -44,6 +44,11 @@ func (c *Changelog) Merge(other *Changelog) {
 	c.Dependencies = append(c.Dependencies, other.Dependencies...)
 }
 
+// Empty returns true if this changelog contains no data.
+func (c *Changelog) Empty() bool {
+	return !c.Held && c.Notes == "" && len(c.Changes) == 0 && len(c.Dependencies) == 0
+}
+
 // Entry is a representation of a change that has been made in the code.
 type Entry struct {
 	// Type holds which bump this change was: A bug fix, a new feature, etc. See EntryType.

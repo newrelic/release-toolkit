@@ -109,6 +109,50 @@ jobs:
             exit 2
           fi
 
+  generate-changelog-empty:
+    name: generate-changelog action empty changelog
+    runs-on: ubuntu-latest
+    env:
+      MOCK_REPO: ./mock_repo
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configure test repo
+        id: repo
+        shell: bash
+        run: |
+          mkdir $MOCK_REPO
+          cd $MOCK_REPO
+
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+
+          git init
+          for i in 1 2 3; do
+            touch file$i
+            git add file$i
+            git commit -m commit_$i
+          done
+
+          cat > CHANGELOG.md <<EOF
+          # Changelog
+          The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+          and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+          ## Unreleased
+          EOF
+      - uses: ./generate-changelog
+        id: generate-changelog
+        with:
+          yaml: ${{ env.MOCK_REPO }}/changelog.yaml
+          markdown: ${{ env.MOCK_REPO }}/CHANGELOG.md
+          git-root: ${{ env.MOCK_REPO }}
+          exit-code: 0
+      - run: |
+          if [[ "${{ steps.generate-changelog.outputs.empty-changelog }}" != "true" ]]; then
+            echo "empty-changelog should have returned true" >&2
+            exit 1
+          fi
+
   next-version:
     name: next-version action
     runs-on: ubuntu-latest
