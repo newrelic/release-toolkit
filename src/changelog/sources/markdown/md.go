@@ -109,7 +109,7 @@ func (b builder) entriesFromHeader(header *headingdoc.Doc, t changelog.EntryType
 	// First item of the headingDoc content is always the heading itself, so we skip it for parsing.
 	changes := items(header.Content[1:])
 	if len(changes) == 0 {
-		log.Warnf("No list items found under heaser %q", header.Name)
+		log.Warnf("No list items found under header %q", header.Name)
 	}
 
 	for _, change := range changes {
