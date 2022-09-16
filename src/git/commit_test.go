@@ -1,6 +1,7 @@
 package git_test
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -78,20 +79,10 @@ func TestCommitSource_Commits(t *testing.T) {
 		name            string
 		commitHash      string
 		expectedCommits []string
+		expectedError   error
 	}{
 		{
 			name: "Empty_Hash_Default_Opts",
-			expectedCommits: []string{
-				"2.0.0-beta",
-				"1.5.0",
-				"v1.4.0",
-				"v1.3.0",
-				"v1.2.3",
-			},
-		},
-		{
-			name:       "Non_Existing_Hash_Default_Opts",
-			commitHash: "an-invented-hash",
 			expectedCommits: []string{
 				"2.0.0-beta",
 				"1.5.0",
@@ -108,6 +99,12 @@ func TestCommitSource_Commits(t *testing.T) {
 				"1.5.0",
 			},
 		},
+		{
+			name:            "Non_Existing_Hash_Default_Opts",
+			commitHash:      "aw3s0m3c0mm17h45h",
+			expectedCommits: nil,
+			expectedError:   git.ErrNonexistentCommitHash,
+		},
 	} {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
@@ -115,6 +112,12 @@ func TestCommitSource_Commits(t *testing.T) {
 
 			commitsGetter := git.NewRepoCommitsGetter(repodir)
 			commits, err := commitsGetter.Commits(tc.commitHash)
+			if !errors.Is(err, tc.expectedError) {
+				t.Fatalf("Error extracting dependabot dependencies: %v", err)
+			}
+			if tc.expectedCommits == nil {
+				return
+			}
 			if err != nil {
 				t.Fatalf("Error fetching commits: %v", err)
 			}
