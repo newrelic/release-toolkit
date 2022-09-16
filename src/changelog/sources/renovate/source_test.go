@@ -1,6 +1,7 @@
 package renovate_test
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/Masterminds/semver"
@@ -10,7 +11,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type tagsVersionGetterMock struct{}
+var errRandomError = errors.New("a-random-error")
+
+type tagsVersionGetterMock struct {
+	errRelease error
+}
 
 func (t *tagsVersionGetterMock) Versions() ([]*semver.Version, error) {
 	version := semver.MustParse("v1.2.3")
@@ -18,7 +23,7 @@ func (t *tagsVersionGetterMock) Versions() ([]*semver.Version, error) {
 }
 
 func (t *tagsVersionGetterMock) LastVersionHash() (string, error) {
-	return "", nil
+	return "", t.errRelease
 }
 
 type commitsGetterMock struct {
@@ -44,6 +49,8 @@ func TestSource_Source(t *testing.T) {
 		defaultAuthor        string
 		commitMessages       []git.Commit
 		expectedDependencies []changelog.Dependency
+		errVersion           error
+		errExpected          error
 	}{
 		{
 			name:          "Matching_and_not_matching-commits",
@@ -189,6 +196,34 @@ func TestSource_Source(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:          "Error_No_Releases",
+			defaultAuthor: "renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
+			commitMessages: []git.Commit{
+				{Message: "chore(deps): update helm release common-library-1 to v1.0.4 (#401)", Hash: "abcda222"},
+			},
+			expectedDependencies: []changelog.Dependency{
+				{
+					Name: "common-library-1",
+					To:   semver.MustParse("v1.0.4"),
+					Meta: changelog.EntryMeta{
+						PR:     "401",
+						Commit: "abcda222",
+					},
+				},
+			},
+			errVersion: git.ErrNoReleases,
+		},
+		{
+			name:          "Random_Error",
+			defaultAuthor: "renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
+			commitMessages: []git.Commit{
+				{Message: "chore(deps): update helm release common-library-1 to v1.0.4 (#401)", Hash: "abcda222"},
+			},
+			expectedDependencies: nil,
+			errVersion:           errRandomError,
+			errExpected:          errRandomError,
+		},
 	} {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
@@ -200,10 +235,13 @@ func TestSource_Source(t *testing.T) {
 				}
 			}
 
-			extractor := renovate.NewSource(&tagsVersionGetterMock{}, &commitsGetterMock{commitList: tc.commitMessages})
+			extractor := renovate.NewSource(&tagsVersionGetterMock{tc.errVersion}, &commitsGetterMock{commitList: tc.commitMessages})
 			cl, err := extractor.Changelog()
-			if err != nil {
+			if !errors.Is(err, tc.errExpected) {
 				t.Fatalf("Error extracting renovate dependencies: %v", err)
+			}
+			if tc.expectedDependencies == nil {
+				return
 			}
 
 			assert.Equal(t, len(tc.expectedDependencies), len(cl.Dependencies))

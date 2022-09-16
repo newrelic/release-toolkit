@@ -1,6 +1,7 @@
 package dependabot_test
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/Masterminds/semver"
@@ -11,7 +12,11 @@ import (
 	"github.com/newrelic/release-toolkit/src/hack"
 )
 
-type tagsVersionGetterMock struct{}
+var errRandomError = errors.New("a-random-error")
+
+type tagsVersionGetterMock struct {
+	errRelease error
+}
 
 func (t *tagsVersionGetterMock) Versions() ([]*semver.Version, error) {
 	version := semver.MustParse("v1.2.3")
@@ -19,7 +24,7 @@ func (t *tagsVersionGetterMock) Versions() ([]*semver.Version, error) {
 }
 
 func (t *tagsVersionGetterMock) LastVersionHash() (string, error) {
-	return "", nil
+	return "", t.errRelease
 }
 
 // commitList is a mocked commit source.
@@ -31,13 +36,16 @@ func (cl commitList) Commits(_ string) ([]git.Commit, error) {
 	return cl, nil
 }
 
-//nolint:funlen
+//nolint:funlen,maintidx
 func TestSource_Source(t *testing.T) {
 	t.Parallel()
+
 	for _, tc := range []struct {
-		name     string
-		commit   git.Commit
-		expected []changelog.Dependency
+		name        string
+		commit      git.Commit
+		errVersion  error
+		errExpected error
+		expected    []changelog.Dependency
 	}{
 		{
 			commit: git.Commit{Message: "Whatever actions/github-script from 1.0.2 to 1.0.4."},
@@ -205,6 +213,25 @@ Bumps [actions/github-script](https://github.com/actions/github-script) from 4.0
 				},
 			}},
 		},
+		{
+			commit:     git.Commit{Message: "chore(deps): bump github.com/spf13/viper from 1.7.0 to 1.10.1", Hash: "abcda222"},
+			errVersion: git.ErrNoReleases,
+			expected: []changelog.Dependency{{
+				Name: "github.com/spf13/viper",
+				From: semver.MustParse("1.7.0"),
+				To:   semver.MustParse("1.10.1"),
+				Meta: changelog.EntryMeta{
+					PR:     "",
+					Commit: "abcda222",
+				},
+			}},
+		},
+		{
+			commit:      git.Commit{Message: "chore(deps): bump github.com/spf13/viper from 1.7.0 to 1.10.1", Hash: "abcda222"},
+			errVersion:  errRandomError,
+			errExpected: errRandomError,
+			expected:    nil,
+		},
 	} {
 		tc := tc
 		if tc.name == "" {
@@ -218,10 +245,13 @@ Bumps [actions/github-script](https://github.com/actions/github-script) from 4.0
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			source := dependabot.NewSource(&tagsVersionGetterMock{}, commitList{tc.commit})
+			source := dependabot.NewSource(&tagsVersionGetterMock{tc.errVersion}, commitList{tc.commit})
 			cl, err := source.Changelog()
-			if err != nil {
+			if !errors.Is(err, tc.errExpected) {
 				t.Fatalf("Error extracting dependabot dependencies: %v", err)
+			}
+			if tc.expected == nil {
+				return
 			}
 
 			// Hack: Sources may return an empty array, which cmp registers as not equal to `nil`.
