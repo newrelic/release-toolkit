@@ -1,6 +1,7 @@
 package git
 
 import (
+	"errors"
 	"fmt"
 	"sort"
 	"strings"
@@ -8,6 +9,8 @@ import (
 	"github.com/Masterminds/semver"
 	log "github.com/sirupsen/logrus"
 )
+
+var ErrNoReleases = errors.New("no releases found")
 
 type TagsVersionGetter interface {
 	Versions() ([]*semver.Version, error)
@@ -99,7 +102,7 @@ func (s *TagsSource) LastVersionHash() (string, error) {
 	})
 
 	if len(versions) == 0 {
-		return "", nil
+		return "", ErrNoReleases
 	}
 
 	return versions[0].tag.Hash, nil
