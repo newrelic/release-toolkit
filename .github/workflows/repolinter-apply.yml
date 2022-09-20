@@ -1,0 +1,46 @@
+name: Apply Repolinter
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '24 21 * * *'
+  workflow_dispatch:
+
+jobs:
+  apply-repolinter:
+    name: Apply Repolinter (${{ matrix.repo }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Edit here to add other repositories
+          - repo: newrelic/release-toolkit
+            config: repolinter-rulesets/community-plus.yml
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Self
+        uses: actions/checkout@v2
+        with:
+          path: ./repo
+
+      - name: Checkout ${{ matrix.repo }}
+        uses: actions/checkout@v2
+        with:
+          path: ./apply
+          repository: ${{ matrix.repo }}
+          token: ${{ secrets.REPOLINTER_TOKEN }}
+      
+      - name: Run Repolinter
+        uses: newrelic/repolinter-action@v1
+        with:
+          directory: ${{ github.workspace }}/apply
+          config_file: ${{ github.workspace }}/repo/${{ matrix.config }}
+          # config_url: ${{ matrix.config }}
+          config_url: https://raw.githubusercontent.com/newrelic/.github/main/repolinter-rulesets/community-plus.yml
+          output_type: issue
+          username: nr-opensource-bot
+          repository: ${{ matrix.repo }}
+          token: ${{ secrets.REPOLINTER_TOKEN }}
+
+
