@@ -16,7 +16,7 @@ jobs:
         include:
           # Edit here to add other repositories
           - repo: newrelic/release-toolkit
-            config: repolinter-rulesets/community-plus.yml
+            config: repolinter-rulesets/new-relic-experimental.yml
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Self
@@ -37,7 +37,7 @@ jobs:
           directory: ${{ github.workspace }}/apply
           config_file: ${{ github.workspace }}/repo/${{ matrix.config }}
           # config_url: ${{ matrix.config }}
-          config_url: https://raw.githubusercontent.com/newrelic/.github/main/repolinter-rulesets/community-plus.yml
+          config_url: https://raw.githubusercontent.com/newrelic/.github/main/repolinter-rulesets/new-relic-experimental.yml
           output_type: issue
           username: nr-opensource-bot
           repository: ${{ matrix.repo }}
