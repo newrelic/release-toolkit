@@ -54,8 +54,8 @@ jobs:
             exit 1
           fi
 
-  generate-changelog:
-    name: generate-changelog action
+  generate-changes-file:
+    name: generate-changes-file action
     runs-on: ubuntu-latest
     env:
       MOCK_REPO: ./mock_repo
@@ -91,7 +91,7 @@ jobs:
           ### Added
           - New visual identity by [@tylerfortune8](https://github.com/tylerfortune8).
           EOF
-      - uses: ./generate-changelog
+      - uses: ./generate-changes-file
         with:
           yaml: ${{ env.MOCK_REPO }}/changes.yaml
           markdown: ${{ env.MOCK_REPO }}/CHANGELOG.md
@@ -109,8 +109,8 @@ jobs:
             exit 2
           fi
 
-  generate-changelog-empty:
-    name: generate-changelog action empty changelog
+  generate-changes-file-empty:
+    name: generate-changes-file action empty changelog
     runs-on: ubuntu-latest
     env:
       MOCK_REPO: ./mock_repo
@@ -140,15 +140,15 @@ jobs:
 
           ## Unreleased
           EOF
-      - uses: ./generate-changelog
-        id: generate-changelog
+      - uses: ./generate-changes-file
+        id: generate-changes-file
         with:
           yaml: ${{ env.MOCK_REPO }}/changes.yaml
           markdown: ${{ env.MOCK_REPO }}/CHANGELOG.md
           git-root: ${{ env.MOCK_REPO }}
           exit-code: 0
       - run: |
-          if [[ "${{ steps.generate-changelog.outputs.empty-changelog }}" != "true" ]]; then
+          if [[ "${{ steps.generate-changes-file.outputs.empty-changelog }}" != "true" ]]; then
             echo "empty-changelog should have returned true" >&2
             exit 1
           fi

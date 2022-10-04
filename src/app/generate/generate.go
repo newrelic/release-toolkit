@@ -30,13 +30,13 @@ const (
 const emptyChangelogOutput = "empty-changelog"
 
 // ErrNoSources is returned if Generate is invoked without any source enabled.
-var ErrNoSources = errors.New("cannot generate changelog without at least one source enabled")
+var ErrNoSources = errors.New("cannot generate changes file without at least one source enabled")
 
-// Cmd is the cli.Command object for the generate command.
+// Cmd is the cli.Command object for the generate-changes-file command.
 //
 //nolint:gochecknoglobals // We could overengineer this to avoid the global command but I don't think it's worth it.
 var Cmd = &cli.Command{
-	Name:  "generate",
+	Name:  "generate-changes-file",
 	Usage: "Builds a changes.yaml file from multiple sources",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
