@@ -43,7 +43,7 @@ func New(ch *changelog.Changelog, newVersion *semver.Version) Merger {
 var (
 	unreleasedHeader = regexp.MustCompile(`(?i)^##\s*unreleased`)
 	heldHeader       = regexp.MustCompile(`(?i)^##\s*held`)
-	l2Header         = regexp.MustCompile(`^##\s*\w`)
+	l2Header         = regexp.MustCompile(`^##\s*[^#\s]`)
 )
 
 // Merge uses the configured changelog and version to read the current, full changelog in Markdown format from
