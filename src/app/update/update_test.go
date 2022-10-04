@@ -139,6 +139,53 @@ This is a release note
 - This is in the past and should be preserved
 			`) + "\n",
 		},
+		{
+			name: "Changelog_Old_Version_With_Brackets",
+			args: "-version v1.2.4 -date 1993-09-21",
+			yaml: strings.TrimSpace(`
+notes: |-
+    ### Important announcement (note)
+
+    This is a release note
+changes:
+- type: breaking
+  message: Support has been removed
+dependencies:
+- name: foobar
+  from: 0.0.1
+  to: 0.1.0
+			`),
+			existing: strings.TrimSpace(`
+# Changelog
+This is based on blah blah blah
+
+## [1.2.3] - 2022-09-20
+
+### Added
+- This is in the past and should be preserved
+			`) + "\n",
+			expected: strings.TrimSpace(`
+# Changelog
+This is based on blah blah blah
+
+## v1.2.4 - 1993-09-21
+
+### Important announcement (note)
+
+This is a release note
+
+### ⚠️️ Breaking changes ⚠️
+- Support has been removed
+
+### ⛓️ Dependencies
+- Upgraded foobar from 0.0.1 to 0.1.0
+
+## [1.2.3] - 2022-09-20
+
+### Added
+- This is in the past and should be preserved
+			`) + "\n",
+		},
 	} {
 		tc := tc
 		//nolint:paralleltest // urfave/cli cannot be tested concurrently.

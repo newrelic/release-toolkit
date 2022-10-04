@@ -229,6 +229,33 @@ This is based on blah blah blah
 			`) + "\n",
 		},
 		{
+			name: "Simple_Changelog_With_Brackets",
+			ch:   simpleChangelog,
+			original: strings.TrimSpace(`
+# Changelog
+This is based on blah blah blah
+
+## [v1.2.3] - 20YY-DD-MM
+
+### Enhancements
+- This is in the past and should be preserved
+			`) + "\n",
+			expected: strings.TrimSpace(`
+# Changelog
+This is based on blah blah blah
+
+## v1.2.4 - 1993-09-21
+
+### 🐞 Bug fixes
+- Fixed this
+
+## [v1.2.3] - 20YY-DD-MM
+
+### Enhancements
+- This is in the past and should be preserved
+			`) + "\n",
+		},
+		{
 			// This is an edge case where Merger does not behave extremely well.
 			// Merger cannot easily handle whether before the place where the new section will be inserted, so we took
 			// the decision to assume there will be a space before.
