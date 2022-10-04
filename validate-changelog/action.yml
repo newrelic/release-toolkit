@@ -1,4 +1,4 @@
-name: Validate
+name: Validate Changelog
 description: Validates and prints errors if changelog has an invalid format
 inputs:
   markdown:
@@ -16,7 +16,7 @@ runs:
   using: docker
   image: ../Dockerfile
   args:
-    - validate
+    - validate-changelog
     - --markdown
     - ${{ inputs.markdown }}
     - --exit-code
