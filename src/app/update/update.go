@@ -27,11 +27,10 @@ var Cmd = &cli.Command{
 	Usage: "Incorporates a changelog.yaml into a complete CHANGELOG.md.",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:     markdownPathFlag,
-			EnvVars:  common.EnvFor(markdownPathFlag),
-			Usage:    "Path to the destination markdown file.",
-			Value:    "CHANGELOG.md",
-			Required: true,
+			Name:    markdownPathFlag,
+			EnvVars: common.EnvFor(markdownPathFlag),
+			Usage:   "Path to the destination markdown file.",
+			Value:   "CHANGELOG.md",
 		},
 		&cli.StringFlag{
 			Name:    versionFlag,
