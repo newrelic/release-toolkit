@@ -1,10 +1,10 @@
 name: Next Version
-description: Compute next version according to changelog.yaml and semver conventions
+description: Compute next version according to changes.yaml and semver conventions
 inputs:
   yaml:
-    description: Path to changelog.yaml
+    description: Path to changes.yaml
     required: false
-    default: changelog.yaml
+    default: changes.yaml
   git-root:
     description: Path to the root of the git repository to source tags from
     required: false

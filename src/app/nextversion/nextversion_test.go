@@ -91,7 +91,7 @@ changes:
 
 			app := app.App()
 
-			yamlPath := path.Join(tDir, "changelog.yaml")
+			yamlPath := path.Join(tDir, "changes.yaml")
 			yamlFile, err := os.Create(yamlPath)
 			if err != nil {
 				t.Fatalf("Error creating yaml for test: %v", err)
@@ -233,7 +233,7 @@ changes:
 
 			app := app.App()
 
-			yamlPath := path.Join(repoDir, "changelog.yaml")
+			yamlPath := path.Join(repoDir, "changes.yaml")
 			yamlFile, err := os.Create(yamlPath)
 			if err != nil {
 				t.Fatalf("Error creating yaml for test: %v", err)

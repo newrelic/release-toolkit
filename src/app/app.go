@@ -19,13 +19,13 @@ func App() *cli.App {
 		Name:  "rt",
 		Usage: "Release toolkit",
 		Flags: []cli.Flag{
-			// -yaml is the command line flag to specify the path to a changelog.yaml file.
+			// -yaml is the command line flag to specify the path to a changes.yaml file.
 			// This flag is common and used by most commands.
 			&cli.StringFlag{
 				Name:    common.YAMLFlag,
 				EnvVars: common.EnvFor(common.YAMLFlag),
-				Value:   "changelog.yaml",
-				Usage:   "Path to the changelog.yaml file",
+				Value:   "changes.yaml",
+				Usage:   "Path to the changes.yaml file",
 			},
 			// -gha tells commands to output workflow commands as understood by Github Actions.
 			&cli.BoolFlag{

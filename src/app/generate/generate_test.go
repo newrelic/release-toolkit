@@ -314,7 +314,7 @@ dependencies:
 			buf := &strings.Builder{}
 			app.Writer = buf
 
-			yamlPath := path.Join(tDir, "changelog.yaml")
+			yamlPath := path.Join(tDir, "changes.yaml")
 			_, err := os.Create(yamlPath)
 			if err != nil {
 				t.Fatalf("Error creating yaml for test: %v", err)

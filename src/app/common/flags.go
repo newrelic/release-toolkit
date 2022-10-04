@@ -1,7 +1,7 @@
 package common
 
 const (
-	// YAMLFlag is the command line flag to specify the path to a changelog.yaml file.
+	// YAMLFlag is the command line flag to specify the path to a changes.yaml file.
 	// This flag is common and used by most commands.
 	YAMLFlag = "yaml"
 

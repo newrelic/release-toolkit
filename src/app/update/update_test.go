@@ -147,7 +147,7 @@ This is a release note
 
 			app := app.App()
 
-			yamlPath := path.Join(tDir, "changelog.yaml")
+			yamlPath := path.Join(tDir, "changes.yaml")
 			yamlFile, err := os.Create(yamlPath)
 			if err != nil {
 				t.Fatalf("Error creating yaml for test: %v", err)
@@ -189,7 +189,7 @@ func TestRender_Fails_Without_Version(t *testing.T) {
 
 	app := app.App()
 
-	yamlPath := path.Join(tDir, "changelog.yaml")
+	yamlPath := path.Join(tDir, "changes.yaml")
 	yamlFile, err := os.Create(yamlPath)
 	if err != nil {
 		t.Fatalf("Error creating yaml for test: %v", err)
@@ -219,7 +219,7 @@ func TestRender_Keeps_Backup_File(t *testing.T) {
 
 	app := app.App()
 
-	yamlPath := path.Join(tDir, "changelog.yaml")
+	yamlPath := path.Join(tDir, "changes.yaml")
 	yamlFile, err := os.Create(yamlPath)
 	if err != nil {
 		t.Fatalf("Error creating yaml for test: %v", err)

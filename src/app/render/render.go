@@ -24,7 +24,7 @@ const (
 //nolint:gochecknoglobals // We could overengineer this to avoid the global command but I don't think it's worth it.
 var Cmd = &cli.Command{
 	Name:  "render-changelog",
-	Usage: "Renders a changelog.yaml as a markdown changelog section.",
+	Usage: "Renders a changes.yaml as a markdown changelog section.",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    markdownPathFlag,
@@ -51,7 +51,7 @@ var Cmd = &cli.Command{
 	Action: Render,
 }
 
-// Render is a command function which loads a changelog.yaml file from this, and prints to stdout whether it has the
+// Render is a command function which loads a changes.yaml file from this, and prints to stdout whether it has the
 // Held flag set to true.
 func Render(cCtx *cli.Context) error {
 	chPath := cCtx.String(common.YAMLFlag)

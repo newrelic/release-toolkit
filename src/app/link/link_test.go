@@ -107,7 +107,7 @@ dependencies:
 
 			app := app.App()
 
-			chlogPath := path.Join(tDir, "changelog.yaml")
+			chlogPath := path.Join(tDir, "changes.yaml")
 			chlogFile, err := os.Create(chlogPath)
 			if err != nil {
 				t.Fatalf("Error creating yaml for test: %v", err)
@@ -137,7 +137,7 @@ dependencies:
 			}
 
 			if diff := cmp.Diff(tc.expected, string(actual)); diff != "" {
-				t.Fatalf("Changelog.yml is not as expected\n%s", diff)
+				t.Fatalf("changes.yaml is not as expected\n%s", diff)
 			}
 		})
 	}
@@ -162,6 +162,6 @@ dictionary:
 	}
 
 	if diff := cmp.Diff(expectedSample, buf.String()); diff != "" {
-		t.Fatalf("Changelog.yml is not as expected\n%s", diff)
+		t.Fatalf("changes.yaml is not as expected\n%s", diff)
 	}
 }

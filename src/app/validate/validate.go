@@ -39,7 +39,7 @@ var Cmd = &cli.Command{
 	Action: Validate,
 }
 
-// Validate is a command function which loads a changelog.yaml file, and prints to stderr
+// Validate is a command function which loads a changes.yaml file, and prints to stderr
 // all the errors found.
 func Validate(cCtx *cli.Context) error {
 	gh := gha.NewFromCli(cCtx)

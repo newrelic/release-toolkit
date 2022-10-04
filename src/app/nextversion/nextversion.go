@@ -30,7 +30,7 @@ const nextVersionOutput = "next-version"
 //nolint:gochecknoglobals // We could overengineer this to avoid the global command but I don't think it's worth it.
 var Cmd = &cli.Command{
 	Name:  "next-version",
-	Usage: "Prints the next version according to the current one, the changelog.yaml file, and semver conventions.",
+	Usage: "Prints the next version according to the current one, the changes.yaml file, and semver conventions.",
 	UsageText: `Current version is automatically discovered from git tags in the repository, in semver order. 
 Tags that do not conform to semver standards are ignored.
 Several flags can be specified to limit the set of tags that are scanned, and to override both the current version ` +
@@ -64,7 +64,7 @@ Several flags can be specified to limit the set of tags that are scanned, and to
 	Action: NextVersion,
 }
 
-// NextVersion is a command function which loads a changelog.yaml file from disk and computes what the next version
+// NextVersion is a command function which loads a changes.yaml file from disk and computes what the next version
 // should be according to semver standards.
 //
 //nolint:gocyclo,cyclop

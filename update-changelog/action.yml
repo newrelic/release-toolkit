@@ -1,10 +1,10 @@
 name: Update Changelog
-description: Incorporate a changelog.yaml into a complete CHANGELOG.md
+description: Incorporate a changes.yaml into a complete CHANGELOG.md
 inputs:
   yaml:
-    description: Path to changelog.yaml
+    description: Path to changes.yaml
     required: false
-    default: changelog.yaml
+    default: changes.yaml
   markdown:
     description: Path to CHANGELOG.md to update
     required: false

@@ -1,10 +1,10 @@
 name: Link Changelog
-description: Tries to add links to the original changelog.yml for all its dependencies
+description: Tries to add links to the original changes.yaml for all its dependencies
 inputs:
   yaml:
-    description: Path to changelog.yaml
+    description: Path to changes.yaml
     required: false
-    default: changelog.yaml
+    default: changes.yaml
   dictionary:
     description: Link dependency changelogs with the mappings in this dictionary
     required: false

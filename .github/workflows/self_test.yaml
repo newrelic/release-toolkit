@@ -27,7 +27,7 @@ jobs:
             git commit -m commit_$i
           done
           
-          cat > changelog.yaml <<EOF
+          cat > changes.yaml <<EOF
           held: true
           EOF
 
@@ -47,7 +47,7 @@ jobs:
       - uses: ./is-held
         id: held
         with:
-          yaml: ${{ env.MOCK_REPO }}/changelog.yaml
+          yaml: ${{ env.MOCK_REPO }}/changes.yaml
       - run: |
           if [[ "${{ steps.held.outputs.is-held }}" != "true" ]]; then
             echo "is-held should have returned true" >&2
@@ -93,19 +93,19 @@ jobs:
           EOF
       - uses: ./generate-changelog
         with:
-          yaml: ${{ env.MOCK_REPO }}/changelog.yaml
+          yaml: ${{ env.MOCK_REPO }}/changes.yaml
           markdown: ${{ env.MOCK_REPO }}/CHANGELOG.md
           git-root: ${{ env.MOCK_REPO }}
       - run: |
-          cat $MOCK_REPO/changelog.yaml
+          cat $MOCK_REPO/changes.yaml
 
-          if [[ $(cat $MOCK_REPO/changelog.yaml | wc -c) -eq 0 ]]; then
-            echo "Changelog.yaml should not be empty" >&2
+          if [[ $(cat $MOCK_REPO/changes.yaml | wc -c) -eq 0 ]]; then
+            echo "changes.yaml should not be empty" >&2
             exit 1
           fi
           
-          if grep -e 'changes: \[\]' $MOCK_REPO/changelog.yaml; then
-            echo "Changelog.yaml should not have an empty changes section" >&2
+          if grep -e 'changes: \[\]' $MOCK_REPO/changes.yaml; then
+            echo "changes.yaml should not have an empty changes section" >&2
             exit 2
           fi
 
@@ -143,7 +143,7 @@ jobs:
       - uses: ./generate-changelog
         id: generate-changelog
         with:
-          yaml: ${{ env.MOCK_REPO }}/changelog.yaml
+          yaml: ${{ env.MOCK_REPO }}/changes.yaml
           markdown: ${{ env.MOCK_REPO }}/CHANGELOG.md
           git-root: ${{ env.MOCK_REPO }}
           exit-code: 0
@@ -179,7 +179,7 @@ jobs:
           
           git tag v1.2.3
           
-          cat > changelog.yaml <<EOF
+          cat > changes.yaml <<EOF
           changes:
             - type: breaking
               message: this is broken
@@ -187,7 +187,7 @@ jobs:
       - uses: ./next-version
         id: next-version
         with:
-          yaml: ${{ env.MOCK_REPO }}/changelog.yaml
+          yaml: ${{ env.MOCK_REPO }}/changes.yaml
           git-root: ${{ env.MOCK_REPO }}
       - run: |
           if [[ "${{ steps.next-version.outputs.next-version }}" != "v2.0.0" ]]; then
@@ -224,7 +224,7 @@ jobs:
             infrastructure-agent: "https://github.com/newrelic/infrastructure-agent/releases/tag/{{.To.Original}}"
           EOF
 
-          cat > changelog.yaml <<EOF
+          cat > changes.yaml <<EOF
           changes:
             - type: breaking
               message: this is broken
@@ -237,18 +237,18 @@ jobs:
           EOF
       - uses: ./link-changelog
         with:
-          yaml: ${{ env.MOCK_REPO }}/changelog.yaml
+          yaml: ${{ env.MOCK_REPO }}/changes.yaml
           dictionary: ${{ env.MOCK_REPO }}/dictionary.yaml
       - run: |
-          cat $MOCK_REPO/changelog.yaml
+          cat $MOCK_REPO/changes.yaml
           
-          if ! grep -e 'changelog: https://github.com/newrelic/infrastructure-agent/releases/tag/v1.2.3' $MOCK_REPO/changelog.yaml; then
-            echo "Changelog.yaml should have infrastructure-agent changelog linked" >&2
+          if ! grep -e 'changelog: https://github.com/newrelic/infrastructure-agent/releases/tag/v1.2.3' $MOCK_REPO/changes.yaml; then
+            echo "changes.yaml should have infrastructure-agent changelog linked" >&2
             exit 2
           fi
 
-          if ! grep -e 'changelog: https://github.com/spf13/viper/releases/tag/4.1.2' $MOCK_REPO/changelog.yaml; then
-            echo "Changelog.yaml should have viper changelog linked" >&2
+          if ! grep -e 'changelog: https://github.com/spf13/viper/releases/tag/4.1.2' $MOCK_REPO/changes.yaml; then
+            echo "changes.yaml should have viper changelog linked" >&2
             exit 2
           fi
 
@@ -276,7 +276,7 @@ jobs:
             git commit -m commit_$i
           done
 
-          cat > changelog.yaml <<EOF
+          cat > changes.yaml <<EOF
           notes: |-
             ### Important announcement (note)
         
@@ -298,7 +298,7 @@ jobs:
           EOF
       - uses: ./render
         with:
-          yaml: ${{ env.MOCK_REPO }}/changelog.yaml
+          yaml: ${{ env.MOCK_REPO }}/changes.yaml
           markdown: ${{ env.MOCK_REPO }}/CHANGELOG.partial.md
           version: v1.2.3
       - run: |
@@ -333,7 +333,7 @@ jobs:
             git commit -m commit_$i
           done
 
-          cat > changelog.yaml <<EOF
+          cat > changes.yaml <<EOF
           notes: |-
             ### Important announcement (note)
           
@@ -373,7 +373,7 @@ jobs:
           EOF
       - uses: ./update-changelog
         with:
-          yaml: ${{ env.MOCK_REPO }}/changelog.yaml
+          yaml: ${{ env.MOCK_REPO }}/changes.yaml
           markdown: ${{ env.MOCK_REPO }}/existing.md
           version: v1.2.3
       - run: |

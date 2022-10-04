@@ -37,7 +37,7 @@ var ErrNoSources = errors.New("cannot generate changelog without at least one so
 //nolint:gochecknoglobals // We could overengineer this to avoid the global command but I don't think it's worth it.
 var Cmd = &cli.Command{
 	Name:  "generate",
-	Usage: "Builds a changelog.yaml file from multiple sources",
+	Usage: "Builds a changes.yaml file from multiple sources",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    markdownPathFlag,
@@ -94,7 +94,7 @@ var Cmd = &cli.Command{
 
 type appendDepSrc func([]changelog.Source, git.TagsVersionGetter, git.CommitsGetter) []changelog.Source
 
-// Generate is a command that creates a changelog.yaml file.
+// Generate is a command that creates a changes.yaml file.
 //
 //nolint:gocyclo,cyclop
 func Generate(cCtx *cli.Context) error {

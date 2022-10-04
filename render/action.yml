@@ -1,10 +1,10 @@
 name: Render
-description: Renders a changelog.yaml as a markdown changelog section
+description: Renders a changes.yaml as a markdown changelog section
 inputs:
   yaml:
-    description: Path to changelog.yaml
+    description: Path to changes.yaml
     required: false
-    default: changelog.yaml
+    default: changes.yaml
   markdown:
     description: Path where the section (partial) changelog will be written
     required: false

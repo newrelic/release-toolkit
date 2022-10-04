@@ -24,7 +24,7 @@ const (
 //nolint:gochecknoglobals // We could overengineer this to avoid the global command but I don't think it's worth it.
 var Cmd = &cli.Command{
 	Name:  "update-changelog",
-	Usage: "Incorporates a changelog.yaml into a complete CHANGELOG.md.",
+	Usage: "Incorporates a changes.yaml into a complete CHANGELOG.md.",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:     markdownPathFlag,
@@ -52,7 +52,7 @@ var Cmd = &cli.Command{
 	Action: Update,
 }
 
-// Update is a command function which loads a changelog.yaml file and merges it into an existing CHANGELOG.md document.
+// Update is a command function which loads a changes.yaml file and merges it into an existing CHANGELOG.md document.
 func Update(cCtx *cli.Context) error {
 	chPath := cCtx.String(common.YAMLFlag)
 	chFile, err := os.Open(chPath)

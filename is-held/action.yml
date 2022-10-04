@@ -2,9 +2,9 @@ name: Is Held
 description: Outputs whether automated releases should be skipped
 inputs:
   yaml:
-    description: Path to changelog.yaml
+    description: Path to changes.yaml
     required: false
-    default: changelog.yaml
+    default: changes.yaml
 outputs:
   is-held:
     description: Returns `true` if next release should not be automated

@@ -18,7 +18,7 @@ func TestIsHeld(t *testing.T) {
 	app.Writer = buf
 
 	dir := t.TempDir()
-	filepath := path.Join(dir, "changelog.yaml")
+	filepath := path.Join(dir, "changes.yaml")
 	file, err := os.Create(filepath)
 	if err != nil {
 		t.Fatalf("Error creating yaml for test: %v", err)

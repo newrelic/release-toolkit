@@ -22,7 +22,7 @@ func New(mappers ...Mapper) Linker {
 	}
 }
 
-// Link will try to Link all the dependencies in a changelog.yml to the changelogs found in the mappers.
+// Link will try to Link all the dependencies in a changes.yaml to the changelogs found in the mappers.
 func (l Linker) Link(cl *changelog.Changelog) error {
 	for i := range cl.Dependencies {
 		dep := &cl.Dependencies[i]
