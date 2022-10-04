@@ -7,8 +7,8 @@ import (
 
 	"github.com/Masterminds/semver"
 	"github.com/google/go-cmp/cmp"
-	"github.com/newrelic/release-toolkit/bump"
-	"github.com/newrelic/release-toolkit/changelog"
+	"github.com/newrelic/release-toolkit/src/bump"
+	"github.com/newrelic/release-toolkit/src/changelog"
 	"gopkg.in/yaml.v3"
 )
 

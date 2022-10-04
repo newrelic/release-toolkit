@@ -5,9 +5,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/newrelic/release-toolkit/changelog/sources/markdown/headingdoc"
+	"github.com/newrelic/release-toolkit/src/changelog/sources/markdown/headingdoc"
 
-	"github.com/newrelic/release-toolkit/changelog/sources/markdown"
+	"github.com/newrelic/release-toolkit/src/changelog/sources/markdown"
 )
 
 //nolint:funlen

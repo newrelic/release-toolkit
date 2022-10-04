@@ -4,6 +4,15 @@
 
 Standard policy and procedure across the New Relic GitHub organization.
 
+
+## Install
+
+RT can be installed with Go by executing the following command:
+
+```shell
+go install github.com/newrelic/release-toolkit@latest
+```
+
 #### Useful Links
  * [Code of Conduct](./CODE_OF_CONDUCT.md)
  * [Security Policy](./SECURITY.md)

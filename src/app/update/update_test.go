@@ -13,7 +13,7 @@ import (
 
 	"github.com/Masterminds/semver"
 	"github.com/google/go-cmp/cmp"
-	"github.com/newrelic/release-toolkit/app"
+	"github.com/newrelic/release-toolkit/src/app"
 )
 
 //nolint:funlen,paralleltest // urfave/cli cannot be tested concurrently.

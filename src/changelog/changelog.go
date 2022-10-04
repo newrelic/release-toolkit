@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/Masterminds/semver"
-	"github.com/newrelic/release-toolkit/bump"
+	"github.com/newrelic/release-toolkit/src/bump"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 )

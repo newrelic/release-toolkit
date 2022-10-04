@@ -9,7 +9,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 
-	"github.com/newrelic/release-toolkit/app"
+	"github.com/newrelic/release-toolkit/src/app"
 )
 
 //nolint:paralleltest,funlen // urfave/cli cannot be tested concurrently.

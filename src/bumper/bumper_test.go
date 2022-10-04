@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/Masterminds/semver"
-	"github.com/newrelic/release-toolkit/bumper"
-	"github.com/newrelic/release-toolkit/changelog"
+	"github.com/newrelic/release-toolkit/src/bumper"
+	"github.com/newrelic/release-toolkit/src/changelog"
 )
 
 type testCase struct {

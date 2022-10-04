@@ -5,10 +5,10 @@ import (
 
 	"github.com/Masterminds/semver"
 	"github.com/google/go-cmp/cmp"
-	"github.com/newrelic/release-toolkit/changelog"
-	"github.com/newrelic/release-toolkit/changelog/sources/dependabot"
-	"github.com/newrelic/release-toolkit/git"
-	"github.com/newrelic/release-toolkit/hack"
+	"github.com/newrelic/release-toolkit/src/changelog"
+	"github.com/newrelic/release-toolkit/src/changelog/sources/dependabot"
+	"github.com/newrelic/release-toolkit/src/git"
+	"github.com/newrelic/release-toolkit/src/hack"
 )
 
 type tagsVersionGetterMock struct{}

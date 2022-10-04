@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/newrelic/release-toolkit/changelog"
+	"github.com/newrelic/release-toolkit/src/changelog"
 	log "github.com/sirupsen/logrus"
 )
 
