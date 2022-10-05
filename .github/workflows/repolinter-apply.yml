@@ -20,12 +20,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Self
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3.1.0
         with:
           path: ./repo
 
       - name: Checkout ${{ matrix.repo }}
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3.1.0
         with:
           path: ./apply
           repository: ${{ matrix.repo }}
