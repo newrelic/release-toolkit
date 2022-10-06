@@ -1,8 +1,8 @@
-name: Validate
-description: Validates and prints errors if changelog has an invalid format
+name: Validate markdown
+description: Validates a changelog in markdown format and prints errors if the changelog is invalid
 inputs:
   markdown:
-    description: Path to CHANGELOG.md to update
+    description: Path to CHANGELOG.md to validate
     required: false
     default: CHANGELOG.md
   exit-code:
@@ -16,7 +16,7 @@ runs:
   using: docker
   image: ../Dockerfile
   args:
-    - validate
+    - validate-markdown
     - --markdown
     - ${{ inputs.markdown }}
     - --exit-code
