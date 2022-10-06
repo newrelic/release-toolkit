@@ -17,10 +17,11 @@ import (
 )
 
 const (
-	tagPrefix   = "tag-prefix"
-	currentFlag = "current"
-	nextFlag    = "next"
-	gitRootFlag = "git-root"
+	outputPrefix = "output-prefix"
+	tagPrefix    = "tag-prefix"
+	currentFlag  = "current"
+	nextFlag     = "next"
+	gitRootFlag  = "git-root"
 )
 
 const nextVersionOutput = "next-version"
@@ -41,6 +42,12 @@ Several flags can be specified to limit the set of tags that are scanned, and to
 			EnvVars: common.EnvFor(tagPrefix),
 			Usage:   "Consider only tags matching this prefix for figuring out the current version.",
 			Value:   "",
+		},
+		&cli.StringFlag{
+			Name:    outputPrefix,
+			EnvVars: common.EnvFor(outputPrefix),
+			Usage:   "Add the following tag when printing the output tag.",
+			Value:   "v",
 		},
 		&cli.StringFlag{
 			Name:    currentFlag,
@@ -117,8 +124,8 @@ func NextVersion(cCtx *cli.Context) error {
 		return fmt.Errorf("bumping source: %w", err)
 	}
 
-	_, _ = fmt.Fprintf(cCtx.App.Writer, "v%s\n", nextStr)
-	gh.SetOutput(nextVersionOutput, fmt.Sprintf("v%s", nextStr))
+	_, _ = fmt.Fprintf(cCtx.App.Writer, "%s%s\n", cCtx.String(outputPrefix), nextStr)
+	gh.SetOutput(nextVersionOutput, fmt.Sprintf("%s%s", cCtx.String(outputPrefix), nextStr))
 
 	return nil
 }
