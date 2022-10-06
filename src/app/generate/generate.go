@@ -37,7 +37,7 @@ var ErrNoSources = errors.New("cannot generate changelog yaml without at least o
 //nolint:gochecknoglobals // We could overengineer this to avoid the global command but I don't think it's worth it.
 var Cmd = &cli.Command{
 	Name:  "generate-yaml",
-	Usage: "Builds a changelog.yaml file from multiple sources",
+	Usage: "Generates a machine-readable changelog.yaml file from multiple sources, including bot commits and the Unreleased section of CHANGELOG.md",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    markdownPathFlag,

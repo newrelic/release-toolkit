@@ -23,7 +23,7 @@ const (
 //nolint:gochecknoglobals // We could overengineer this to avoid the global command but I don't think it's worth it.
 var Cmd = &cli.Command{
 	Name:      "link-dependencies",
-	Usage:     "Adds links to the original changelog for all the dependencies in a changelog.yml detecting the link if the name is a full route or getting the link from a dictionary file if present",
+	Usage:     "Attempts to add links to the original changelogs for dependency bumps in changelog.yaml. The link is computed automatically when the dependency name is a full route or it's got from a dictionary file when present.",
 	UsageText: `Link dependencies retrieves the links for each dependency detecting the link if the name is a full route or matching an entry in the dictionary file.`,
 	Flags: []cli.Flag{
 		&cli.StringFlag{

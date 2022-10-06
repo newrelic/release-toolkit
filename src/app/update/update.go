@@ -24,7 +24,7 @@ const (
 //nolint:gochecknoglobals // We could overengineer this to avoid the global command but I don't think it's worth it.
 var Cmd = &cli.Command{
 	Name:  "update-markdown",
-	Usage: "Incorporates a changelog.yaml into a complete CHANGELOG.md.",
+	Usage: "Incorporates the contents of changelog.yaml as a new version header in CHANGELOG.md.",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:     markdownPathFlag,

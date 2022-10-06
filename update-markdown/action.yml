@@ -1,5 +1,5 @@
 name: Update markdown
-description: Incorporate a changelog.yaml into a complete CHANGELOG.md
+description: Incorporates the contents of changelog.yaml as a new version header in CHANGELOG.md
 inputs:
   yaml:
     description: Path to changelog.yaml

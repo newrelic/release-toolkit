@@ -21,7 +21,7 @@ const (
 //nolint:gochecknoglobals // We could overengineer this to avoid the global command but I don't think it's worth it.
 var Cmd = &cli.Command{
 	Name:  "validate-markdown",
-	Usage: "Prints errors if changelog has an invalid format.",
+	Usage: "Validates a changelog in markdown format and prints errors if the changelog is invalid",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    markdownPathFlag,

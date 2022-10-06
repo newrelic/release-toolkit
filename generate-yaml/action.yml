@@ -1,5 +1,5 @@
-name: Generate YAML
-description: Reads CHANGELOG.md files, bot commits, and other sources and generates a changelog yaml with them
+name: Generate YAML changelog
+description: Generates a machine-readable changelog.yaml file from multiple sources, including bot commits and the Unreleased section of CHANGELOG.md
 inputs:
   yaml:
     description: Path to changelog.yaml, will be overwritten

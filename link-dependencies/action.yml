@@ -1,5 +1,5 @@
 name: Link dependencies
-description: Tries to add links to the original changelog.yml for all its dependencies
+description: Attempts to add links to the original changelogs for dependency bumps in changelog.yaml. The link is computed automatically when the dependency name is a full route or it's got from a dictionary file when present.
 inputs:
   yaml:
     description: Path to changelog.yaml
