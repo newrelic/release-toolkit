@@ -16,17 +16,17 @@ const (
 	validOutput      = "valid"
 )
 
-// Cmd is the cli.Command object for the validate command.
+// Cmd is the cli.Command object for the validate-markdown command.
 //
 //nolint:gochecknoglobals // We could overengineer this to avoid the global command but I don't think it's worth it.
 var Cmd = &cli.Command{
-	Name:  "validate",
-	Usage: "Prints errors if changelog has an invalid format.",
+	Name:  "validate-markdown",
+	Usage: "Validates a changelog in markdown format and prints errors if the changelog is invalid",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    markdownPathFlag,
 			EnvVars: common.EnvFor(markdownPathFlag),
-			Usage:   "Validate specified changelog file.",
+			Usage:   "Validate specified changelog md file.",
 			Value:   "CHANGELOG.md",
 		},
 		&cli.IntFlag{
@@ -39,7 +39,7 @@ var Cmd = &cli.Command{
 	Action: Validate,
 }
 
-// Validate is a command function which loads a changelog.yaml file, and prints to stderr
+// Validate is a command function which loads a changelog.md file, and prints to stderr
 // all the errors found.
 func Validate(cCtx *cli.Context) error {
 	gh := gha.NewFromCli(cCtx)

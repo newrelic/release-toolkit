@@ -30,14 +30,14 @@ const (
 const emptyChangelogOutput = "empty-changelog"
 
 // ErrNoSources is returned if Generate is invoked without any source enabled.
-var ErrNoSources = errors.New("cannot generate changelog without at least one source enabled")
+var ErrNoSources = errors.New("cannot generate changelog yaml without at least one source enabled")
 
-// Cmd is the cli.Command object for the generate command.
+// Cmd is the cli.Command object for the generate-yaml command.
 //
 //nolint:gochecknoglobals // We could overengineer this to avoid the global command but I don't think it's worth it.
 var Cmd = &cli.Command{
-	Name:  "generate",
-	Usage: "Builds a changelog.yaml file from multiple sources",
+	Name:  "generate-yaml",
+	Usage: "Generates a machine-readable changelog.yaml file from multiple sources, including bot commits and the Unreleased section of CHANGELOG.md",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    markdownPathFlag,
@@ -85,7 +85,7 @@ var Cmd = &cli.Command{
 		&cli.IntFlag{
 			Name:    exitCodeFlag,
 			EnvVars: common.EnvFor(exitCodeFlag),
-			Usage:   "Exit code if generated changelog is empty",
+			Usage:   "Exit code if generated changelog yaml is empty",
 			Value:   1,
 		},
 	},

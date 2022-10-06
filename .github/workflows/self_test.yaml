@@ -54,8 +54,8 @@ jobs:
             exit 1
           fi
 
-  generate-changelog:
-    name: generate-changelog action
+  generate-yaml:
+    name: generate-yaml action
     runs-on: ubuntu-latest
     env:
       MOCK_REPO: ./mock_repo
@@ -91,7 +91,7 @@ jobs:
           ### Added
           - New visual identity by [@tylerfortune8](https://github.com/tylerfortune8).
           EOF
-      - uses: ./generate-changelog
+      - uses: ./generate-yaml
         with:
           yaml: ${{ env.MOCK_REPO }}/changelog.yaml
           markdown: ${{ env.MOCK_REPO }}/CHANGELOG.md
@@ -109,8 +109,8 @@ jobs:
             exit 2
           fi
 
-  generate-changelog-empty:
-    name: generate-changelog action empty changelog
+  generate-yaml-empty:
+    name: generate-yaml action empty changelog
     runs-on: ubuntu-latest
     env:
       MOCK_REPO: ./mock_repo
@@ -140,15 +140,15 @@ jobs:
 
           ## Unreleased
           EOF
-      - uses: ./generate-changelog
-        id: generate-changelog
+      - uses: ./generate-yaml
+        id: generate-yaml
         with:
           yaml: ${{ env.MOCK_REPO }}/changelog.yaml
           markdown: ${{ env.MOCK_REPO }}/CHANGELOG.md
           git-root: ${{ env.MOCK_REPO }}
           exit-code: 0
       - run: |
-          if [[ "${{ steps.generate-changelog.outputs.empty-changelog }}" != "true" ]]; then
+          if [[ "${{ steps.generate-yaml.outputs.empty-changelog }}" != "true" ]]; then
             echo "empty-changelog should have returned true" >&2
             exit 1
           fi
@@ -195,8 +195,8 @@ jobs:
             exit 1
           fi
 
-  link-changelog:
-    name: link-changelog action
+  link-dependencies:
+    name: link-dependencies action
     runs-on: ubuntu-latest
     env:
       MOCK_REPO: ./mock_repo
@@ -235,7 +235,7 @@ jobs:
               from: 4.0.3
               to: 4.1.2
           EOF
-      - uses: ./link-changelog
+      - uses: ./link-dependencies
         with:
           yaml: ${{ env.MOCK_REPO }}/changelog.yaml
           dictionary: ${{ env.MOCK_REPO }}/dictionary.yaml
@@ -309,8 +309,8 @@ jobs:
             exit 2
           fi
 
-  update-changelog:
-    name: update-changelog action
+  update-markdown:
+    name: update-markdown action
     runs-on: ubuntu-latest
     env:
       MOCK_REPO: ./mock_repo
@@ -371,7 +371,7 @@ jobs:
           ### Enhancements
           - This is in the past and should be preserved
           EOF
-      - uses: ./update-changelog
+      - uses: ./update-markdown
         with:
           yaml: ${{ env.MOCK_REPO }}/changelog.yaml
           markdown: ${{ env.MOCK_REPO }}/existing.md
@@ -380,12 +380,12 @@ jobs:
           cat $MOCK_REPO/existing.md
           
           if ! cmp ${{ env.MOCK_REPO }}/expected-changelog.md ${{ env.MOCK_REPO }}/existing.md; then
-            echo "Changleog was not updated to its expected contents" >&2
+            echo "Changelog md was not updated to its expected contents" >&2
             exit 2
           fi
 
-  validate-changelog:
-    name: validate action
+  validate-markdown:
+    name: validate markdown action
     runs-on: ubuntu-latest
     env:
       MOCK_REPO: ./mock_repo
@@ -417,13 +417,13 @@ jobs:
           ### Enhancements
           - This is in the past and should be preserved
           EOF
-      - uses: ./validate
-        id: validate
+      - uses: ./validate-markdown
+        id: validate-markdown
         with:
           markdown: ${{ env.MOCK_REPO }}/changelog.md
           exit-code: 0
       - run: |
-          if [[ "${{ steps.validate.outputs.valid }}" != "false" ]]; then
+          if [[ "${{ steps.validate-markdown.outputs.valid }}" != "false" ]]; then
             echo "valid should have returned false" >&2
             exit 1
           fi

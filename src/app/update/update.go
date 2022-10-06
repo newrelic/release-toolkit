@@ -19,12 +19,12 @@ const (
 	dateFlag         = "date"
 )
 
-// Cmd is the cli.Command object for the update-changelog command.
+// Cmd is the cli.Command object for the update-markdown command.
 //
 //nolint:gochecknoglobals // We could overengineer this to avoid the global command but I don't think it's worth it.
 var Cmd = &cli.Command{
-	Name:  "update-changelog",
-	Usage: "Incorporates a changelog.yaml into a complete CHANGELOG.md.",
+	Name:  "update-markdown",
+	Usage: "Incorporates the contents of changelog.yaml as a new version header in CHANGELOG.md.",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:     markdownPathFlag,
