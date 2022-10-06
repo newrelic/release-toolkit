@@ -46,7 +46,7 @@ Several flags can be specified to limit the set of tags that are scanned, and to
 		&cli.StringFlag{
 			Name:    outputPrefix,
 			EnvVars: common.EnvFor(outputPrefix),
-			Usage:   "Add the following tag when printing the output tag.",
+			Usage:   "The prefix to prepend when printing the output version.",
 			Value:   "v",
 		},
 		&cli.StringFlag{
