@@ -327,7 +327,7 @@ dependencies:
 			}
 			_, _ = mdFile.WriteString(tc.md)
 
-			err = app.Run(strings.Fields(fmt.Sprintf("rt --yaml %s %s generate -git-root %s -markdown %s %s", yamlPath, tc.preCmdArgs, tDir, mdPath, tc.args)))
+			err = app.Run(strings.Fields(fmt.Sprintf("rt --yaml %s %s generate-yaml -git-root %s -markdown %s %s", yamlPath, tc.preCmdArgs, tDir, mdPath, tc.args)))
 			if err != nil {
 				t.Fatalf("Error running app: %v", err)
 			}
@@ -387,7 +387,7 @@ func repoWithCommits(t *testing.T, author string, commits ...string) string {
 var metaCommitRegex = regexp.MustCompile(`^\s+commit: (.+)$`)
 
 // calculateHashes replaces messages in meta.commit with the hashes of those commits, as returned by the actual command.
-// As the generate command populates hashes in the yaml output, we need to know them for test data.
+// As the generate-yaml command populates hashes in the yaml output, we need to know them for test data.
 // However, hardcoding hashes would lead to brittle tests. For this reason, we put the message as the hash
 // on the test data, which is then replaced by the hash in-disk using this helper.
 func calculateHashes(t *testing.T, repoPath string, yaml string) string {

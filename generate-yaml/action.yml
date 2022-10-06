@@ -1,5 +1,5 @@
-name: Generate changelog
-description: Reads CHANGELOG.md files, bot commits, and other sources and generates a changelog with them
+name: Generate YAML
+description: Reads CHANGELOG.md files, bot commits, and other sources and generates a changelog yaml with them
 inputs:
   yaml:
     description: Path to changelog.yaml, will be overwritten
@@ -43,7 +43,7 @@ runs:
   args:
     - --yaml
     - ${{ inputs.yaml }}
-    - generate
+    - generate-yaml
     - --markdown
     - ${{ inputs.markdown }}
     - --renovate=${{ inputs.renovate }}
