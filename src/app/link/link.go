@@ -18,13 +18,13 @@ const (
 	chFilePermissions  = os.FileMode(0o666)
 )
 
-// Cmd is the cli.Command object for the link-changelog command.
+// Cmd is the cli.Command object for the link-dependencies command.
 //
 //nolint:gochecknoglobals // We could overengineer this to avoid the global command but I don't think it's worth it.
 var Cmd = &cli.Command{
-	Name:      "link-changelog",
+	Name:      "link-dependencies",
 	Usage:     "Adds links to the original changelog for all the dependencies in a changelog.yml detecting the link if the name is a full route or getting the link from a dictionary file if present",
-	UsageText: `Link Changelog retrieves the links for each dependency detecting the link if the name is a full route or matching an entry in the dictionary file.`,
+	UsageText: `Link dependencies retrieves the links for each dependency detecting the link if the name is a full route or matching an entry in the dictionary file.`,
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    dictionaryPathFlag,

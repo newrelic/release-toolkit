@@ -126,7 +126,7 @@ dependencies:
 			buf := &strings.Builder{}
 			app.Writer = buf
 
-			err = app.Run(strings.Fields(fmt.Sprintf("rt -yaml %s link-changelog -dictionary %s", chlogPath, dicPath)))
+			err = app.Run(strings.Fields(fmt.Sprintf("rt -yaml %s link-dependencies -dictionary %s", chlogPath, dicPath)))
 			if err != nil {
 				t.Fatalf("Error running app: %v", err)
 			}
@@ -156,7 +156,7 @@ dictionary:
 	buf := &strings.Builder{}
 	app.Writer = buf
 
-	err := app.Run(strings.Fields("rt link-changelog --sample"))
+	err := app.Run(strings.Fields("rt link-dependencies --sample"))
 	if err != nil {
 		t.Fatalf("Error running app: %v", err)
 	}
