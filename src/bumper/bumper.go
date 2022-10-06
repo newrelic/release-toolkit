@@ -6,9 +6,9 @@ import (
 	"sort"
 
 	"github.com/Masterminds/semver"
-	"github.com/newrelic/release-toolkit/bump"
-	"github.com/newrelic/release-toolkit/changelog"
-	"github.com/newrelic/release-toolkit/version"
+	"github.com/newrelic/release-toolkit/src/bump"
+	"github.com/newrelic/release-toolkit/src/changelog"
+	"github.com/newrelic/release-toolkit/src/version"
 )
 
 var ErrNoTags = errors.New("source did not return any tag")

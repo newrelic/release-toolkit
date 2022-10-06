@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/newrelic/release-toolkit/app/common"
+	"github.com/newrelic/release-toolkit/src/app/common"
 	"github.com/urfave/cli/v2"
 )
 

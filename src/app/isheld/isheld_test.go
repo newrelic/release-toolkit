@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/newrelic/release-toolkit/app"
+	"github.com/newrelic/release-toolkit/src/app"
 )
 
 //nolint:paralleltest

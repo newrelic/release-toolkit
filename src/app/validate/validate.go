@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/newrelic/release-toolkit/app/common"
-	"github.com/newrelic/release-toolkit/app/gha"
-	"github.com/newrelic/release-toolkit/changelog/sources/markdown"
+	"github.com/newrelic/release-toolkit/src/app/common"
+	"github.com/newrelic/release-toolkit/src/app/gha"
+	"github.com/newrelic/release-toolkit/src/changelog/sources/markdown"
 	"github.com/urfave/cli/v2"
 )
 

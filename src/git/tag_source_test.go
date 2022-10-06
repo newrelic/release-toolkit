@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/newrelic/release-toolkit/git"
+	"github.com/newrelic/release-toolkit/src/git"
 	"github.com/stretchr/testify/assert"
 )
 

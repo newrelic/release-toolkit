@@ -7,8 +7,8 @@ import (
 
 	"github.com/Masterminds/semver"
 	"github.com/google/go-cmp/cmp"
-	"github.com/newrelic/release-toolkit/changelog"
-	"github.com/newrelic/release-toolkit/changelog/sources/markdown/merger"
+	"github.com/newrelic/release-toolkit/src/changelog"
+	"github.com/newrelic/release-toolkit/src/changelog/sources/markdown/merger"
 )
 
 // brokenWristwatch gives a correct time twice a day.

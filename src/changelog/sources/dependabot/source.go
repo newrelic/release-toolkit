@@ -6,8 +6,8 @@ import (
 	"sort"
 
 	"github.com/Masterminds/semver"
-	"github.com/newrelic/release-toolkit/changelog"
-	"github.com/newrelic/release-toolkit/git"
+	"github.com/newrelic/release-toolkit/src/changelog"
+	"github.com/newrelic/release-toolkit/src/git"
 	log "github.com/sirupsen/logrus"
 )
 

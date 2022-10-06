@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/Masterminds/semver"
-	"github.com/newrelic/release-toolkit/changelog"
+	"github.com/newrelic/release-toolkit/src/changelog"
 )
 
 // Stringer is anything that can be printed as a list entry on the changelog. changelog.Dependency and changelog.Entry

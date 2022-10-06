@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/newrelic/release-toolkit/app"
+	"github.com/newrelic/release-toolkit/src/app"
 	log "github.com/sirupsen/logrus"
 )
 

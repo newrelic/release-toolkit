@@ -9,8 +9,8 @@ import (
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/ast"
 	"github.com/gomarkdown/markdown/md"
-	"github.com/newrelic/release-toolkit/changelog"
-	"github.com/newrelic/release-toolkit/changelog/sources/markdown/headingdoc"
+	"github.com/newrelic/release-toolkit/src/changelog"
+	"github.com/newrelic/release-toolkit/src/changelog/sources/markdown/headingdoc"
 	log "github.com/sirupsen/logrus"
 )
 

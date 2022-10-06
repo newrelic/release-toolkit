@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"github.com/Masterminds/semver"
-	"github.com/newrelic/release-toolkit/changelog"
-	"github.com/newrelic/release-toolkit/changelog/linker/mapper"
+	"github.com/newrelic/release-toolkit/src/changelog"
+	"github.com/newrelic/release-toolkit/src/changelog/linker/mapper"
 )
 
 func TestDictionary_NewDictionary(t *testing.T) {
