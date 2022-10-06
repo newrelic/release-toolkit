@@ -309,8 +309,8 @@ jobs:
             exit 2
           fi
 
-  update-changelog:
-    name: update-changelog action
+  update-markdown:
+    name: update-markdown action
     runs-on: ubuntu-latest
     env:
       MOCK_REPO: ./mock_repo
@@ -371,7 +371,7 @@ jobs:
           ### Enhancements
           - This is in the past and should be preserved
           EOF
-      - uses: ./update-changelog
+      - uses: ./update-markdown
         with:
           yaml: ${{ env.MOCK_REPO }}/changelog.yaml
           markdown: ${{ env.MOCK_REPO }}/existing.md
@@ -380,7 +380,7 @@ jobs:
           cat $MOCK_REPO/existing.md
           
           if ! cmp ${{ env.MOCK_REPO }}/expected-changelog.md ${{ env.MOCK_REPO }}/existing.md; then
-            echo "Changleog was not updated to its expected contents" >&2
+            echo "Changelog md was not updated to its expected contents" >&2
             exit 2
           fi
 

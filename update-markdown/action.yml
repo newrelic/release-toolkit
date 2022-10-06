@@ -1,4 +1,4 @@
-name: Update Changelog
+name: Update markdown
 description: Incorporate a changelog.yaml into a complete CHANGELOG.md
 inputs:
   yaml:
@@ -19,7 +19,7 @@ runs:
   args:
     - --yaml
     - ${{ inputs.yaml }}
-    - update-changelog
+    - update-markdown
     - --markdown
     - ${{ inputs.markdown }}
     - --version
