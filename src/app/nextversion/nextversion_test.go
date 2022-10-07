@@ -225,6 +225,26 @@ changes:
   message: New feature has been added
 			`),
 		},
+		{
+			name:     "Set_Output_Prefix",
+			expected: "prefix-5.1.0",
+			args:     "--tag-prefix chart- --output-prefix=prefix-",
+			yaml: strings.TrimSpace(`
+changes:
+- type: enhancement
+  message: New feature has been added
+			`),
+		},
+		{
+			name:     "Set_No_Prefix",
+			expected: "5.1.0",
+			args:     "--tag-prefix chart- --output-prefix=",
+			yaml: strings.TrimSpace(`
+changes:
+- type: enhancement
+  message: New feature has been added
+			`),
+		},
 	} {
 		tc := tc
 		//nolint:paralleltest // urfave/cli cannot be tested concurrently.
