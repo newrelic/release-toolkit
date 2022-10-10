@@ -13,6 +13,10 @@ inputs:
     description: Get current version from latest semver tag matching this prefix
     required: false
     default: ""
+  output-prefix:
+    description: The prefix to prepend when printing the output version
+    required: false
+    default: "v"
 outputs:
   next-version:
     description: Semver next version, with leading v
@@ -27,3 +31,5 @@ runs:
     - ${{ inputs.git-root }}
     - --tag-prefix
     - ${{ inputs.tag-prefix }}
+    - --output-prefix
+    - ${{ inputs.output-prefix }}
