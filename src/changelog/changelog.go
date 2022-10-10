@@ -212,6 +212,7 @@ func (d *Dependency) UnmarshalYAML(value *yaml.Node) error {
 
 	d.Name = pd.Name
 	d.Changelog = pd.Changelog
+	d.Meta = pd.Meta
 
 	if pd.To != "" {
 		d.To, err = semver.NewVersion(pd.To)
