@@ -35,8 +35,9 @@ func repoWithTags(t *testing.T, tags ...string) string {
 }
 
 func executeCMDs(t *testing.T, cmds []string, dir string) {
-	for _, cmdline := range cmds {
+	t.Helper()
 
+	for _, cmdline := range cmds {
 		cmdparts := strings.Fields(cmdline)
 		//nolint:gosec // This is a test, we trust hardcoded input.
 		cmd := exec.Command(cmdparts[0], cmdparts[1:]...)
