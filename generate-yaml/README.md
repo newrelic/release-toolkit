@@ -16,28 +16,95 @@ Example generating a changelog yaml from all sources excluding commits whose cha
 
 ## Parameters
 
-All parameters are optional and match the ones used for the cli command flag, you can see the values and the defaults in [here](../README.md#generate-yaml))
+### Changes
 
-## Contributing
+The generate-yaml command will only create entries in the changes section for content matching:
+- Level3 Header **containing** one of the matching keywords in any letter case (table below).
+- Body content must be an itemized list, or it won't be computed.
 
-Standard policy and procedure across the New Relic GitHub organization.
+### Notes
+Any other Level3 header not containing one of the key entries, will be added to the notes section and won't bump the version.
 
-#### Useful Links
-* [Code of Conduct](../CODE_OF_CONDUCT.md)
-* [Security Policy](../SECURITY.md)
-* [License](../LICENSE)
- 
-## Support
+The Body in notes doesn't need to be itemized.
 
-New Relic has open-sourced this project. This project is provided AS-IS WITHOUT WARRANTY OR DEDICATED SUPPORT. Issues and contributions should be reported to the project here on GitHub.
+### Wrong data
+Content skipped:
+- Any content not child of a header will be skipped.
+- Headers with level higher than 3 and their body.
 
-We encourage you to bring your experiences and questions to the [Explorers Hub](https://discuss.newrelic.com) where our community members collaborate on solutions and new ideas.
+Content invalid (generate will fail):
+- Non itemized lists for changes entries.
+- Headers with level less than 3.
 
-## License
+The `CHANGELOG.md` can be validated with the [validate](#validate-markdown) command to spot wrong entries.
 
-release-toolkit is licensed under the [Apache 2.0](http://apache.org/licenses/LICENSE-2.0.txt) License.
+---
 
-## Disclaimer
+User modified CHANGELOG.md Example:
+```md
+# Changelog
+All notable changes are documented in this file.
 
-This tool is provided by New Relic AS IS, without warranty of any kind. New Relic does not guarantee that the tool will: not cause any disruption to services or systems; provide results that are complete or 100% accurate; correct or cure any detected vulnerability; or provide specific remediation advice.
+## Unreleased
 
+Content that will be skipped
+
+### ⚠️️ Breaking changes ⚠️
+- Support has been removed
+
+### Some Bugfixes
+- A bugfix
+- A second bugfix
+
+### Important announcement (note)
+This is a release note
+
+### Another announcement
+- this is an itemized release note
+
+## [0.0.1] - 2022-09-20
+### Added
+- First version
+```
+
+Generated changelog.yaml:
+```yaml
+notes: |-
+  ### Important announcement (note)
+  This is a release note
+  ### Another announcement
+  - this is an itemized release note
+changes:
+  - type: breaking
+    message: Support has been removed
+  - type: bugfix
+    message: A bugfix
+  - type: bugfix
+    message: A second bugfix
+dependencies: []
+```
+
+## Bot sources
+Dependabot and renovate changelog entries will be gathered (unless deactivated) from dependabot/renovate commits since last tag.
+The release toolkit `generate-yaml` command will detect a renovate/dependabot commit based on the author and message of the commit.
+
+The release toolkit will add those dependency entries, trying to extract the following (only the name is mandatory):
+- The name of the dependency
+- The old version
+- The new version
+- The PR and commit
+- [Linked changelog](#linked-changelog) (A link to the original repository release-notes for this release version, added with the link-dependencies command)
+
+Example:
+```yaml
+notes: ""
+changes: []
+dependencies:
+  - name: github.com/newrelic/a-dependency
+    from: "2"
+    to: "3"
+    meta:
+      pr: "101"
+      commit: 55c763d4920ca45d673d518f5448134b6b38091e
+      changelog: https://github.com/newrelic/a-dependency/releases/tag/2
+```
