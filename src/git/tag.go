@@ -19,8 +19,9 @@ type TagsGetter interface {
 }
 
 type RepoTagsGetter struct {
-	workDir string
-	match   *regexp.Regexp
+	workDir       string
+	match         *regexp.Regexp
+	commitsGetter CommitsGetter
 }
 
 type TagOptionFunc func(s *RepoTagsGetter) error
@@ -42,8 +43,9 @@ var MatchAllTags = regexp.MustCompile("")
 
 func NewRepoTagsGetter(workDir string, opts ...TagOptionFunc) (*RepoTagsGetter, error) {
 	s := &RepoTagsGetter{
-		workDir: workDir,
-		match:   MatchAllTags,
+		workDir:       workDir,
+		match:         MatchAllTags,
+		commitsGetter: NewRepoCommitsGetter(workDir),
 	}
 
 	for _, opt := range opts {
@@ -66,6 +68,10 @@ func (s *RepoTagsGetter) Tags() ([]Tag, error) {
 		return nil, fmt.Errorf("getting git tags: %w", err)
 	}
 
+	branchCommits, err := s.commitsGetter.Commits(EmptyTreeID)
+	if err != nil {
+		return nil, fmt.Errorf("getting git commits since empty tree: %w", err)
+	}
 	var tags []Tag
 
 	err = repoTags.ForEach(func(reference *plumbing.Reference) error {
@@ -81,6 +87,11 @@ func (s *RepoTagsGetter) Tags() ([]Tag, error) {
 			return nil
 		}
 
+		if !IsTagInBranch(branchCommits, reference.Hash().String()) {
+			log.Infof("Ignoring %s since it belongs to a different branch", reference.Name().Short())
+			return nil
+		}
+
 		tags = append(tags, Tag{
 			Name: tagName,
 			Hash: reference.Hash().String(),
@@ -93,4 +104,14 @@ func (s *RepoTagsGetter) Tags() ([]Tag, error) {
 	}
 
 	return tags, nil
+}
+
+func IsTagInBranch(commits []Commit, hash string) bool {
+	for _, bc := range commits {
+		if bc.Hash == hash {
+			return true
+		}
+	}
+
+	return false
 }

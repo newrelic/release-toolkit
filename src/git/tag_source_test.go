@@ -29,7 +29,14 @@ func repoWithTags(t *testing.T, tags ...string) string {
 		cmds = append(cmds, fmt.Sprintf("git tag %s", t))
 	}
 
+	executeCMDs(t, cmds, dir)
+
+	return dir
+}
+
+func executeCMDs(t *testing.T, cmds []string, dir string) {
 	for _, cmdline := range cmds {
+
 		cmdparts := strings.Fields(cmdline)
 		//nolint:gosec // This is a test, we trust hardcoded input.
 		cmd := exec.Command(cmdparts[0], cmdparts[1:]...)
@@ -43,27 +50,16 @@ func repoWithTags(t *testing.T, tags ...string) string {
 			t.Fatalf("Error bootstraping test git repo: %v", err)
 		}
 	}
-
-	return dir
 }
 
 func TestTagSource_Versions(t *testing.T) {
 	t.Parallel()
-	repodir := repoWithTags(t,
-		"v1.2.3",
-		"v1.3.0",
-		"v1.4.0",
-		"1.5.0",
-		"0.1.1.2",
-		"helm-chart-1.3.0",
-		"helm-chart-1.3.1",
-		"2.0.0-beta",
-	)
 
 	for _, tc := range []struct {
 		name          string
 		tagOpts       []git.TagOptionFunc
 		tagSourceOpts []git.TagSourceOptionFunc
+		cmds          []string
 		expectedTags  []string
 	}{
 		{
@@ -86,6 +82,25 @@ func TestTagSource_Versions(t *testing.T) {
 			},
 		},
 		{
+			name:    "Ignoring_tags_diffent_branch",
+			tagOpts: []git.TagOptionFunc{git.TagsMatching("^v")},
+			expectedTags: []string{
+				"1.4.0",
+				"1.3.0",
+				"1.2.3",
+			},
+			cmds: []string{
+				// we start again from the root, we create a different branch and we check if
+				// the tags from the other branch are still considered
+				"git checkout -b different/branch",
+				"touch b",
+				"git add b",
+				"git commit -m test",
+				"git tag v9.9.9",
+				"git checkout master",
+			},
+		},
+		{
 			name: "Matching_And_Replacing_Prefix",
 			tagOpts: []git.TagOptionFunc{
 				git.TagsMatching("^helm-chart-"),
@@ -102,6 +117,18 @@ func TestTagSource_Versions(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
+
+			repodir := repoWithTags(t,
+				"v1.2.3",
+				"v1.3.0",
+				"v1.4.0",
+				"1.5.0",
+				"0.1.1.2",
+				"helm-chart-1.3.0",
+				"helm-chart-1.3.1",
+				"2.0.0-beta",
+			)
+			executeCMDs(t, tc.cmds, repodir)
 
 			tagsGetter, err := git.NewRepoTagsGetter(repodir, tc.tagOpts...)
 			if err != nil {
