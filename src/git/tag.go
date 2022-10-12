@@ -108,7 +108,7 @@ func (s *RepoTagsGetter) Tags() ([]Tag, error) {
 }
 
 // getCommitsMap retrieves the list of commits from HEAD and put it in a map in order to
-// filter out all the tags not belonging to the current branch
+// filter out all the tags not belonging to the current branch.
 func getCommitsMap(commitGetter CommitsGetter) (map[string]bool, error) {
 	branchCommits, err := commitGetter.Commits(EmptyTreeID)
 	if err != nil {
