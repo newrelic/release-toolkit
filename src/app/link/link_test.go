@@ -29,6 +29,9 @@ dependencies:
 - name: github.com/spf13/viper
   from: 4.0.3
   to: 4.1.2
+  meta:
+    pr: 69
+    commit: "chore(deps): bump anotherdep from 0.0.1 to 0.0.2 (#69)"
 			`),
 			dictionary: strings.TrimSpace(`
 dictionary:
@@ -42,6 +45,9 @@ dependencies:
       from: 4.0.3
       to: 4.1.2
       changelog: https://github.com/spf13/viper/releases/tag/my-custom-viper-4.1.2
+      meta:
+        pr: "69"
+        commit: 'chore(deps): bump anotherdep from 0.0.1 to 0.0.2 (#69)'
 `, "\n"),
 		},
 		{

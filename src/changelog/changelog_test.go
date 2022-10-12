@@ -266,6 +266,9 @@ func TestYaml(t *testing.T) {
 			{
 				Name: "kubernetes",
 				From: semver.MustParse("v1.24.0"),
+				Meta: changelog.EntryMeta{
+					PR: "22",
+				},
 			},
 			{
 				Name: "linux",
@@ -291,6 +294,8 @@ changes:
 dependencies:
     - name: kubernetes
       from: v1.24.0
+      meta:
+        pr: "22"
     - name: linux
       to: 5.15.52
 	`) + "\n"
