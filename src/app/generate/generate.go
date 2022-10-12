@@ -196,7 +196,8 @@ func tagVersionGetter(cCtx *cli.Context) (*git.TagsSource, error) {
 		tagOpts = append(tagOpts, git.TagsMatching("^"+matching))
 	}
 
-	src, err := git.NewRepoTagsGetter(cCtx.String(gitRootFlag), tagOpts...)
+	workDir := cCtx.String(gitRootFlag)
+	src, err := git.NewRepoTagsGetter(workDir, git.NewRepoCommitsGetter(workDir), tagOpts...)
 	if err != nil {
 		return nil, fmt.Errorf("creating source for git tags: %w", err)
 	}

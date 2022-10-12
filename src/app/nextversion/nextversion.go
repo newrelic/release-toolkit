@@ -155,7 +155,8 @@ func source(cCtx *cli.Context) (version.Source, error) {
 		tagOpts = append(tagOpts, git.TagsMatching("^"+prefix))
 	}
 
-	tg, err := git.NewRepoTagsGetter(cCtx.String(gitRootFlag), tagOpts...)
+	workDir := cCtx.String(gitRootFlag)
+	tg, err := git.NewRepoTagsGetter(workDir, git.NewRepoCommitsGetter(workDir), tagOpts...)
 	if err != nil {
 		return nil, fmt.Errorf("building repo tags lister: %w", err)
 	}

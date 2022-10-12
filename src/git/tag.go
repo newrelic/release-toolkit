@@ -41,11 +41,11 @@ func TagsMatching(regex string) TagOptionFunc {
 
 var MatchAllTags = regexp.MustCompile("")
 
-func NewRepoTagsGetter(workDir string, opts ...TagOptionFunc) (*RepoTagsGetter, error) {
+func NewRepoTagsGetter(workDir string, getter CommitsGetter, opts ...TagOptionFunc) (*RepoTagsGetter, error) {
 	s := &RepoTagsGetter{
 		workDir:       workDir,
 		match:         MatchAllTags,
-		commitsGetter: NewRepoCommitsGetter(workDir),
+		commitsGetter: getter,
 	}
 
 	for _, opt := range opts {
@@ -68,10 +68,11 @@ func (s *RepoTagsGetter) Tags() ([]Tag, error) {
 		return nil, fmt.Errorf("getting git tags: %w", err)
 	}
 
-	branchCommits, err := s.commitsGetter.Commits(EmptyTreeID)
+	branchCommits, err := getCommitsMap(s.commitsGetter)
 	if err != nil {
-		return nil, fmt.Errorf("getting git commits since empty tree: %w", err)
+		return nil, fmt.Errorf("getting commit map to filter tags: %w", err)
 	}
+
 	var tags []Tag
 
 	err = repoTags.ForEach(func(reference *plumbing.Reference) error {
@@ -87,7 +88,7 @@ func (s *RepoTagsGetter) Tags() ([]Tag, error) {
 			return nil
 		}
 
-		if !IsTagInBranch(branchCommits, reference.Hash().String()) {
+		if _, ok := branchCommits[reference.Hash().String()]; !ok {
 			log.Infof("Ignoring %s since it belongs to a different branch", reference.Name().Short())
 			return nil
 		}
@@ -106,12 +107,18 @@ func (s *RepoTagsGetter) Tags() ([]Tag, error) {
 	return tags, nil
 }
 
-func IsTagInBranch(commits []Commit, hash string) bool {
-	for _, bc := range commits {
-		if bc.Hash == hash {
-			return true
-		}
+// getCommitsMap retrieves the list of commits from HEAD and put it in a map in order to
+// filter out all the tags not belonging to the current branch
+func getCommitsMap(commitGetter CommitsGetter) (map[string]bool, error) {
+	branchCommits, err := commitGetter.Commits(EmptyTreeID)
+	if err != nil {
+		return nil, fmt.Errorf("getting git commits since empty tree: %w", err)
 	}
 
-	return false
+	commitMap := map[string]bool{}
+	for _, c := range branchCommits {
+		commitMap[c.Hash] = true
+	}
+
+	return commitMap, nil
 }

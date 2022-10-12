@@ -131,7 +131,7 @@ func TestTagSource_Versions(t *testing.T) {
 			)
 			executeCMDs(t, tc.cmds, repodir)
 
-			tagsGetter, err := git.NewRepoTagsGetter(repodir, tc.tagOpts...)
+			tagsGetter, err := git.NewRepoTagsGetter(repodir, git.NewRepoCommitsGetter(repodir), tc.tagOpts...)
 			if err != nil {
 				t.Fatalf("Error creating git source: %v", err)
 			}
@@ -203,7 +203,7 @@ func TestRepoTagsSource_LastVersionHash(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			tagsGetter, err := git.NewRepoTagsGetter(repodir, tc.tagOpts...)
+			tagsGetter, err := git.NewRepoTagsGetter(repodir, git.NewRepoCommitsGetter(repodir), tc.tagOpts...)
 			if err != nil {
 				t.Fatalf("Error creating git source: %v", err)
 			}
@@ -223,7 +223,7 @@ func TestRepoTagsSource_LastVersionHash(t *testing.T) {
 func getVersionCommitHash(t *testing.T, repodir, version string, opts ...git.TagOptionFunc) string {
 	t.Helper()
 
-	tagsGetter, err := git.NewRepoTagsGetter(repodir, opts...)
+	tagsGetter, err := git.NewRepoTagsGetter(repodir, git.NewRepoCommitsGetter(repodir), opts...)
 	if err != nil {
 		t.Fatalf("Error creating git source: %v", err)
 	}
