@@ -191,13 +191,15 @@ func addDepSource(cCtx *cli.Context, sources []changelog.Source, includedDirs, e
 }
 
 func tagVersionGetter(cCtx *cli.Context) (*git.TagsSource, error) {
-	var tagOpts []git.TagOptionFunc
+	workDir := cCtx.String(gitRootFlag)
+	commitsGetter := git.NewRepoCommitsGetter(workDir)
+
+	tagOpts := []git.TagOptionFunc{git.TagsMatchingCommits(commitsGetter)}
 	if matching := cCtx.String(tagPrefixFlag); matching != "" {
-		tagOpts = append(tagOpts, git.TagsMatching("^"+matching))
+		tagOpts = append(tagOpts, git.TagsMatchingRegex("^"+matching))
 	}
 
-	workDir := cCtx.String(gitRootFlag)
-	src, err := git.NewRepoTagsGetter(workDir, git.NewRepoCommitsGetter(workDir), tagOpts...)
+	src, err := git.NewRepoTagsGetter(workDir, tagOpts...)
 	if err != nil {
 		return nil, fmt.Errorf("creating source for git tags: %w", err)
 	}
