@@ -51,7 +51,7 @@ func NewCommitFilter(commitsGetter CommitsGetter, opts ...CommitFilterOptionFunc
 
 	for _, opt := range opts {
 		if err := opt(cf); err != nil {
-			return nil, fmt.Errorf("commit filter, applyng option: %w", err)
+			return nil, fmt.Errorf("commit filter, applying option: %w", err)
 		}
 	}
 

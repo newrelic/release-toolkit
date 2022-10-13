@@ -66,7 +66,7 @@ func NewRepoTagsGetter(workDir string, opts ...TagOptionFunc) (*RepoTagsGetter, 
 
 	for _, opt := range opts {
 		if err := opt(s); err != nil {
-			return nil, fmt.Errorf("applyng option: %w", err)
+			return nil, fmt.Errorf("applying option: %w", err)
 		}
 	}
 

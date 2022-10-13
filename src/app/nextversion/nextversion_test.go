@@ -21,8 +21,8 @@ func TestNextVersion_Without_Repo(t *testing.T) {
 		globalargs string
 	}{
 		{
-			name:     "Overrides_Next",
-			args:     "-next v0.0.1",
+			name:     "Overrides_Next_And_Current",
+			args:     "-next v0.0.1 -current v1.2.3",
 			expected: "v0.0.1",
 			yaml: strings.TrimSpace(`
 notes: |-
@@ -157,7 +157,8 @@ dependencies:
 		},
 		{
 			name:     "Overrides_Current",
-			expected: "v3.0.0",
+			args:     "--current v0.0.1",
+			expected: "v1.0.0",
 			yaml: strings.TrimSpace(`
 notes: |-
     ### Important announcement (note)
