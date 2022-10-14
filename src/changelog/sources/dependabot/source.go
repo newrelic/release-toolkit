@@ -53,7 +53,7 @@ func (r Source) Changelog() (*changelog.Changelog, error) {
 
 		capturingGroups := commitRegex.FindStringSubmatch(c.Message)
 		if len(capturingGroups) == 0 {
-			log.Debugf("skipping commit  %s as it does not match dependabot pattern and no information can be retrived", c.Message)
+			log.Debugf("skipping commit  %s as it does not match dependabot pattern and no information can be retrieved", c.Message)
 			continue
 		}
 
