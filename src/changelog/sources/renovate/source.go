@@ -47,8 +47,6 @@ func (r Source) Changelog() (*changelog.Changelog, error) {
 		var commitDependencies []changelog.Dependency
 
 		commitLine := strings.Split(c.Message, "\n")[0]
-		// Contrary to dependabot, where we can reliably tell if a message comes from it by just inspecting the message,
-		// for renovate we have to be so permissive we need to check the author to prevent false positives.
 		if !strings.Contains(strings.ToLower(c.Author), renovateAuthor) {
 			log.Debugf("skipping commit as it is not authored by renovate\n> %q", commitLine)
 			continue
