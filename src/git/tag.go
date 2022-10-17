@@ -39,7 +39,7 @@ func TagsMatchingRegex(regex string) TagOptionFunc {
 	}
 }
 
-// TagsMatchingCommits returns an option that will make the getter to ignore tags that do not match commits.
+// TagsMatchingCommits returns an option that will skip tags that do not point to a commit reachable from HEAD.
 func TagsMatchingCommits(getter CommitsGetter) TagOptionFunc {
 	return func(s *RepoTagsGetter) error {
 		branchCommits, err := getter.Commits(EmptyTreeID)
