@@ -23,7 +23,44 @@ Each of these steps is performed as a different step in the pipeline, giving mai
 A pipeline using the release toolkit could look like the following:
 
 ```yaml
-// TODO
+name: Self-test
+on:
+   workflow-dispatch:
+jobs:
+  - uses: actions/checkout@v3
+  - name: Generate transient changelog.yaml
+    uses: newrelic/release-toolkit/generate-yaml@v1
+    with:
+       excluded-dirs: .github
+    # changelog.yaml is a temporary, machine-readable file containing unreleased changes.
+    # - Entries from your CHANGELOG.md's Unreleased section.
+    # - Entries generated from bot commits (e.g. dependabot/renovate)
+  # - name: You can hack changelog.yaml!
+  #   run: |
+  #     yq ...
+  #     custom-script.sh ...
+  - name: Figure out next version automatically
+    id: next-version
+    uses: newrelic/release-toolkit/next-version@v1
+  - name: Generate release notes
+    uses: newrelic/release-toolkit/render-markdown@v1
+    # CHANGELOG.partial.md now contains release notes for this version.
+  - name: Update CHANGELOG.md
+    uses: newrelic/release-toolkit/update-markdown@v1
+    with:
+      next-version: ${{ steps.next-version.outputs.next-version }}
+    # CHANGELOG.md is now updated with the contents of changelog.yaml, in MD format.
+  - name: Commit and tag release
+    run: |
+      VERSION="${{ steps.next-version.outputs.next-version }}"
+      git add CHANGELOG.md
+      git commit -m "release $VERSION"
+      git push
+      gh release create $VERSION -F CHANGELOG.partial.md
+  - name: Build and publish artifacts
+    run: |
+      docker build . -t example:${{ steps.next-version.outputs.next-version }}
+      docker push example:${{ steps.next-version.outputs.next-version }}
 ```
 
 ## `generate-changelog` and `changelog.yaml`
