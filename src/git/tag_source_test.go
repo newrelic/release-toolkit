@@ -66,7 +66,6 @@ func TestTagSource_Versions(t *testing.T) {
 		"helm-chart-1.3.1",
 		"2.0.0-beta",
 	)
-	commitsGetter := git.NewRepoCommitsGetter(repodir)
 
 	for _, tc := range []struct {
 		name          string
@@ -75,9 +74,6 @@ func TestTagSource_Versions(t *testing.T) {
 		expectedTags  []string
 	}{
 		{
-			tagOpts: []git.TagOptionFunc{
-				git.TagsMatchingCommits(commitsGetter),
-			},
 			name: "Default_Settings",
 			expectedTags: []string{
 				"2.0.0-beta",
@@ -89,7 +85,7 @@ func TestTagSource_Versions(t *testing.T) {
 		},
 		{
 			name:    "Matching_Leading_v",
-			tagOpts: []git.TagOptionFunc{git.TagsMatchingRegex("^v"), git.TagsMatchingCommits(commitsGetter)},
+			tagOpts: []git.TagOptionFunc{git.TagsMatchingRegex("^v")},
 			expectedTags: []string{
 				"1.4.0",
 				"1.3.0",
@@ -100,7 +96,6 @@ func TestTagSource_Versions(t *testing.T) {
 			name: "Matching_And_Replacing_Prefix",
 			tagOpts: []git.TagOptionFunc{
 				git.TagsMatchingRegex("^helm-chart-"),
-				git.TagsMatchingCommits(commitsGetter),
 			},
 			tagSourceOpts: []git.TagSourceOptionFunc{
 				git.TagSourceReplacing("helm-chart-", ""),
@@ -199,7 +194,6 @@ func TestRepoTagsSource_LastVersionHash(t *testing.T) {
 		testCommitTag{"helm-chart-1.3.1", []string{"helm-chart-1.3.1"}},
 		testCommitTag{"2.0.0-beta", []string{"2.0.0-beta"}},
 	)
-	commitsGetter := git.NewRepoCommitsGetter(repodir)
 
 	for _, tc := range []struct {
 		name          string
@@ -215,7 +209,6 @@ func TestRepoTagsSource_LastVersionHash(t *testing.T) {
 			name: "Matching_Leading_v",
 			tagOpts: []git.TagOptionFunc{
 				git.TagsMatchingRegex("^v"),
-				git.TagsMatchingCommits(commitsGetter),
 			},
 			expectedHash: getVersionCommitHash(t, repodir, "v1.4.0"),
 		},
@@ -223,7 +216,6 @@ func TestRepoTagsSource_LastVersionHash(t *testing.T) {
 			name: "Matching_And_Replacing_Prefix",
 			tagOpts: []git.TagOptionFunc{
 				git.TagsMatchingRegex("^helm-chart-"),
-				git.TagsMatchingCommits(commitsGetter),
 			},
 			tagSourceOpts: []git.TagSourceOptionFunc{
 				git.TagSourceReplacing("helm-chart-", ""),
