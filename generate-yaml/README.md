@@ -1,8 +1,6 @@
-[![New Relic Experimental header](https://github.com/newrelic/opensource-website/raw/master/src/images/categories/Experimental.png)](https://opensource.newrelic.com/oss-category/#new-relic-experimental)
+# 🛠️ `generate-yaml`
 
-# 🛠️ Generate YAML changelog action
-
-An action to run the release toolkit generate yaml command. It builds a changelog.yaml file from multiple sources.
+An action to run the release toolkit `generate-yaml` command. It builds a `changelog.yaml` file from multiple sources.
 
 ## Example Usage
 
@@ -14,29 +12,21 @@ Example generating a changelog yaml from all sources excluding commits whose cha
     excluded-dirs: charts
 ```
 
-## Parameters
+## Changes from `CHANGELOG.md`
 
-### Changes
+`generate-yaml` parses `CHANGELOG.md` looking for entries written by maintainers under a L2 `## Unreleased` header.
 
-The generate-yaml command will only create entries in the changes section for content matching:
-- Level3 Header **containing** one of the matching keywords in any letter case (table below).
-- Body content must be an itemized list, or it won't be computed.
+`generate-yaml` expects L3 headers grouping changes by type. L3 headers containing the following words (case-insensitive) will be categorized as such:
+- `breaking`
+- `security`
+- `enhancement`
+- `bugfix`
 
-### Notes
-Any other Level3 header not containing one of the key entries, will be added to the notes section and won't bump the version.
+Any other L3 header under `## Unreleased` will be added, including the header, to the raw notes section. This section is echoed verbatim by `render-markdown` and `update-markdown`.
 
-The Body in notes doesn't need to be itemized.
+These L3 headers should be composed exclusively of unordered lists. Each item of that list is taken as a single "change", and assigned to the type matching the header it is placed on. Text under a change type header (e.g. `Breaking changes`, which matches `breaking`) that is not a list item is ignored. Non-change type headers (e.g. `Important notice`, which does not match any change type) can contain any type of markdown construct.
 
-### Wrong data
-Content skipped:
-- Any content not child of a header will be skipped.
-- Headers with level higher than 3 and their body.
-
-Content invalid (generate will fail):
-- Non itemized lists for changes entries.
-- Headers with level less than 3.
-
-The `CHANGELOG.md` can be validated with the [validate](#validate-markdown) command to spot wrong entries.
+The `CHANGELOG.md` can be validated with the `validate` command to spot wrong entries.
 
 ---
 
@@ -72,6 +62,7 @@ Generated changelog.yaml:
 notes: |-
   ### Important announcement (note)
   This is a release note
+
   ### Another announcement
   - this is an itemized release note
 changes:
@@ -84,6 +75,12 @@ changes:
 dependencies: []
 ```
 
+### Held releases
+
+Maintainers can include an L2 `## Held` header in the `CHANGELOG.md` file. This header must contain a paragraph below it indicating the reason why automated releases are being held.
+
+`generate-changelog` will set the boolean `held` property to `true` in `changelog.yaml` if it founds such a header. This flag can be consumed later in the pipeline to check if an automated workflow should continue releasing.
+
 ## Bot sources
 Dependabot and renovate changelog entries will be gathered (unless deactivated) from dependabot/renovate commits since last tag.
 The release toolkit `generate-yaml` command will detect a renovate/dependabot commit based on the author and message of the commit.
@@ -93,7 +90,6 @@ The release toolkit will add those dependency entries, trying to extract the fol
 - The old version
 - The new version
 - The PR and commit
-- [Linked changelog](#linked-changelog) (A link to the original repository release-notes for this release version, added with the link-dependencies command)
 
 Example:
 ```yaml
@@ -106,5 +102,4 @@ dependencies:
     meta:
       pr: "101"
       commit: 55c763d4920ca45d673d518f5448134b6b38091e
-      changelog: https://github.com/newrelic/a-dependency/releases/tag/2
 ```
