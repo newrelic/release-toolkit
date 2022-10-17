@@ -19,21 +19,39 @@ type TagsGetter interface {
 }
 
 type RepoTagsGetter struct {
-	workDir string
-	match   *regexp.Regexp
+	workDir      string
+	matchRegex   *regexp.Regexp
+	matchCommits map[string]bool
 }
 
 type TagOptionFunc func(s *RepoTagsGetter) error
 
-// TagsMatching returns an option that will make the getter to ignore tags that do not match regex.
-func TagsMatching(regex string) TagOptionFunc {
+// TagsMatchingRegex returns an option that will make the getter to ignore tags that do not match regex.
+func TagsMatchingRegex(regex string) TagOptionFunc {
 	return func(s *RepoTagsGetter) error {
 		rgx, err := regexp.Compile(regex)
 		if err != nil {
 			return fmt.Errorf("compiling %q: %w", regex, err)
 		}
 
-		s.match = rgx
+		s.matchRegex = rgx
+		return nil
+	}
+}
+
+// TagsMatchingCommits returns an option that will skip tags that do not point to a commit reachable from HEAD.
+func TagsMatchingCommits(getter CommitsGetter) TagOptionFunc {
+	return func(s *RepoTagsGetter) error {
+		branchCommits, err := getter.Commits(EmptyTreeID)
+		if err != nil {
+			return fmt.Errorf("getting git commits since empty tree: %w", err)
+		}
+
+		s.matchCommits = map[string]bool{}
+		for _, c := range branchCommits {
+			s.matchCommits[c.Hash] = true
+		}
+
 		return nil
 	}
 }
@@ -42,13 +60,13 @@ var MatchAllTags = regexp.MustCompile("")
 
 func NewRepoTagsGetter(workDir string, opts ...TagOptionFunc) (*RepoTagsGetter, error) {
 	s := &RepoTagsGetter{
-		workDir: workDir,
-		match:   MatchAllTags,
+		workDir:    workDir,
+		matchRegex: MatchAllTags,
 	}
 
 	for _, opt := range opts {
 		if err := opt(s); err != nil {
-			return nil, fmt.Errorf("applyng option: %w", err)
+			return nil, fmt.Errorf("applying option: %w", err)
 		}
 	}
 
@@ -76,9 +94,16 @@ func (s *RepoTagsGetter) Tags() ([]Tag, error) {
 		}
 
 		tagName := ref.Short()
-		if !s.match.MatchString(tagName) {
-			log.Debugf("skipping tag %q as it does not match %q", tagName, s.match.String())
+		if !s.matchRegex.MatchString(tagName) {
+			log.Debugf("skipping tag %q as it does not match %q", tagName, s.matchRegex.String())
 			return nil
+		}
+
+		if s.matchCommits != nil {
+			if _, ok := s.matchCommits[reference.Hash().String()]; !ok {
+				log.Infof("Ignoring %s since it belongs to a different branch", reference.Name().Short())
+				return nil
+			}
 		}
 
 		tags = append(tags, Tag{

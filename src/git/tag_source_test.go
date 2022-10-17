@@ -29,6 +29,14 @@ func repoWithTags(t *testing.T, tags ...string) string {
 		cmds = append(cmds, fmt.Sprintf("git tag %s", t))
 	}
 
+	executeCMDs(t, cmds, dir)
+
+	return dir
+}
+
+func executeCMDs(t *testing.T, cmds []string, dir string) {
+	t.Helper()
+
 	for _, cmdline := range cmds {
 		cmdparts := strings.Fields(cmdline)
 		//nolint:gosec // This is a test, we trust hardcoded input.
@@ -43,12 +51,11 @@ func repoWithTags(t *testing.T, tags ...string) string {
 			t.Fatalf("Error bootstraping test git repo: %v", err)
 		}
 	}
-
-	return dir
 }
 
 func TestTagSource_Versions(t *testing.T) {
 	t.Parallel()
+
 	repodir := repoWithTags(t,
 		"v1.2.3",
 		"v1.3.0",
@@ -78,7 +85,7 @@ func TestTagSource_Versions(t *testing.T) {
 		},
 		{
 			name:    "Matching_Leading_v",
-			tagOpts: []git.TagOptionFunc{git.TagsMatching("^v")},
+			tagOpts: []git.TagOptionFunc{git.TagsMatchingRegex("^v")},
 			expectedTags: []string{
 				"1.4.0",
 				"1.3.0",
@@ -88,7 +95,7 @@ func TestTagSource_Versions(t *testing.T) {
 		{
 			name: "Matching_And_Replacing_Prefix",
 			tagOpts: []git.TagOptionFunc{
-				git.TagsMatching("^helm-chart-"),
+				git.TagsMatchingRegex("^helm-chart-"),
 			},
 			tagSourceOpts: []git.TagSourceOptionFunc{
 				git.TagSourceReplacing("helm-chart-", ""),
@@ -125,6 +132,56 @@ func TestTagSource_Versions(t *testing.T) {
 	}
 }
 
+func TestTagSource_DifferentBranch(t *testing.T) {
+	t.Parallel()
+
+	repodir := repoWithTags(t,
+		"v1.2.3",
+		"v1.3.0",
+		"v1.4.0",
+		"1.5.0",
+		"0.1.1.2",
+		"helm-chart-1.3.0",
+		"helm-chart-1.3.1",
+		"2.0.0-beta",
+	)
+
+	expectedTags := []string{"1.4.0", "1.3.0", "1.2.3"}
+
+	executeCMDs(t, []string{
+		// we start again from the root, we create a different branch and we check if
+		// the tags from the other branch are still considered
+		"git checkout -b different/branch",
+		"touch b",
+		"git add b",
+		"git commit -m test",
+		"git tag v9.9.9",
+		"git checkout master",
+	}, repodir)
+
+	commitsGetter := git.NewRepoCommitsGetter(repodir)
+	tagOps := []git.TagOptionFunc{git.TagsMatchingRegex("^v"), git.TagsMatchingCommits(commitsGetter)}
+
+	tagsGetter, err := git.NewRepoTagsGetter(repodir, tagOps...)
+	if err != nil {
+		t.Fatalf("Error creating git source: %v", err)
+	}
+
+	src := git.NewTagsSource(tagsGetter)
+
+	versions, err := src.Versions()
+	if err != nil {
+		t.Fatalf("Error fetching tags: %v", err)
+	}
+
+	strVersions := make([]string, 0, len(versions))
+	for _, v := range versions {
+		strVersions = append(strVersions, v.String())
+	}
+
+	assert.ElementsMatchf(t, expectedTags, strVersions, "Reported tags do not match")
+}
+
 func TestRepoTagsSource_LastVersionHash(t *testing.T) {
 	t.Parallel()
 	repodir := repoWithCommitsAndTags(t,
@@ -151,14 +208,14 @@ func TestRepoTagsSource_LastVersionHash(t *testing.T) {
 		{
 			name: "Matching_Leading_v",
 			tagOpts: []git.TagOptionFunc{
-				git.TagsMatching("^v"),
+				git.TagsMatchingRegex("^v"),
 			},
 			expectedHash: getVersionCommitHash(t, repodir, "v1.4.0"),
 		},
 		{
 			name: "Matching_And_Replacing_Prefix",
 			tagOpts: []git.TagOptionFunc{
-				git.TagsMatching("^helm-chart-"),
+				git.TagsMatchingRegex("^helm-chart-"),
 			},
 			tagSourceOpts: []git.TagSourceOptionFunc{
 				git.TagSourceReplacing("helm-chart-", ""),
@@ -167,7 +224,7 @@ func TestRepoTagsSource_LastVersionHash(t *testing.T) {
 				t,
 				repodir,
 				"helm-chart-1.3.1",
-				git.TagsMatching("^helm-chart-"),
+				git.TagsMatchingRegex("^helm-chart-"),
 			),
 		},
 	} {
