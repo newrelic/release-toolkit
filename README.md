@@ -23,7 +23,7 @@ Each of these steps is performed as a different step in the pipeline, giving mai
 A pipeline using the release toolkit could look like the following:
 
 ```yaml
-name: Self-test
+name: Release workflow
 on:
    workflow-dispatch:
 jobs:
