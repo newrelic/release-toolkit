@@ -16,7 +16,7 @@ The way in which the toolkit works is the following:
    4. Generate a Markdown document with the release notes for this release
    5. Reincorporate all the contents of `changelog.yaml` into `CHANGELOG.md`, under the correct version header.
 
-Each of these steps is performed as a different step in the pipeline, giving maintainers complete flexibility to skip or add intermediate steps. The machine-readable `changelog.yaml` can be easily edited with simple scrips, allowing more flexibility to add, remove, or change changelog entries before the steps that act on them take place.
+Each of these steps is performed as a different step in the pipeline, giving maintainers complete flexibility to skip or add intermediate steps. The machine-readable `changelog.yaml` can be easily edited with simple scripts, allowing more flexibility to add, remove, or change changelog entries before the steps that act on them take place.
 
 ## Sneak peek
 
@@ -101,7 +101,7 @@ dependencies:
       commit: a72b98709dfa0d28cf7c73020f3dede670f7a37f
 ```
 
-Additionally to the fields listed above, there's a fourth boolean field called `is-held`. Purpose and behavior of this field is explained in the advanced section of this manual.
+In addition to the fields listed above, there's a fourth boolean field called `is-held`. Purpose and behavior of this field is explained in the advanced section of this manual.
 
 This `generate-yaml` command will extract this changes and notes from 3 different sources:
 
