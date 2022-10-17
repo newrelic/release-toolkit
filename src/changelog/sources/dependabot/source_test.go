@@ -46,6 +46,9 @@ func TestSource_Source(t *testing.T) {
 			commit: git.Commit{Message: "Non matching"},
 		},
 		{
+			commit: git.Commit{Message: "chore(deps): bump common-library-2 from v0.0.3 to v0.0.4", Author: "differentBot[bot]"},
+		},
+		{
 			commit:   git.Commit{Message: "chore(deps): bump common-library-2 from v0.0.3 to v0.0.4"},
 			expected: []changelog.Dependency{{Name: "common-library-2", From: semver.MustParse("0.0.3"), To: semver.MustParse("0.0.4")}},
 		},
@@ -206,6 +209,10 @@ Bumps [actions/github-script](https://github.com/actions/github-script) from 4.0
 		tc := tc
 		if tc.name == "" {
 			tc.name = tc.commit.Message
+		}
+
+		if tc.commit.Author == "" {
+			tc.commit.Author = "dependabot[bot]"
 		}
 
 		t.Run(tc.name, func(t *testing.T) {

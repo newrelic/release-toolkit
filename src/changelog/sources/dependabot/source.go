@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"sort"
+	"strings"
 
 	"github.com/Masterminds/semver"
 	"github.com/newrelic/release-toolkit/src/changelog"
@@ -12,6 +13,8 @@ import (
 )
 
 var commitRegex = regexp.MustCompile(`(?m)[Bb]ump (\S+)(?: from (\S+))?(?: to (\S+))?(?:.+\([#!](\d+)\)$)?`)
+
+const dependabotAuthor = "dependabot"
 
 type Source struct {
 	tagsVersionGetter git.TagsVersionGetter
@@ -42,9 +45,15 @@ func (r Source) Changelog() (*changelog.Changelog, error) {
 	dependencies := make([]changelog.Dependency, 0)
 
 	for _, c := range gitCommits {
+		commitLine := strings.Split(c.Message, "\n")[0]
+		if !strings.Contains(strings.ToLower(c.Author), dependabotAuthor) {
+			log.Debugf("skipping commit as it is not authored by dependabot\n> %q", commitLine)
+			continue
+		}
+
 		capturingGroups := commitRegex.FindStringSubmatch(c.Message)
 		if len(capturingGroups) == 0 {
-			log.Debugf("skipping commit  %s as it does not match dependabot pattern", c.Message)
+			log.Debugf("skipping commit  %s as it does not match dependabot pattern and no information can be retrieved", c.Message)
 			continue
 		}
 
