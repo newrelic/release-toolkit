@@ -160,6 +160,24 @@ Support has been removed
 			expected: []error{markdown.ErrL3HeaderNoItemizedList},
 		},
 		{
+			name: "Comments_without header",
+			markdown: strings.TrimSpace(`
+# Changelog
+This is based on blah blah blah
+
+## Unreleased
+
+This comment is incorrect
+
+And me too
+
+### Breaking
+Support has been removed
+
+`),
+			expected: []error{markdown.ErrUnreleasedContents},
+		},
+		{
 			name: "Valid_Changelog",
 			markdown: strings.TrimSpace(`
 # Changelog

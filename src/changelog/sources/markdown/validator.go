@@ -30,6 +30,7 @@ var (
 	ErrL2WrongChildren        = errors.New("header can only contain L3 headers")
 	ErrL3HeaderEmptyContent   = errors.New("header found with empty content")
 	ErrL3HeaderNoItemizedList = errors.New("header must contain only an itemized list")
+	ErrUnreleasedContents     = errors.New("unreleased header must be immediately followed by L3 headers")
 )
 
 // NewValidator returns a new Validator for a headingdoc.Doc read from the supplied reader.
@@ -53,6 +54,11 @@ func (v *Validator) Validate() []error {
 	unreleased := v.doc.FindOne(unreleasedHeader)
 	if unreleased == nil || unreleased.Level != LevelSecond {
 		errs = append(errs, ErrNoUnreleasedL2Header)
+	}
+
+	// Ensure there isn't content (not a header) directly under the unreleased header
+	if unreleased != nil && len(unreleased.Content) > 1 {
+		errs = append(errs, ErrUnreleasedContents)
 	}
 
 	for _, header := range v.doc.Children {
