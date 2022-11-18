@@ -24,4 +24,4 @@ dictionary:
 
 ## Parameters
 
-All parameters are optional and match the ones used for the cli command flag, you can see the values and the defaults in [here](../README.md#link-dependencies))
+All parameters are optional and match the ones used for the cli command flag, you can see the values and the defaults in [here](../README_CLI.md#link-dependencies))
