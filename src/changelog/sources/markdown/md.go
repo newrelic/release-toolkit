@@ -142,6 +142,9 @@ func (b builder) unvisitedAsNotes(header *headingdoc.Doc) {
 func items(content []ast.Node) []string {
 	var itemsStr []string
 
+	// FilterRenderer uses the default renderer, but skips feeding it *ast.Hardbreaks, which would make it panic.
+	renderer := NewFilterRenderer(md.NewRenderer(), &ast.Hardbreak{})
+
 	for _, node := range content {
 		list, isList := node.(*ast.List)
 		if !isList {
@@ -161,7 +164,7 @@ func items(content []ast.Node) []string {
 				continue
 			}
 
-			buf := markdown.Render(item.Children[0], md.NewRenderer())
+			buf := markdown.Render(item.Children[0], renderer)
 			itemsStr = append(itemsStr, strings.TrimSpace(string(buf)))
 		}
 	}
