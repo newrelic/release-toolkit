@@ -17,7 +17,7 @@ func brokenWristwatch() time.Time {
 	return t
 }
 
-//nolint:funlen
+//nolint:funlen,maintidx
 func TestRenderer_Render(t *testing.T) {
 	t.Parallel()
 
@@ -235,6 +235,27 @@ I am a note!
 
 ### 🐞 Bug fixes
 - Fixed a bug that was causing everything to explode, by @roobre (#1337)
+`),
+		},
+		{
+			name:    "Changelog_Only_Dependencies",
+			date:    brokenWristwatch,
+			version: semver.MustParse("0.0.0"),
+			changelog: changelog.Changelog{
+				Dependencies: []changelog.Dependency{
+					{
+						Name:      "Test dependency",
+						From:      semver.MustParse("v1.2.3"),
+						To:        semver.MustParse("v1.2.4"),
+						Changelog: "https://foo.bar/baz",
+					},
+				},
+			},
+			expected: strings.TrimSpace(`
+## v0.0.0 - 1993-09-21
+
+### ⛓️ Dependencies
+- Upgraded Test dependency from v1.2.3 to v1.2.4 - [Changelog 🔗](https://foo.bar/baz)
 `),
 		},
 		{
