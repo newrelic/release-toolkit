@@ -167,7 +167,7 @@ func (d Dependency) String() string {
 	}
 
 	if d.Changelog != "" {
-		_, _ = fmt.Fprintf(buf, " [Changelog](%s)", d.Changelog)
+		_, _ = fmt.Fprintf(buf, " - [Changelog 🔗](%s)", d.Changelog)
 	}
 
 	return buf.String()
