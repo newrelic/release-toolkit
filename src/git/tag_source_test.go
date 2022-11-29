@@ -16,7 +16,8 @@ func repoWithTags(t *testing.T, tags ...string) string {
 	dir := t.TempDir()
 
 	cmds := []string{
-		"git init",
+		// Set default branch name to `master`, as tests assume that later.
+		"git init --initial-branch master",
 		"git config user.email test@user.tld",
 		"git config user.name Test",
 		"git config commit.gpgsign false",
