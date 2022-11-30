@@ -63,6 +63,32 @@ This is a release note
 			},
 		},
 		{
+			name: "Parses_Trailing spaces",
+			markdown: strings.TrimSpace(`
+# Changelog
+This is based on blah blah blah
+
+## Unreleased
+
+### Enhancements
+- This line DOES NOT HAVE trailing spaces
+
+### Bugfixes
+- This line has trailing spaces  
+
+## v1.2.3 - 20YY-DD-MM
+
+### Enhancements
+- This is in the past and should not be included
+`),
+			expected: &cl.Changelog{
+				Changes: []cl.Entry{
+					{Type: cl.TypeEnhancement, Message: "This line DOES NOT HAVE trailing spaces"},
+					{Type: cl.TypeBugfix, Message: "This line has trailing spaces"},
+				},
+			},
+		},
+		{
 			name: "Parses_Held_L2_Header",
 			markdown: strings.TrimSpace(`
 # Changelog
