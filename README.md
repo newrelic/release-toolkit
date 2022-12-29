@@ -43,12 +43,12 @@ jobs:
     id: next-version
     uses: newrelic/release-toolkit/next-version@v1
   - name: Generate release notes
-    uses: newrelic/release-toolkit/render-markdown@v1
+    uses: newrelic/release-toolkit/render@v1
     # CHANGELOG.partial.md now contains release notes for this version.
   - name: Update CHANGELOG.md
     uses: newrelic/release-toolkit/update-markdown@v1
     with:
-      next-version: ${{ steps.next-version.outputs.next-version }}
+      next-version: ${{ steps.next-version.outputs.version }}
     # CHANGELOG.md is now updated with the contents of changelog.yaml, in MD format.
   - name: Commit and tag release
     run: |

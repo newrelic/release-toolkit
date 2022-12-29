@@ -57,4 +57,3 @@ release-toolkit is licensed under the [Apache 2.0](http://apache.org/licenses/LI
 ## Disclaimer
 
 This tool is provided by New Relic AS IS, without warranty of any kind. New Relic does not guarantee that the tool will: not cause any disruption to services or systems; provide results that are complete or 100% accurate; correct or cure any detected vulnerability; or provide specific remediation advice.
-
