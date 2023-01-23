@@ -80,8 +80,9 @@ func Bump(version *semver.Version, bt Type) *semver.Version {
 }
 
 // NameToType returns the bump type from a string. The string should be from a constant constant of bump.Name
-// or it will return bump.None
+// or it will return bump.None.
 func NameToType(name string) Type {
+	//nolint:exhaustive // case NoneName is captured in the last default clause.
 	switch Name(name) {
 	case PatchName:
 		return Patch

@@ -26,10 +26,10 @@ type testCaseWithCap struct {
 	dependencyCap bump.Type
 }
 
-func TestBumper_Bump(t *testing.T) {
+func TestBumper_Bump_changesOnlyCases(t *testing.T) {
 	t.Parallel()
 
-	changesOnlyCases := []testCase{
+	testCases := []testCase{
 		{
 			name:     "Patch_On_Bugfixes_Only",
 			current:  semver.MustParse("v1.2.3"),
@@ -63,7 +63,28 @@ func TestBumper_Bump(t *testing.T) {
 		},
 	}
 
-	depsOnlyCases := []testCase{
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			bumper := bumper.New(tc.changelog)
+			next, err := bumper.Bump(tc.current)
+			if err != nil {
+				t.Fatalf("Bumping version: %v", err)
+			}
+
+			if !tc.expected.Equal(next) {
+				t.Fatalf("Expected %v, got %v", tc.expected, next)
+			}
+		})
+	}
+}
+
+func TestBumper_Bump_depsOnlyCases(t *testing.T) {
+	t.Parallel()
+
+	testCases := []testCase{
 		{
 			name:     "Patch_On_Deps_Patch",
 			current:  semver.MustParse("v1.2.3"),
@@ -96,7 +117,27 @@ func TestBumper_Bump(t *testing.T) {
 		},
 	}
 
-	mixedCases := []testCase{
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			bumper := bumper.New(tc.changelog)
+			next, err := bumper.Bump(tc.current)
+			if err != nil {
+				t.Fatalf("Bumping version: %v", err)
+			}
+
+			if !tc.expected.Equal(next) {
+				t.Fatalf("Expected %v, got %v", tc.expected, next)
+			}
+		})
+	}
+}
+func TestBumper_Bump_mixedCases(t *testing.T) {
+	t.Parallel()
+
+	testCases := []testCase{
 		{
 			name:     "Enhancement_and_Patch_On_Deps_Minor",
 			current:  semver.MustParse("v1.2.3"),
@@ -126,11 +167,6 @@ func TestBumper_Bump(t *testing.T) {
 		},
 	}
 
-	testCases := []testCase{}
-	testCases = append(testCases, changesOnlyCases...)
-	testCases = append(testCases, depsOnlyCases...)
-	testCases = append(testCases, mixedCases...)
-
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
@@ -149,10 +185,10 @@ func TestBumper_Bump(t *testing.T) {
 	}
 }
 
-func TestBumper_BumpWithCap(t *testing.T) {
+func TestBumper_BumpWithCap_changesOnlyCases(t *testing.T) {
 	t.Parallel()
 
-	changesOnlyCases := []testCaseWithCap{
+	testCases := []testCaseWithCap{
 		{
 			name:     "Minor_Change_limit_to_patch",
 			current:  semver.MustParse("v1.2.3"),
@@ -189,7 +225,32 @@ func TestBumper_BumpWithCap(t *testing.T) {
 		},
 	}
 
-	depsOnlyCases := []testCaseWithCap{
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			bumper := bumper.New(
+				tc.changelog,
+				bumper.WithEntryCap(tc.entryCap),
+				bumper.WithDependencyCap(tc.dependencyCap),
+			)
+			next, err := bumper.Bump(tc.current)
+			if err != nil {
+				t.Fatalf("Bumping version: %v", err)
+			}
+
+			if !tc.expected.Equal(next) {
+				t.Fatalf("Expected %v, got %v", tc.expected, next)
+			}
+		})
+	}
+}
+
+func TestBumper_BumpWithCap_depsOnlyCases(t *testing.T) {
+	t.Parallel()
+
+	testCases := []testCaseWithCap{
 		{
 			name:     "Minor_dep_limited_to_patch",
 			current:  semver.MustParse("v1.2.3"),
@@ -225,7 +286,32 @@ func TestBumper_BumpWithCap(t *testing.T) {
 		},
 	}
 
-	mixedCases := []testCaseWithCap{
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			bumper := bumper.New(
+				tc.changelog,
+				bumper.WithEntryCap(tc.entryCap),
+				bumper.WithDependencyCap(tc.dependencyCap),
+			)
+			next, err := bumper.Bump(tc.current)
+			if err != nil {
+				t.Fatalf("Bumping version: %v", err)
+			}
+
+			if !tc.expected.Equal(next) {
+				t.Fatalf("Expected %v, got %v", tc.expected, next)
+			}
+		})
+	}
+}
+
+func TestBumper_BumpWithCap_mixedCases(t *testing.T) {
+	t.Parallel()
+
+	testCases := []testCaseWithCap{
 		{
 			name:     "Breaking_change_limited_to_patch_and_major_dep_limited_to_minor",
 			current:  semver.MustParse("v1.2.3"),
@@ -256,11 +342,6 @@ func TestBumper_BumpWithCap(t *testing.T) {
 			dependencyCap: bump.Patch,
 		},
 	}
-
-	testCases := []testCaseWithCap{}
-	testCases = append(testCases, changesOnlyCases...)
-	testCases = append(testCases, depsOnlyCases...)
-	testCases = append(testCases, mixedCases...)
 
 	for _, tc := range testCases {
 		tc := tc
