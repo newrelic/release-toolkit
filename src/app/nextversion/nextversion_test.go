@@ -246,6 +246,64 @@ changes:
   message: New feature has been added
 			`),
 		},
+		{
+			name:     "Major_Capped_To_Minor",
+			expected: "v2.1.0",
+			args:     "--limit-version-bump-to=minor",
+			yaml: strings.TrimSpace(`
+notes: |-
+    ### Important announcement (note)
+
+    This is a release note
+changes:
+- type: breaking
+  message: Support has been removed
+			`),
+		},
+		{
+			name:     "Major_Capped_To_Patch",
+			expected: "v2.0.1",
+			args:     "--limit-version-bump-to=patch",
+			yaml: strings.TrimSpace(`
+notes: |-
+    ### Important announcement (note)
+
+    This is a release note
+changes:
+- type: breaking
+  message: Support has been removed
+			`),
+		},
+		{
+			name:     "Major_From_Dependency_Capped_To_Minor",
+			expected: "v2.1.0",
+			args:     "--limit-dependency-bump-to=minor",
+			yaml: strings.TrimSpace(`
+notes: |-
+    ### Important announcement (note)
+
+    This is a release note
+dependencies:
+- name: foobar
+  from: 0.0.1
+  to: 1.0.0
+			`),
+		},
+		{
+			name:     "Major_From_Dependency_Capped_To_Patch",
+			expected: "v2.0.1",
+			args:     "--limit-dependency-bump-to=patch",
+			yaml: strings.TrimSpace(`
+notes: |-
+    ### Important announcement (note)
+
+    This is a release note
+dependencies:
+- name: foobar
+  from: 0.0.1
+  to: 1.0.0
+			`),
+		},
 	} {
 		tc := tc
 		//nolint:paralleltest // urfave/cli cannot be tested concurrently.
