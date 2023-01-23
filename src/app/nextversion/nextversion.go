@@ -7,6 +7,7 @@ import (
 	"github.com/Masterminds/semver"
 	"github.com/newrelic/release-toolkit/src/app/common"
 	"github.com/newrelic/release-toolkit/src/app/gha"
+	"github.com/newrelic/release-toolkit/src/bump"
 	"github.com/newrelic/release-toolkit/src/bumper"
 	"github.com/newrelic/release-toolkit/src/changelog"
 	"github.com/newrelic/release-toolkit/src/git"
@@ -17,11 +18,13 @@ import (
 )
 
 const (
-	outputPrefix = "output-prefix"
-	tagPrefix    = "tag-prefix"
-	currentFlag  = "current"
-	nextFlag     = "next"
-	gitRootFlag  = "git-root"
+	outputPrefix              = "output-prefix"
+	tagPrefix                 = "tag-prefix"
+	currentFlag               = "current"
+	nextFlag                  = "next"
+	gitRootFlag               = "git-root"
+	limitVersionBumpToFlag    = "limit-version-bump-to"
+	limitDependencyBumpToFlag = "limit-dependency-bump-to"
 )
 
 const nextVersionOutput = "next-version"
@@ -67,6 +70,18 @@ Several flags can be specified to limit the set of tags that are scanned, and to
 			Usage:   "Path to the git repo to find tags on.",
 			Value:   "./",
 		},
+		&cli.StringFlag{
+			Name:    limitVersionBumpToFlag,
+			EnvVars: common.EnvFor(limitVersionBumpToFlag),
+			Usage:   "In case of having to bump the version of the package, limit to this semVer type",
+			Value:   string(bump.MajorName),
+		},
+		&cli.StringFlag{
+			Name:    limitDependencyBumpToFlag,
+			EnvVars: common.EnvFor(limitDependencyBumpToFlag),
+			Usage:   "In case of having to bump the version of base on a dependency, limit to this semVer type",
+			Value:   string(bump.MajorName),
+		},
 	},
 	Action: NextVersion,
 }
@@ -100,7 +115,14 @@ func NextVersion(cCtx *cli.Context) error {
 		return err
 	}
 
-	bmpr := bumper.New(ch)
+	entryCap := bump.NameToType(cCtx.String(limitVersionBumpToFlag))
+	dependencyCap := bump.NameToType(cCtx.String(limitDependencyBumpToFlag))
+
+	bmpr := bumper.New(
+		ch,
+		bumper.WithEntryCap(entryCap),
+		bumper.WithDependencyCap(dependencyCap),
+	)
 	next, err := bmpr.BumpSource(versionSrc)
 
 	nextStr := ""

@@ -3,12 +3,18 @@ package bump
 import "github.com/Masterminds/semver"
 
 type Type int
+type Name string
 
 const (
 	None  = Type(0)
 	Patch = Type(1)
 	Minor = Type(2)
 	Major = Type(3)
+
+	NoneName  = Name("none")
+	PatchName = Name("patch")
+	MinorName = Name("minor")
+	MajorName = Name("major")
 )
 
 // Less returns whether the current bump Type is smaller than another one.
@@ -71,4 +77,19 @@ func Bump(version *semver.Version, bt Type) *semver.Version {
 	}
 
 	return &v
+}
+
+// NameToType returns the bump type from a string. The string should be from a constant constant of bump.Name
+// or it will return bump.None
+func NameToType(name string) Type {
+	switch Name(name) {
+	case PatchName:
+		return Patch
+	case MinorName:
+		return Minor
+	case MajorName:
+		return Major
+	default:
+		return None
+	}
 }

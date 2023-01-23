@@ -16,16 +16,37 @@ var ErrNoTags = errors.New("source did not return any tag")
 // Bumper takes a changelog and a version and figures out the next one.
 type Bumper struct {
 	changelog     changelog.Changelog
-	EntryCap      bump.Type
-	DependencyCap bump.Type
+	entryCap      bump.Type
+	dependencyCap bump.Type
 }
 
+type BumperOption func(bumper *Bumper)
+
 // New creates a new bumper.
-func New(c changelog.Changelog) Bumper {
-	return Bumper{
+func New(c changelog.Changelog, opts ...BumperOption) Bumper {
+	bumper := Bumper{
 		changelog:     c,
-		EntryCap:      bump.Major,
-		DependencyCap: bump.Major,
+		entryCap:      bump.Major,
+		dependencyCap: bump.Major,
+	}
+
+	for _, opt := range opts {
+		opt(&bumper)
+	}
+
+	return bumper
+}
+
+// Allows to limit the .
+func WithEntryCap(t bump.Type) BumperOption {
+	return func(b *Bumper) {
+		b.entryCap = t
+	}
+}
+
+func WithDependencyCap(t bump.Type) BumperOption {
+	return func(b *Bumper) {
+		b.dependencyCap = t
 	}
 }
 
@@ -35,13 +56,13 @@ func (b Bumper) Bump(v *semver.Version) (*semver.Version, error) {
 	for _, e := range b.changelog.Changes {
 		entryBump = entryBump.With(e.BumpType())
 	}
-	entryBump = entryBump.Cap(b.EntryCap)
+	entryBump = entryBump.Cap(b.entryCap)
 
 	dependencyBump := bump.None
 	for _, d := range b.changelog.Dependencies {
 		dependencyBump = dependencyBump.With(d.BumpType())
 	}
-	dependencyBump = dependencyBump.Cap(b.EntryCap)
+	dependencyBump = dependencyBump.Cap(b.dependencyCap)
 
 	return bump.Bump(v, entryBump.With(dependencyBump)), nil
 }
