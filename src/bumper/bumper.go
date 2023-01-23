@@ -20,6 +20,9 @@ type Bumper struct {
 	dependencyCap bump.Type
 }
 
+// BumperOption is the interface to add options to the bumper.
+//
+//nolint:revive // Following the options pattern here. Renaming it to `option` could lead to a misunderstanding.
 type BumperOption func(bumper *Bumper)
 
 // New creates a new bumper.
@@ -37,13 +40,14 @@ func New(c changelog.Changelog, opts ...BumperOption) Bumper {
 	return bumper
 }
 
-// Allows to limit the .
+// Allows to cap the version bump that was calculated from the entries in the changelog.
 func WithEntryCap(t bump.Type) BumperOption {
 	return func(b *Bumper) {
 		b.entryCap = t
 	}
 }
 
+// Allows to cap the version bump that was calculated from the dependencies.
 func WithDependencyCap(t bump.Type) BumperOption {
 	return func(b *Bumper) {
 		b.dependencyCap = t
