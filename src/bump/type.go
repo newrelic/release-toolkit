@@ -3,14 +3,17 @@ package bump
 import "github.com/Masterminds/semver"
 
 type Type int
-type Name string
 
 const (
 	None  = Type(0)
 	Patch = Type(1)
 	Minor = Type(2)
 	Major = Type(3)
+)
 
+type Name string
+
+const (
 	NoneName  = Name("none")
 	PatchName = Name("patch")
 	MinorName = Name("minor")

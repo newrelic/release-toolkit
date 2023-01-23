@@ -134,6 +134,7 @@ func TestBumper_Bump_depsOnlyCases(t *testing.T) {
 		})
 	}
 }
+
 func TestBumper_Bump_mixedCases(t *testing.T) {
 	t.Parallel()
 
