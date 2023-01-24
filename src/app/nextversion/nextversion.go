@@ -117,11 +117,11 @@ func NextVersion(cCtx *cli.Context) error {
 
 	entryCap, err := bump.NameToType(cCtx.String(BumpCapFlag))
 	if err != nil {
-		return fmt.Errorf("error with the changes' cap: %w", err)
+		return fmt.Errorf("parsing version bump cap: %w", err)
 	}
 	dependencyCap, err := bump.NameToType(cCtx.String(DependencyCapFlag))
 	if err != nil {
-		return fmt.Errorf("error with dependencies' cap: %w", err)
+		return fmt.Errorf("parsing dependency bump: %w", err)
 	}
 
 	bmpr := bumper.New(ch)

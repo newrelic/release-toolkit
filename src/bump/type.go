@@ -2,6 +2,7 @@ package bump
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/Masterminds/semver"
@@ -25,7 +26,7 @@ const (
 	MajorName = Name("major")
 )
 
-var ErrNameNotValid = errors.New("name introduced is not valid (not in \"none\", \"patch\", \"minor\", or \"major\")")
+var ErrNameNotValid = errors.New("name introduced is not valid")
 
 // Less returns whether the current bump Type is smaller than another one.
 func (bt Type) Less(other Type) bool {
@@ -104,6 +105,6 @@ func NameToType(name string) (Type, error) {
 	case NoneName:
 		return None, nil
 	default:
-		return None, ErrNameNotValid
+		return None, fmt.Errorf("the name %s is (not in \"none\", \"patch\", \"minor\", or \"major\"): %w", name, ErrNameNotValid)
 	}
 }
