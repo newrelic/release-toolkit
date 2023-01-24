@@ -249,7 +249,7 @@ changes:
 		{
 			name:     "Major_Capped_To_Minor",
 			expected: "v2.1.0",
-			args:     "--limit-version-bump-to=minor",
+			args:     "--bump-cap=minor",
 			yaml: strings.TrimSpace(`
 notes: |-
     ### Important announcement (note)
@@ -263,7 +263,7 @@ changes:
 		{
 			name:     "Major_Capped_To_Patch",
 			expected: "v2.0.1",
-			args:     "--limit-version-bump-to=patch",
+			args:     "--bump-cap=patch",
 			yaml: strings.TrimSpace(`
 notes: |-
     ### Important announcement (note)
@@ -277,7 +277,7 @@ changes:
 		{
 			name:     "Major_From_Dependency_Capped_To_Minor",
 			expected: "v2.1.0",
-			args:     "--limit-dependency-bump-to=minor",
+			args:     "--dependency-cap=minor",
 			yaml: strings.TrimSpace(`
 notes: |-
     ### Important announcement (note)
@@ -292,7 +292,7 @@ dependencies:
 		{
 			name:     "Major_From_Dependency_Capped_To_Patch",
 			expected: "v2.0.1",
-			args:     "--limit-dependency-bump-to=patch",
+			args:     "--dependency-cap=patch",
 			yaml: strings.TrimSpace(`
 notes: |-
     ### Important announcement (note)

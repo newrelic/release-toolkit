@@ -19,13 +19,13 @@ import (
 )
 
 const (
-	outputPrefix              = "output-prefix"
-	tagPrefix                 = "tag-prefix"
-	currentFlag               = "current"
-	nextFlag                  = "next"
-	gitRootFlag               = "git-root"
-	limitVersionBumpToFlag    = "limit-version-bump-to"
-	limitDependencyBumpToFlag = "limit-dependency-bump-to"
+	outputPrefix      = "output-prefix"
+	tagPrefix         = "tag-prefix"
+	currentFlag       = "current"
+	nextFlag          = "next"
+	gitRootFlag       = "git-root"
+	BumpCapFlag       = "bump-cap"
+	DependencyCapFlag = "dependency-cap"
 )
 
 const nextVersionOutput = "next-version"
@@ -72,14 +72,14 @@ Several flags can be specified to limit the set of tags that are scanned, and to
 			Value:   "./",
 		},
 		&cli.StringFlag{
-			Name:    limitVersionBumpToFlag,
-			EnvVars: common.EnvFor(limitVersionBumpToFlag),
+			Name:    BumpCapFlag,
+			EnvVars: common.EnvFor(BumpCapFlag),
 			Usage:   "In case of having to bump the version of the package, limit to this semVer type",
 			Value:   string(bump.MajorName),
 		},
 		&cli.StringFlag{
-			Name:    limitDependencyBumpToFlag,
-			EnvVars: common.EnvFor(limitDependencyBumpToFlag),
+			Name:    DependencyCapFlag,
+			EnvVars: common.EnvFor(DependencyCapFlag),
 			Usage:   "In case of having to bump the version of base on a dependency, limit to this semVer type",
 			Value:   string(bump.MajorName),
 		},
@@ -116,8 +116,8 @@ func NextVersion(cCtx *cli.Context) error {
 		return err
 	}
 
-	entryCap := bump.NameToType(strings.ToLower(cCtx.String(limitVersionBumpToFlag)))
-	dependencyCap := bump.NameToType(strings.ToLower(cCtx.String(limitDependencyBumpToFlag)))
+	entryCap := bump.NameToType(strings.ToLower(cCtx.String(BumpCapFlag)))
+	dependencyCap := bump.NameToType(strings.ToLower(cCtx.String(DependencyCapFlag)))
 
 	bmpr := bumper.New(
 		ch,
