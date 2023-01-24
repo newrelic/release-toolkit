@@ -1,6 +1,7 @@
 package nextversion_test
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -9,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/newrelic/release-toolkit/src/app"
+	"github.com/newrelic/release-toolkit/src/bump"
 )
 
 //nolint:paralleltest // urfave/cli cannot be tested concurrently.
@@ -330,6 +332,81 @@ dependencies:
 
 			if actual := buf.String(); actual != tc.expected+"\n" {
 				t.Fatalf("Expected %q, got %q", tc.expected, actual)
+			}
+		})
+	}
+}
+
+//nolint:paralleltest // urfave/cli cannot be tested concurrently.
+func TestNextVersionErrors(t *testing.T) {
+	tags := []string{
+		"v0.1.0",
+		"v1.0.0",
+		"v2.0.0", // Unordered on purpose, this should be the current version.
+		"v1.1.0",
+		"v1.2.0",
+		"chart-5.0.0", // This should be the current version if prefix is 'chart-'
+		"chart-4.0.0",
+		"chart-4.1.0-beta",
+	}
+
+	for _, tc := range []struct {
+		name     string
+		yaml     string
+		args     string
+		expected error
+	}{
+		{
+			name:     "Major_Capped_To_Minor",
+			expected: bump.ErrNameNotValid,
+			args:     "--bump-cap=FAIL",
+			yaml: strings.TrimSpace(`
+notes: |-
+    ### Important announcement (note)
+
+    This is a release note
+changes:
+- type: breaking
+  message: Support has been removed
+			`),
+		},
+		{
+			name:     "Major_From_Dependency_Capped_To_Patch",
+			expected: bump.ErrNameNotValid,
+			args:     "--dependency-cap=FAIL",
+			yaml: strings.TrimSpace(`
+notes: |-
+    ### Important announcement (note)
+
+    This is a release note
+dependencies:
+- name: foobar
+  from: 0.0.1
+  to: 1.0.0
+			`),
+		},
+	} {
+		tc := tc
+		//nolint:paralleltest // urfave/cli cannot be tested concurrently.
+		t.Run(tc.name, func(t *testing.T) {
+			repoDir := repoWithTags(t, tags...)
+
+			app := app.App()
+
+			yamlPath := path.Join(repoDir, "changelog.yaml")
+			yamlFile, err := os.Create(yamlPath)
+			if err != nil {
+				t.Fatalf("Error creating yaml for test: %v", err)
+			}
+			_, _ = yamlFile.WriteString(tc.yaml)
+			_ = yamlFile.Close()
+
+			err = app.Run(strings.Fields(fmt.Sprintf("rt -yaml %s next-version -git-root %s %s", yamlPath, repoDir, tc.args)))
+			if err == nil {
+				t.Fatal("An error was expected and error was nil")
+			}
+			if !errors.Is(err, tc.expected) {
+				t.Fatalf("Expected %v, got %v", tc.expected, err)
 			}
 		})
 	}

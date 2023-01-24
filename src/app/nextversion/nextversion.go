@@ -3,7 +3,6 @@ package nextversion
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/Masterminds/semver"
 	"github.com/newrelic/release-toolkit/src/app/common"
@@ -116,8 +115,14 @@ func NextVersion(cCtx *cli.Context) error {
 		return err
 	}
 
-	entryCap := bump.NameToType(strings.ToLower(cCtx.String(BumpCapFlag)))
-	dependencyCap := bump.NameToType(strings.ToLower(cCtx.String(DependencyCapFlag)))
+	entryCap, err := bump.NameToType(cCtx.String(BumpCapFlag))
+	if err != nil {
+		return fmt.Errorf("error with the changes' cap: %w", err)
+	}
+	dependencyCap, err := bump.NameToType(cCtx.String(DependencyCapFlag))
+	if err != nil {
+		return fmt.Errorf("error with dependencies' cap: %w", err)
+	}
 
 	bmpr := bumper.New(ch)
 	bmpr.EntryCap = entryCap
