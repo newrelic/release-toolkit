@@ -1,6 +1,12 @@
 package bump
 
-import "github.com/Masterminds/semver"
+import (
+	"errors"
+	"fmt"
+	"strings"
+
+	"github.com/Masterminds/semver"
+)
 
 type Type int
 
@@ -10,6 +16,17 @@ const (
 	Minor = Type(2)
 	Major = Type(3)
 )
+
+type Name string
+
+const (
+	NoneName  = Name("none")
+	PatchName = Name("patch")
+	MinorName = Name("minor")
+	MajorName = Name("major")
+)
+
+var ErrNameNotValid = errors.New("name introduced is not valid")
 
 // Less returns whether the current bump Type is smaller than another one.
 func (bt Type) Less(other Type) bool {
@@ -71,4 +88,23 @@ func Bump(version *semver.Version, bt Type) *semver.Version {
 	}
 
 	return &v
+}
+
+// NameToType returns the bump type from a string. The string should be from a constant constant of bump.Name
+// or it will return bump.None.
+func NameToType(name string) (Type, error) {
+	n := strings.ToLower(name)
+
+	switch Name(n) {
+	case PatchName:
+		return Patch, nil
+	case MinorName:
+		return Minor, nil
+	case MajorName:
+		return Major, nil
+	case NoneName:
+		return None, nil
+	default:
+		return None, fmt.Errorf("the name %s is (not in \"none\", \"patch\", \"minor\", or \"major\"): %w", name, ErrNameNotValid)
+	}
 }

@@ -41,7 +41,7 @@ func (b Bumper) Bump(v *semver.Version) (*semver.Version, error) {
 	for _, d := range b.changelog.Dependencies {
 		dependencyBump = dependencyBump.With(d.BumpType())
 	}
-	dependencyBump = dependencyBump.Cap(b.EntryCap)
+	dependencyBump = dependencyBump.Cap(b.DependencyCap)
 
 	return bump.Bump(v, entryBump.With(dependencyBump)), nil
 }
