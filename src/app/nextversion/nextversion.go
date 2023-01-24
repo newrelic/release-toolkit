@@ -119,11 +119,10 @@ func NextVersion(cCtx *cli.Context) error {
 	entryCap := bump.NameToType(strings.ToLower(cCtx.String(BumpCapFlag)))
 	dependencyCap := bump.NameToType(strings.ToLower(cCtx.String(DependencyCapFlag)))
 
-	bmpr := bumper.New(
-		ch,
-		bumper.WithEntryCap(entryCap),
-		bumper.WithDependencyCap(dependencyCap),
-	)
+	bmpr := bumper.New(ch)
+	bmpr.EntryCap = entryCap
+	bmpr.DependencyCap = dependencyCap
+
 	next, err := bmpr.BumpSource(versionSrc)
 
 	nextStr := ""

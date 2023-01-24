@@ -231,11 +231,10 @@ func TestBumper_BumpWithCap_changesOnlyCases(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			bumper := bumper.New(
-				tc.changelog,
-				bumper.WithEntryCap(tc.entryCap),
-				bumper.WithDependencyCap(tc.dependencyCap),
-			)
+			bumper := bumper.New(tc.changelog)
+			bumper.EntryCap = tc.entryCap
+			bumper.DependencyCap = tc.dependencyCap
+
 			next, err := bumper.Bump(tc.current)
 			if err != nil {
 				t.Fatalf("Bumping version: %v", err)
@@ -292,11 +291,10 @@ func TestBumper_BumpWithCap_depsOnlyCases(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			bumper := bumper.New(
-				tc.changelog,
-				bumper.WithEntryCap(tc.entryCap),
-				bumper.WithDependencyCap(tc.dependencyCap),
-			)
+			bumper := bumper.New(tc.changelog)
+			bumper.EntryCap = tc.entryCap
+			bumper.DependencyCap = tc.dependencyCap
+
 			next, err := bumper.Bump(tc.current)
 			if err != nil {
 				t.Fatalf("Bumping version: %v", err)
@@ -349,11 +347,10 @@ func TestBumper_BumpWithCap_mixedCases(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			bumper := bumper.New(
-				tc.changelog,
-				bumper.WithEntryCap(tc.entryCap),
-				bumper.WithDependencyCap(tc.dependencyCap),
-			)
+			bumper := bumper.New(tc.changelog)
+			bumper.EntryCap = tc.entryCap
+			bumper.DependencyCap = tc.dependencyCap
+
 			next, err := bumper.Bump(tc.current)
 			if err != nil {
 				t.Fatalf("Bumping version: %v", err)
