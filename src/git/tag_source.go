@@ -102,7 +102,7 @@ func (s *TagsSource) LastVersionHash() (string, error) {
 	})
 
 	if len(versions) == 0 {
-		return "", ErrNoReleases
+		return "", nil
 	}
 
 	return versions[0].tag.Hash, nil

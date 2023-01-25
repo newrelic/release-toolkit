@@ -232,12 +232,11 @@ func TestRepoTagsSource_LastVersionHash(t *testing.T) {
 		{
 			name: "No_Versions_Found",
 			tagOpts: []git.TagOptionFunc{
-				git.TagsMatching("^nonexistent-"),
+				git.TagsMatchingRegex("^nonexistent-"),
 			},
 			tagSourceOpts: []git.TagSourceOptionFunc{
 				git.TagSourceReplacing("nonexistent-", ""),
 			},
-			expectedErr: git.ErrNoReleases,
 		},
 	} {
 		tc := tc

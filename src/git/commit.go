@@ -14,8 +14,6 @@ import (
 // EmptyTreeID is the universal git empty tree sha1.
 const EmptyTreeID = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
 
-var ErrNonexistentCommitHash = fmt.Errorf("nonexistent commit hash")
-
 type Commit struct {
 	Message string
 	Hash    string
@@ -63,9 +61,6 @@ func (s *RepoCommitsGetter) Commits(lastHash string) ([]Commit, error) {
 
 		// No more commits to iterate
 		if cm == nil {
-			if lastHash != "" {
-				return nil, fmt.Errorf("finding commits: %w", ErrNonexistentCommitHash)
-			}
 			break
 		}
 

@@ -1,7 +1,6 @@
 package bumper_test
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/Masterminds/semver"
@@ -302,21 +301,18 @@ func TestBumper_BumpSource_Bumps(t *testing.T) {
 	}
 }
 
-func TestBumper_BumpSource_Errors(t *testing.T) {
+func TestBumper_BumpSource_InitialVersion(t *testing.T) {
 	t.Parallel()
-
-	c := changelog.Changelog{
-		Changes: []changelog.Entry{
-			{Type: changelog.TypeEnhancement},
-			{Type: changelog.TypeSecurity},
-		},
-	}
-
-	b := bumper.New(c)
+	b := bumper.New(changelog.Changelog{})
 	source := mockSource{}
 
-	if _, err := b.BumpSource(source); !errors.Is(err, bumper.ErrNoTags) {
-		t.Fatalf("Expected bump.ErrNoTags, got %v", err)
+	bumped, err := b.BumpSource(source)
+	if err != nil {
+		t.Fatalf("Unexpected error %v", err)
+	}
+
+	if bumped.String() != "0.0.1" {
+		t.Fatalf("Expected %v, got %v", "0.0.1", bumped.String())
 	}
 }
 

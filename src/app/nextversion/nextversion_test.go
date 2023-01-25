@@ -118,7 +118,7 @@ changes:
 
 //nolint:funlen,paralleltest // urfave/cli cannot be tested concurrently.
 func TestNextVersion(t *testing.T) {
-	tags := []string{
+	allTags := []string{
 		"v0.1.0",
 		"v1.0.0",
 		"v2.0.0", // Unordered on purpose, this should be the current version.
@@ -133,12 +133,14 @@ func TestNextVersion(t *testing.T) {
 		name     string
 		yaml     string
 		args     string
+		tags     []string
 		expected string
 	}{
 		{
 			name:     "Overrides_Next",
 			args:     "--next v0.0.1",
 			expected: "v0.0.1",
+			tags:     allTags,
 			yaml: strings.TrimSpace(`
 notes: |-
     ### Important announcement (note)
@@ -159,8 +161,8 @@ dependencies:
 		},
 		{
 			name:     "Overrides_Current",
-			args:     "--current v0.0.1",
-			expected: "v1.0.0",
+			expected: "v3.0.0",
+			tags:     allTags,
 			yaml: strings.TrimSpace(`
 notes: |-
     ### Important announcement (note)
@@ -182,6 +184,7 @@ dependencies:
 		{
 			name:     "Bumps_Major",
 			expected: "v3.0.0",
+			tags:     allTags,
 			yaml: strings.TrimSpace(`
 notes: |-
     ### Important announcement (note)
@@ -203,6 +206,7 @@ dependencies:
 		{
 			name:     "Bumps_Patch",
 			expected: "v2.0.1",
+			tags:     allTags,
 			yaml: strings.TrimSpace(`
 changes:
 - type: bugfix
@@ -212,6 +216,7 @@ changes:
 		{
 			name:     "Bumps_Minor",
 			expected: "v2.1.0",
+			tags:     allTags,
 			yaml: strings.TrimSpace(`
 changes:
 - type: enhancement
@@ -221,6 +226,7 @@ changes:
 		{
 			name:     "Bumps_Chart_Minor",
 			expected: "v5.1.0",
+			tags:     allTags,
 			args:     "--tag-prefix chart-",
 			yaml: strings.TrimSpace(`
 changes:
@@ -231,6 +237,7 @@ changes:
 		{
 			name:     "Set_Output_Prefix",
 			expected: "prefix-5.1.0",
+			tags:     allTags,
 			args:     "--tag-prefix chart- --output-prefix=prefix-",
 			yaml: strings.TrimSpace(`
 changes:
@@ -241,6 +248,7 @@ changes:
 		{
 			name:     "Set_No_Prefix",
 			expected: "5.1.0",
+			tags:     allTags,
 			args:     "--tag-prefix chart- --output-prefix=",
 			yaml: strings.TrimSpace(`
 changes:
@@ -249,9 +257,23 @@ changes:
 			`),
 		},
 		{
+			name:     "Next_When_No_Tags_Only_Deps",
+			expected: "v0.1.0",
+			tags:     nil,
+			yaml: strings.TrimSpace(`
+notes: ""
+changes: []
+dependencies:
+- name: foobar
+  from: 0.0.1
+  to: 0.1.0
+			`),
+		},
+		{
 			name:     "Major_Capped_To_Minor",
 			expected: "v2.1.0",
 			args:     "--bump-cap=minor",
+			tags:     allTags,
 			yaml: strings.TrimSpace(`
 notes: |-
     ### Important announcement (note)
@@ -266,6 +288,7 @@ changes:
 			name:     "Major_Capped_To_Patch",
 			expected: "v2.0.1",
 			args:     "--bump-cap=patch",
+			tags:     allTags,
 			yaml: strings.TrimSpace(`
 notes: |-
     ### Important announcement (note)
@@ -280,6 +303,7 @@ changes:
 			name:     "Major_From_Dependency_Capped_To_Minor",
 			expected: "v2.1.0",
 			args:     "--dependency-cap=minor",
+			tags:     allTags,
 			yaml: strings.TrimSpace(`
 notes: |-
     ### Important announcement (note)
@@ -295,6 +319,7 @@ dependencies:
 			name:     "Major_From_Dependency_Capped_To_Patch",
 			expected: "v2.0.1",
 			args:     "--dependency-cap=patch",
+			tags:     allTags,
 			yaml: strings.TrimSpace(`
 notes: |-
     ### Important announcement (note)
@@ -310,7 +335,7 @@ dependencies:
 		tc := tc
 		//nolint:paralleltest // urfave/cli cannot be tested concurrently.
 		t.Run(tc.name, func(t *testing.T) {
-			repoDir := repoWithTags(t, tags...)
+			repoDir := repoWithTags(t, tc.tags...)
 
 			app := app.App()
 

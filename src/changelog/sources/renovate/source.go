@@ -1,7 +1,6 @@
 package renovate
 
 import (
-	"errors"
 	"fmt"
 	"regexp"
 	"sort"
@@ -29,7 +28,7 @@ func NewSource(tagsVersionGetter git.TagsVersionGetter, commitsGetter git.Commit
 
 func (r Source) Changelog() (*changelog.Changelog, error) {
 	lastHash, err := r.tagsVersionGetter.LastVersionHash()
-	if err != nil && !errors.Is(err, git.ErrNoReleases) {
+	if err != nil {
 		return nil, fmt.Errorf("getting last version hash: %w", err)
 	}
 

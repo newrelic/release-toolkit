@@ -212,7 +212,6 @@ func TestSource_Source(t *testing.T) {
 					},
 				},
 			},
-			errVersion: git.ErrNoReleases,
 		},
 		{
 			name:          "Random_Error",
