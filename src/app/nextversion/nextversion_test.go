@@ -257,19 +257,6 @@ changes:
 			`),
 		},
 		{
-			name:     "Next_When_No_Tags_Only_Deps",
-			expected: "v0.1.0",
-			tags:     nil,
-			yaml: strings.TrimSpace(`
-notes: ""
-changes: []
-dependencies:
-- name: foobar
-  from: 0.0.1
-  to: 0.1.0
-			`),
-		},
-		{
 			name:     "Major_Capped_To_Minor",
 			expected: "v2.1.0",
 			args:     "--bump-cap=minor",
@@ -329,6 +316,30 @@ dependencies:
 - name: foobar
   from: 0.0.1
   to: 1.0.0
+			`),
+		},
+		{
+			name:     "Next_When_No_Tags",
+			expected: "v0.0.1",
+			tags:     nil,
+			yaml: strings.TrimSpace(`
+notes: ""
+changes:
+- type: breaking
+  message: I am marked as breaking but really I am first commit
+			`),
+		},
+		{
+			name:     "Next_When_No_Tags_Only_Deps",
+			expected: "v0.0.1",
+			tags:     nil,
+			yaml: strings.TrimSpace(`
+notes: ""
+changes: []
+dependencies:
+- name: foobar
+  from: 0.0.1
+  to: 0.1.0
 			`),
 		},
 	} {

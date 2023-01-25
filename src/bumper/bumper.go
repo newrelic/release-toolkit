@@ -52,7 +52,7 @@ func (b Bumper) BumpSource(source version.Source) (*semver.Version, error) {
 	}
 
 	if len(versions) == 0 {
-		return b.Bump(semver.MustParse("v0.0.1"))
+		return semver.MustParse("v0.0.1"), nil
 	}
 
 	sort.Slice(versions, func(i, j int) bool {
