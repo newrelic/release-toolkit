@@ -11,16 +11,18 @@ import (
 
 	"github.com/newrelic/release-toolkit/src/app"
 	"github.com/newrelic/release-toolkit/src/bump"
+	"github.com/newrelic/release-toolkit/src/bumper"
 )
 
-//nolint:paralleltest // urfave/cli cannot be tested concurrently.
+//nolint:paralleltest, funlen // urfave/cli cannot be tested concurrently.
 func TestNextVersion_Without_Repo(t *testing.T) {
 	for _, tc := range []struct {
-		name       string
-		yaml       string
-		expected   string
-		args       string
-		globalargs string
+		name          string
+		yaml          string
+		expected      string
+		errorExpected error
+		args          string
+		globalargs    string
 	}{
 		{
 			name:     "Overrides_Next_And_Current",
@@ -85,6 +87,14 @@ changes:
   message: Support has been removed
 			`),
 		},
+		{
+			name:          "No_Bump",
+			args:          "-current v1.2.3",
+			errorExpected: bumper.ErrNoNewVersion,
+			yaml: strings.TrimSpace(`
+changes: []
+			`),
+		},
 	} {
 		tc := tc
 		//nolint:paralleltest // urfave/cli cannot be tested concurrently.
@@ -105,11 +115,12 @@ changes:
 			app.Writer = buf
 
 			err = app.Run(strings.Fields(fmt.Sprintf("rt -yaml %s %s next-version %s", yamlPath, tc.globalargs, tc.args)))
-			if err != nil {
-				t.Fatalf("Error running app: %v", err)
+			if !errors.Is(err, tc.errorExpected) {
+				t.Fatalf("Expected error %v, got %v", tc.errorExpected, err)
 			}
 
-			if actual := buf.String(); actual != tc.expected+"\n" {
+			actual := buf.String()
+			if tc.expected != "" && actual != tc.expected+"\n" {
 				t.Fatalf("Expected %q, got %q", tc.expected, actual)
 			}
 		})
