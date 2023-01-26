@@ -128,6 +128,27 @@ This is a release note
 			expectedErr: "",
 			expectedGha: "::set-output name=valid::true\n",
 		},
+		{
+			name: "Invalid_Changelog_Only_Notes",
+			md: strings.TrimSpace(`
+# Changelog
+This is based on blah blah blah
+
+## Unreleased
+
+### Important announcement (note)
+This is a release note
+
+## v1.2.3 - 20YY-DD-MM
+
+### Enhancements
+- This is in the past and should not be included
+`),
+			args: "--exit-code=0",
+			expectedErr: strings.TrimLeft(`
+unreleased changelog can't only contain notes
+`, "\n"),
+		},
 	} {
 		tc := tc
 		//nolint:paralleltest // urfave/cli cannot be tested concurrently.

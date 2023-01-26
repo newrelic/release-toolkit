@@ -160,6 +160,21 @@ Support has been removed
 			expected: []error{markdown.ErrL3HeaderNoItemizedList},
 		},
 		{
+			name: "Only_Comments",
+			markdown: strings.TrimSpace(`
+# Changelog
+This is based on blah blah blah
+
+## Unreleased
+
+### I am a note
+I am a comment
+
+And me too
+`),
+			expected: []error{markdown.ErrOnlyNotes},
+		},
+		{
 			name: "Comments_without header",
 			markdown: strings.TrimSpace(`
 # Changelog

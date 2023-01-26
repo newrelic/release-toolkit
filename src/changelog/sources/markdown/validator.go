@@ -31,6 +31,7 @@ var (
 	ErrL3HeaderEmptyContent   = errors.New("header found with empty content")
 	ErrL3HeaderNoItemizedList = errors.New("header must contain only an itemized list")
 	ErrUnreleasedContents     = errors.New("unreleased header must be immediately followed by L3 headers")
+	ErrOnlyNotes              = errors.New("unreleased changelog can't only contain notes")
 )
 
 // NewValidator returns a new Validator for a headingdoc.Doc read from the supplied reader.
@@ -83,10 +84,17 @@ func (v *Validator) checkL2Header(header *headingdoc.Doc) []error {
 	return errs
 }
 
-// validateL2Children validates L3 headers, that must not be empty and if they match a defined changelog.EntryType
-// they must be an itemized list.
+// validateL2Children validates:
+// - Unreleased is either empty or has at least one EntryType (not only notes)
+// - L3 headers must not have an empty body
+// - if L3 headers match a defined changelog.EntryType they must be an itemized list.
 func (v *Validator) validateL2Children(l2doc *headingdoc.Doc) []error {
 	errs := make([]error, 0)
+	var (
+		hasNotes     bool
+		hasEntryType bool
+	)
+
 	for _, header := range l2doc.Children {
 		if header.Level != LevelThird {
 			errs = append(errs, fmt.Errorf("%q %w", l2doc.Name, ErrL2WrongChildren))
@@ -97,27 +105,36 @@ func (v *Validator) validateL2Children(l2doc *headingdoc.Doc) []error {
 			continue
 		}
 
-		errs = append(errs, v.ensureEntryTypeItemizedList(header)...)
+		if !v.isEntryType(header) {
+			hasNotes = true
+			continue
+		}
+
+		errs = append(errs, v.ensureItemizedList(header)...)
+		hasEntryType = true
+	}
+
+	if hasNotes && !hasEntryType {
+		errs = append(errs, ErrOnlyNotes)
 	}
 
 	return errs
 }
 
-// ensureEntryTypeItemizedList ensures L3 headers that match one of the defined changelog.EntryType
-// must contain only an itemized list.
-func (v *Validator) ensureEntryTypeItemizedList(header *headingdoc.Doc) []error {
-	errs := make([]error, 0)
-	if strings.ToLower(header.Name) == string(changelog.TypeEnhancement) ||
+// isEntryType detects if a L3 header is one of the defined changelog EntryTypes.
+func (v *Validator) isEntryType(header *headingdoc.Doc) bool {
+	return strings.ToLower(header.Name) == string(changelog.TypeEnhancement) ||
 		strings.ToLower(header.Name) == string(changelog.TypeBugfix) ||
 		strings.ToLower(header.Name) == string(changelog.TypeSecurity) ||
 		strings.ToLower(header.Name) == string(changelog.TypeBreaking) ||
-		strings.ToLower(header.Name) == string(changelog.TypeDependency) {
-		switch header.Content[1].(type) {
-		default:
-			errs = append(errs, fmt.Errorf("%q %w", header.Name, ErrL3HeaderNoItemizedList))
-		case *ast.List:
-		}
-	}
+		strings.ToLower(header.Name) == string(changelog.TypeDependency)
+}
 
-	return errs
+// ensureItemizedList ensures the body of a L3 header
+// contains only an itemized list or returns an error.
+func (v *Validator) ensureItemizedList(header *headingdoc.Doc) []error {
+	if _, isItemizedList := header.Content[1].(*ast.List); !isItemizedList {
+		return []error{fmt.Errorf("%q %w", header.Name, ErrL3HeaderNoItemizedList)}
+	}
+	return nil
 }
