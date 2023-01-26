@@ -201,6 +201,7 @@ func TestRepoTagsSource_LastVersionHash(t *testing.T) {
 		tagOpts       []git.TagOptionFunc
 		tagSourceOpts []git.TagSourceOptionFunc
 		expectedHash  string
+		expectedErr   error
 	}{
 		{
 			name:         "Default_Settings",
@@ -228,6 +229,15 @@ func TestRepoTagsSource_LastVersionHash(t *testing.T) {
 				git.TagsMatchingRegex("^helm-chart-"),
 			),
 		},
+		{
+			name: "No_Versions_Found",
+			tagOpts: []git.TagOptionFunc{
+				git.TagsMatchingRegex("^nonexistent-"),
+			},
+			tagSourceOpts: []git.TagSourceOptionFunc{
+				git.TagSourceReplacing("nonexistent-", ""),
+			},
+		},
 	} {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
@@ -241,10 +251,7 @@ func TestRepoTagsSource_LastVersionHash(t *testing.T) {
 			src := git.NewTagsSource(tagsGetter, tc.tagSourceOpts...)
 
 			hash, err := src.LastVersionHash()
-			if err != nil {
-				t.Fatalf("Error creating git source: %v", err)
-			}
-
+			assert.ErrorIs(t, tc.expectedErr, err)
 			assert.Equal(t, tc.expectedHash, hash, "Reported hash does not match")
 		})
 	}

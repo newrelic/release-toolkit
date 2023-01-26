@@ -1,6 +1,7 @@
 package git
 
 import (
+	"errors"
 	"fmt"
 	"sort"
 	"strings"
@@ -8,6 +9,8 @@ import (
 	"github.com/Masterminds/semver"
 	log "github.com/sirupsen/logrus"
 )
+
+var ErrNoReleases = errors.New("no releases found")
 
 type TagsVersionGetter interface {
 	Versions() ([]*semver.Version, error)

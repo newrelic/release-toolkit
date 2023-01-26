@@ -14,6 +14,8 @@ import (
 // EmptyTreeID is the universal git empty tree sha1.
 const EmptyTreeID = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
 
+var ErrNonexistentCommitHash = fmt.Errorf("nonexistent commit hash")
+
 type Commit struct {
 	Message string
 	Hash    string
@@ -50,25 +52,29 @@ func (s *RepoCommitsGetter) Commits(lastHash string) ([]Commit, error) {
 	}
 	defer commitIter.Close()
 
-	var prevWasLastHash bool
+	var isLastHash bool
 	gitCommits := make([]*object.Commit, 0)
 
-	for {
+	for !isLastHash {
 		cm, errCommit := commitIter.Next()
 		if errCommit != nil && !errors.Is(errCommit, io.EOF) {
 			return nil, fmt.Errorf("iterating git commits: %w", errCommit)
 		}
 
-		if prevWasLastHash || cm == nil {
+		// No more commits to iterate
+		if cm == nil {
+			if lastHash != "" {
+				return nil, fmt.Errorf("finding commits: %w", ErrNonexistentCommitHash)
+			}
 			break
 		}
 
+		gitCommits = append(gitCommits, cm)
+
 		// Get also LastHash to be able to compare it with last in list
 		if cm.Hash.String() == lastHash {
-			prevWasLastHash = true
+			isLastHash = true
 		}
-
-		gitCommits = append(gitCommits, cm)
 	}
 
 	return s.commitsWithChangedFiles(lastHash, gitCommits)
