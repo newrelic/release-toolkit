@@ -78,6 +78,7 @@ func TestCommitSource_Commits(t *testing.T) {
 		name            string
 		commitHash      string
 		expectedCommits []string
+		expectedError   error
 	}{
 		{
 			name: "Empty_Hash_Default_Opts",
@@ -98,9 +99,9 @@ func TestCommitSource_Commits(t *testing.T) {
 			},
 		},
 		{
-			name:            "Non_Existing_Hash_Default_Opts",
-			commitHash:      "aw3s0m3c0mm17h45h",
-			expectedCommits: nil,
+			name:          "Non_Existing_Hash_Default_Opts",
+			commitHash:    "aw3s0m3c0mm17h45h",
+			expectedError: git.ErrNonexistentCommitHash,
 		},
 	} {
 		tc := tc
@@ -109,10 +110,8 @@ func TestCommitSource_Commits(t *testing.T) {
 
 			commitsGetter := git.NewRepoCommitsGetter(repodir)
 			commits, err := commitsGetter.Commits(tc.commitHash)
-			if err != nil {
-				t.Fatalf("Error extracting dependabot dependencies: %v", err)
-			}
-			if tc.expectedCommits == nil {
+			if tc.expectedError != nil {
+				assert.ErrorIs(t, err, tc.expectedError)
 				return
 			}
 			if err != nil {

@@ -42,9 +42,9 @@ func TagsMatchingRegex(regex string) TagOptionFunc {
 // TagsMatchingCommits returns an option that will skip tags that do not point to a commit reachable from HEAD.
 func TagsMatchingCommits(getter CommitsGetter) TagOptionFunc {
 	return func(s *RepoTagsGetter) error {
-		branchCommits, err := getter.Commits(EmptyTreeID)
+		branchCommits, err := getter.Commits("")
 		if err != nil {
-			return fmt.Errorf("getting git commits since empty tree: %w", err)
+			return fmt.Errorf("getting all git commits from repository: %w", err)
 		}
 
 		s.matchCommits = map[string]bool{}
