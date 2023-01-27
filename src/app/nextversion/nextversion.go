@@ -130,11 +130,10 @@ func NextVersion(cCtx *cli.Context) error {
 	bmpr.DependencyCap = dependencyCap
 
 	next, err := bmpr.BumpSource(versionSrc)
+
+	// Other errors are computed after checking for overrides in the switch statement.
 	if errors.Is(err, bumper.ErrEmptySource) {
 		log.Errorf("Refusing to compute next version as no previous version was found. Please create an initial version first.")
-	}
-
-	if err != nil {
 		return fmt.Errorf("computing next version: %w", err)
 	}
 
