@@ -38,8 +38,9 @@ var Cmd = &cli.Command{
 	Usage: "Prints the next version according to the current one, the changelog.yaml file, and semver conventions.",
 	UsageText: `Current version is automatically discovered from git tags in the repository, in semver order. 
 Tags that do not conform to semver standards are ignored.
-Several flags can be specified to limit the set of tags that are scanned, and to override both the current version ` +
-		`being detected and the computed next version.`,
+Several flags can be specified to limit the set of tags that are scanned, and to override both the current version being
+detected and the computed next version.
+next-version will exit with an error if no previous versions are found in the git repository.`,
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    tagPrefix,
