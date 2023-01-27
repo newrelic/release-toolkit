@@ -1,6 +1,7 @@
 package bumper
 
 import (
+	"errors"
 	"fmt"
 	"sort"
 
@@ -9,6 +10,8 @@ import (
 	"github.com/newrelic/release-toolkit/src/changelog"
 	"github.com/newrelic/release-toolkit/src/version"
 )
+
+var ErrEmptySource = errors.New("could not find any existing version")
 
 // Bumper takes a changelog and a version and figures out the next one.
 type Bumper struct {
@@ -52,7 +55,7 @@ func (b Bumper) BumpSource(source version.Source) (*semver.Version, error) {
 	}
 
 	if len(versions) == 0 {
-		return semver.MustParse("v0.0.1"), nil
+		return nil, ErrEmptySource
 	}
 
 	sort.Slice(versions, func(i, j int) bool {

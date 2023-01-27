@@ -1,6 +1,7 @@
 package nextversion
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -129,6 +130,13 @@ func NextVersion(cCtx *cli.Context) error {
 	bmpr.DependencyCap = dependencyCap
 
 	next, err := bmpr.BumpSource(versionSrc)
+	if errors.Is(err, bumper.ErrEmptySource) {
+		log.Errorf("Refusing to compute next version as no previous version was found. Please create an initial version first.")
+	}
+
+	if err != nil {
+		return fmt.Errorf("computing next version: %w", err)
+	}
 
 	nextStr := ""
 	switch {

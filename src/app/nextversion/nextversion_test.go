@@ -318,30 +318,6 @@ dependencies:
   to: 1.0.0
 			`),
 		},
-		{
-			name:     "Next_When_No_Tags",
-			expected: "v0.0.1",
-			tags:     nil,
-			yaml: strings.TrimSpace(`
-notes: ""
-changes:
-- type: breaking
-  message: I am marked as breaking but really I am first commit
-			`),
-		},
-		{
-			name:     "Next_When_No_Tags_Only_Deps",
-			expected: "v0.0.1",
-			tags:     nil,
-			yaml: strings.TrimSpace(`
-notes: ""
-changes: []
-dependencies:
-- name: foobar
-  from: 0.0.1
-  to: 0.1.0
-			`),
-		},
 	} {
 		tc := tc
 		//nolint:paralleltest // urfave/cli cannot be tested concurrently.
@@ -368,6 +344,63 @@ dependencies:
 
 			if actual := buf.String(); actual != tc.expected+"\n" {
 				t.Fatalf("Expected %q, got %q", tc.expected, actual)
+			}
+		})
+	}
+}
+
+//nolint:paralleltest // urfave/cli cannot be tested concurrently.
+func TestNextVersion_Fails(t *testing.T) {
+	for _, tc := range []struct {
+		name     string
+		yaml     string
+		args     string
+		expected string
+	}{
+		{
+			name:     "When_No_Tags_Changes",
+			expected: "v0.0.1",
+			yaml: strings.TrimSpace(`
+notes: ""
+changes:
+- type: breaking
+  message: I am marked as breaking but really I am first commit
+			`),
+		},
+		{
+			name:     "When_No_Tags_With_Dependencies",
+			expected: "v0.0.1",
+			yaml: strings.TrimSpace(`
+notes: ""
+changes: []
+dependencies:
+- name: foobar
+  from: 0.0.1
+  to: 0.1.0
+			`),
+		},
+	} {
+		tc := tc
+		//nolint:paralleltest // urfave/cli cannot be tested concurrently.
+		t.Run(tc.name, func(t *testing.T) {
+			repoDir := t.TempDir()
+
+			app := app.App()
+
+			yamlPath := path.Join(repoDir, "changelog.yaml")
+			yamlFile, err := os.Create(yamlPath)
+			if err != nil {
+				t.Fatalf("Error creating yaml for test: %v", err)
+			}
+			_, _ = yamlFile.WriteString(tc.yaml)
+			_ = yamlFile.Close()
+
+			buf := &strings.Builder{}
+			app.Writer = buf
+
+			err = app.Run(strings.Fields(fmt.Sprintf("rt -yaml %s next-version -git-root %s %s", yamlPath, repoDir, tc.args)))
+			if err == nil {
+				t.Fatalf("Expected error, got:\n%s", buf.String())
 			}
 		})
 	}
