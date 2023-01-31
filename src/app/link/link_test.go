@@ -2,18 +2,29 @@ package link_test
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"path"
 	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/h2non/gock"
 
 	"github.com/newrelic/release-toolkit/src/app"
 )
 
 //nolint:paralleltest,funlen // urfave/cli cannot be tested concurrently.
 func TestLink(t *testing.T) {
+	// setup http mock to avoid external requests to check github links.
+	defer gock.Off()
+	gock.New("https://github.com").
+		Get("/spf13/viper/releases/tag/4.1.2").
+		Reply(http.StatusNotFound)
+	gock.New("https://github.com").
+		Get("/spf13/viper/releases/tag/v4.1.2").
+		Reply(http.StatusOK)
+
 	for _, tc := range []struct {
 		name       string
 		chlog      string
@@ -99,7 +110,7 @@ dependencies:
     - name: github.com/spf13/viper
       from: 4.0.3
       to: 4.1.2
-      changelog: https://github.com/spf13/viper/releases/tag/4.1.2
+      changelog: https://github.com/spf13/viper/releases/tag/v4.1.2
     - name: foobar
       from: 1.0.0
       to: 2.0.0

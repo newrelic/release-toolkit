@@ -87,7 +87,8 @@ func Link(cCtx *cli.Context) error {
 		mappers = append(mappers, dic)
 	}
 
-	mappers = append(mappers, mapper.Github{})
+	githubMapper := mapper.WithLeadingVCheck(mapper.Github{})
+	mappers = append(mappers, githubMapper)
 
 	link := linker.New(mappers...)
 	err = link.Link(ch)
