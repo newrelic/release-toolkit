@@ -1,0 +1,69 @@
+name: OHI release
+description: Wrapper for release toolkit that runs commands needed to release an OHI
+inputs:
+  excluded-dirs:
+    description: 'Exclude commits whose changes only impact files in specified dirs relative to repository root. Defaults to ".github".'
+    required: true
+    default: '.github'
+  fail-if-held:
+    description: 'Fail if the held toggle is active'
+    required: true
+    default: 'true'
+  dictionary:
+    description: 'Sets the link dependency dictionary. Defaults to ".github/rt-dictionary.yaml".'
+    required: true
+    default: '.github/rt-dictionary.yaml'
+outputs:
+  next-version:
+    description: "Version of this release"
+    value: ${{ steps.version.outputs.next-version }}
+  release-title:
+    description: "Title of this release"
+    value: ${{ steps.release.outputs.title }}
+  release-changelog:
+    description: "Complete changelog of this release"
+    value: ${{ steps.release.outputs.changelog }}
+  release-changelog-partial:
+    description: "Changelog for only this release"
+    value: ${{ steps.release.outputs.changelog-partial }}
+runs:
+  using: composite
+  steps:
+    - uses: newrelic/release-toolkit/validate-markdown@v1
+    - uses: newrelic/release-toolkit/generate-yaml@v1
+      with:
+        excluded-dirs: ${{ inputs.excluded-dirs }}
+    - uses: newrelic/release-toolkit/is-held@v1
+      id: held
+    - if: ${{ steps.held.outputs.is-held == 'true' && inputs.fail-if-held == 'true' }}
+      shell: bash
+      run: |
+        echo "Releases are being held. Aborting." >&2
+        exit 1
+    - uses: newrelic/release-toolkit/link-dependencies@v1
+      with:
+        dictionary: ${{ inputs.dictionary }}
+    - uses: newrelic/release-toolkit/next-version@v1
+      id: version
+    - uses: newrelic/release-toolkit/update-markdown@v1
+      with:
+        version: ${{ steps.version.outputs.next-version }}
+    - uses: newrelic/release-toolkit/render@v1
+      with:
+        version: ${{ steps.version.outputs.next-version }}
+    - shell: bash
+      id: release
+      run: |
+        echo "title=$(grep -E "^## " CHANGELOG.partial.md | sed 's|^## ||')" >> $GITHUB_OUTPUT
+
+        echo "changelog-partial<<EOF" >> $GITHUB_OUTPUT
+        cat CHANGELOG.partial.md      >> $GITHUB_OUTPUT
+        echo "EOF"                    >> $GITHUB_OUTPUT
+
+        echo "changelog<<EOF" >> $GITHUB_OUTPUT
+        cat CHANGELOG.md      >> $GITHUB_OUTPUT
+        echo "EOF"            >> $GITHUB_OUTPUT
+    - shell: bash
+      run: |
+        rm CHANGELOG.md.bak
+        rm changelog.yaml
