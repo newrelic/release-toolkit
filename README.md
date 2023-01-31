@@ -171,7 +171,7 @@ Dependency bumps will propagate the bump made to the library: Bumping the major 
 
 To compute this link there the release toolkit tries to map the link executing this two tasks executed in the following order:
 - Map the link from a [Dictionary file](#dictionary-file).
-- [Auto-detected GitHub repository changelog](#automatically-detected-GitHub-repository-changelog).
+- [Auto-detected GitHub repository changelog](#automatically-detected-GitHub-repository).
 
 #### Dictionary file
 A dictionary is a YAML file with a root dictionary object, which contains a map from dependency names to a template that will be rendered into a URL pointing to its changelog.
@@ -200,6 +200,15 @@ dependencies:
     meta:
       changelog: https://github.com/my-org/a-dependency/releases/tag/3.0.0
 ```
+
+#### Automatically detected GitHub repository
+
+When the dependency does not match any entry in the dictionary file but it does match GitHub repositories (`github.com/<org><repo>`),
+the changelog link is automatically rendered using `https://github.com/<org>/<repo>/releases/tag/<new-version>`.
+
+After rendering, the release toolkit checks if the changelog link is valid by performing a HTTP request, so only valid
+changelog links are used. As some repositories include a leading `v` in the tag name identifying the release and some
+others don't, both possible links are checked.
 
 ### Automated releasing
 
@@ -279,4 +288,3 @@ release-toolkit is licensed under the [Apache 2.0](http://apache.org/licenses/LI
 ## Disclaimer
 
 This tool is provided by New Relic AS IS, without warranty of any kind. New Relic does not guarantee that the tool will: not cause any disruption to services or systems; provide results that are complete or 100% accurate; correct or cure any detected vulnerability; or provide specific remediation advice.
-
