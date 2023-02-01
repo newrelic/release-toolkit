@@ -232,8 +232,8 @@ jobs:
             - name: infrastructure-agent
               to: v1.2.3
             - name: github.com/spf13/viper
-              from: 4.0.3
-              to: 4.1.2
+              from: 1.14.0
+              to: 1.15.0
           EOF
       - uses: ./link-dependencies
         with:
@@ -247,7 +247,7 @@ jobs:
             exit 2
           fi
 
-          if ! grep -e 'changelog: https://github.com/spf13/viper/releases/tag/4.1.2' $MOCK_REPO/changelog.yaml; then
+          if ! grep -e 'changelog: https://github.com/spf13/viper/releases/tag/v1.15.0' $MOCK_REPO/changelog.yaml; then
             echo "Changelog.yaml should have viper changelog linked" >&2
             exit 2
           fi
