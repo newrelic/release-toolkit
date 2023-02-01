@@ -9,7 +9,11 @@ inputs:
     description: 'Fail if the held toggle is active'
     required: true
     default: 'true'
-  dictionary:
+  link-dependencies-enable:
+    description: 'Enables/disables link dependencies step'
+    required: true
+    default: 'false'
+  link-dependencies-dictionary:
     description: 'Sets the link dependency dictionary. Defaults to ".github/rt-dictionary.yaml".'
     required: true
     default: '.github/rt-dictionary.yaml'
@@ -40,9 +44,10 @@ runs:
       run: |
         echo "Releases are being held. Aborting." >&2
         exit 1
-    - uses: newrelic/release-toolkit/link-dependencies@v1
+    - if: ${{ inputs.link-dependencies-enable == 'true' }}
+      uses: newrelic/release-toolkit/link-dependencies@v1
       with:
-        dictionary: ${{ inputs.dictionary }}
+        dictionary: ${{ inputs.link-dependencies-dictionary }}
     - uses: newrelic/release-toolkit/next-version@v1
       id: version
     - uses: newrelic/release-toolkit/update-markdown@v1
