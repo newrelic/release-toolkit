@@ -203,7 +203,7 @@ dependencies:
 
 #### Automatically detected GitHub repository
 
-When the dependency does not match any entry in the dictionary file but it does match GitHub repositories (`github.com/<org><repo>`),
+When the dependency does not match any entry in the dictionary file but it does match GitHub repositories (`github.com/<org>/<repo>`),
 the changelog link is automatically rendered using `https://github.com/<org>/<repo>/releases/tag/<new-version>`.
 
 After rendering, the release toolkit checks if the changelog link is valid by performing a HTTP request, so only valid
