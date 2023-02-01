@@ -36,7 +36,7 @@ There is a `run.sh` script that should do the same as this action: Leaves the fi
 
 You can run it by bashpipeing this script:
 ```shell
-curl "curl -L https://raw.githubusercontent.com/newrelic/release-toolkit/main/contrib/ohi-release/run.sh | bash" | bash
+curl "https://raw.githubusercontent.com/newrelic/release-toolkit/v1/contrib/ohi-release/run.sh" | bash
 ```
 
 ## Contributing
