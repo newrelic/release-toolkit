@@ -12,7 +12,7 @@ This is a wrapper of all the steps needed to update the changelog and render a s
     git add CHANGELOG.md
     git commit -m "Update changelog with changes from ${{ steps.release.outputs.next-version }}"
     git push -u origin main
-    gh release create ${{ steps.version.outputs.release-title }} --target $(git rev-parse HEAD) --notes-file CHANGELOG.partial.md
+    gh release create ${{ steps.release.outputs.release-title }} --target $(git rev-parse HEAD) --notes-file CHANGELOG.partial.md
 ```
 
 ## Parameters
@@ -36,7 +36,7 @@ There is a `run.sh` script that should do the same as this action: Leaves the fi
 
 You can run it by bashpipeing this script:
 ```shell
-curl "https://github.com/newrelic/release-toolkit/blob/v1/contrib/ohi-release/run.sh" | bash
+curl "curl -L https://raw.githubusercontent.com/newrelic/release-toolkit/main/contrib/ohi-release/run.sh | bash" | bash
 ```
 
 ## Contributing
