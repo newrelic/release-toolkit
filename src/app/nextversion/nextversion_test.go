@@ -352,14 +352,17 @@ dependencies:
 //nolint:paralleltest // urfave/cli cannot be tested concurrently.
 func TestNextVersion_Fails(t *testing.T) {
 	for _, tc := range []struct {
-		name     string
-		yaml     string
-		args     string
-		expected string
+		name           string
+		yaml           string
+		args           string
+		createRepoFunc func(*testing.T) string
 	}{
 		{
-			name:     "When_No_Tags_Changes",
-			expected: "v0.0.1",
+			name: "When_Not_A_Git_Repo",
+			createRepoFunc: func(t *testing.T) string {
+				t.Helper()
+				return t.TempDir()
+			},
 			yaml: strings.TrimSpace(`
 notes: ""
 changes:
@@ -368,8 +371,24 @@ changes:
 			`),
 		},
 		{
-			name:     "When_No_Tags_With_Dependencies",
-			expected: "v0.0.1",
+			name: "When_Repo_Has_No_Tags",
+			createRepoFunc: func(t *testing.T) string {
+				t.Helper()
+				return repoWithTags(t) // Empty tag list.
+			},
+			yaml: strings.TrimSpace(`
+notes: ""
+changes:
+- type: breaking
+  message: I am marked as breaking but really I am first commit
+			`),
+		},
+		{
+			name: "When_Repo_Has_No_Tags_Dependencies",
+			createRepoFunc: func(t *testing.T) string {
+				t.Helper()
+				return repoWithTags(t) // Empty tag list.
+			},
 			yaml: strings.TrimSpace(`
 notes: ""
 changes: []
@@ -383,7 +402,7 @@ dependencies:
 		tc := tc
 		//nolint:paralleltest // urfave/cli cannot be tested concurrently.
 		t.Run(tc.name, func(t *testing.T) {
-			repoDir := t.TempDir()
+			repoDir := tc.createRepoFunc(t)
 
 			app := app.App()
 
