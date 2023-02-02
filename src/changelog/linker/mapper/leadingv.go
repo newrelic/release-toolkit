@@ -80,7 +80,7 @@ func (l *LeadingVCheck) isValid(link string) bool {
 
 	linkOK, err := l.checkLink(link)
 	if err != nil {
-		log.Warningf("The link %q could not be checked due to an unexpected error, it may be incorrect. Details: %s", link, err)
+		log.Errorf("The link %q could not be checked due to an unexpected error, it may be incorrect. Details: %s", link, err)
 		return true
 	}
 
