@@ -1,6 +1,7 @@
 package mapper
 
 import (
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -10,6 +11,7 @@ import (
 	"github.com/newrelic/release-toolkit/src/changelog"
 	"github.com/newrelic/release-toolkit/src/changelog/linker"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type mapperMock struct {
@@ -23,6 +25,7 @@ func (m *mapperMock) Map(dep changelog.Dependency) string {
 	return m.link + "-" + dep.To.Original()
 }
 
+//nolint:funlen,goconst,goerr113
 func TestLeadingVCheck_Map(t *testing.T) {
 	t.Parallel()
 
@@ -30,7 +33,7 @@ func TestLeadingVCheck_Map(t *testing.T) {
 		name        string
 		wrapped     linker.Mapper
 		dep         changelog.Dependency
-		checkValue  string
+		checkLink   func(string) (bool, error)
 		expected    string
 		shouldCheck bool
 	}{
@@ -42,51 +45,86 @@ func TestLeadingVCheck_Map(t *testing.T) {
 			shouldCheck: false,
 		},
 		{
-			name:        "Check passed with leading v",
-			wrapped:     &mapperMock{link: "link"},
-			dep:         changelog.Dependency{To: semver.MustParse("v1.2.3")},
-			checkValue:  "link-v1.2.3",
+			name:    "Check passed with leading v",
+			wrapped: &mapperMock{link: "link"},
+			dep:     changelog.Dependency{To: semver.MustParse("v1.2.3")},
+			checkLink: func(link string) (bool, error) {
+				return link == "link-v1.2.3", nil
+			},
 			expected:    "link-v1.2.3",
 			shouldCheck: true,
 		},
 		{
-			name:        "Check passed without leading v",
-			wrapped:     &mapperMock{link: "link"},
-			dep:         changelog.Dependency{To: semver.MustParse("1.2.3")},
-			checkValue:  "link-1.2.3",
+			name:    "Check passed without leading v",
+			wrapped: &mapperMock{link: "link"},
+			dep:     changelog.Dependency{To: semver.MustParse("1.2.3")},
+			checkLink: func(link string) (bool, error) {
+				return link == "link-1.2.3", nil
+			},
 			expected:    "link-1.2.3",
 			shouldCheck: true,
 		},
 		{
-			name:        "Needs prepending v to pass the check",
-			wrapped:     &mapperMock{link: "link"},
-			dep:         changelog.Dependency{To: semver.MustParse("1.2.3")},
-			checkValue:  "link-v1.2.3",
+			name:    "Needs prepending v to pass the check",
+			wrapped: &mapperMock{link: "link"},
+			dep:     changelog.Dependency{To: semver.MustParse("1.2.3")},
+			checkLink: func(link string) (bool, error) {
+				return link == "link-v1.2.3", nil
+			},
 			expected:    "link-v1.2.3",
 			shouldCheck: true,
 		},
 		{
-			name:        "Needs removing v to pass the check",
-			wrapped:     &mapperMock{link: "link"},
-			dep:         changelog.Dependency{To: semver.MustParse("v1.2.3")},
-			checkValue:  "link-1.2.3",
+			name:    "Needs removing v to pass the check",
+			wrapped: &mapperMock{link: "link"},
+			dep:     changelog.Dependency{To: semver.MustParse("v1.2.3")},
+			checkLink: func(link string) (bool, error) {
+				return link == "link-1.2.3", nil
+			},
 			expected:    "link-1.2.3",
 			shouldCheck: true,
 		},
 		{
-			name:        "Check will not pass even prepending v",
-			wrapped:     &mapperMock{link: "link"},
-			dep:         changelog.Dependency{To: semver.MustParse("1.2.3")},
-			checkValue:  "no-way",
+			name:    "Check will not pass even prepending v",
+			wrapped: &mapperMock{link: "link"},
+			dep:     changelog.Dependency{To: semver.MustParse("1.2.3")},
+			checkLink: func(link string) (bool, error) {
+				return false, nil
+			},
 			expected:    "",
 			shouldCheck: true,
 		},
 		{
-			name:        "Check will not pass even removing v",
-			wrapped:     &mapperMock{link: "link"},
-			dep:         changelog.Dependency{To: semver.MustParse("v1.2.3")},
-			checkValue:  "no-way",
+			name:    "Check will not pass even removing v",
+			wrapped: &mapperMock{link: "link"},
+			dep:     changelog.Dependency{To: semver.MustParse("v1.2.3")},
+			checkLink: func(link string) (bool, error) {
+				return false, nil
+			},
 			expected:    "",
+			shouldCheck: true,
+		},
+		{
+			name:    "Check returns an error",
+			wrapped: &mapperMock{link: "link"},
+			dep:     changelog.Dependency{To: semver.MustParse("1.2.3")},
+			checkLink: func(link string) (bool, error) {
+				return false, errors.New("")
+			},
+			expected:    "link-1.2.3", // It uses the link from the underlying mapper.
+			shouldCheck: true,
+		},
+		{
+			name:    "Check returns an error after switching",
+			wrapped: &mapperMock{link: "link"},
+			dep:     changelog.Dependency{To: semver.MustParse("1.2.3")},
+			checkLink: func(link string) (bool, error) {
+				if link == "link-1.2.3" {
+					return false, nil
+				}
+				return false, errors.New("")
+			},
+			expected:    "link-v1.2.3", // It uses the link from the underlying mapper.
 			shouldCheck: true,
 		},
 	}
@@ -97,9 +135,9 @@ func TestLeadingVCheck_Map(t *testing.T) {
 			t.Parallel()
 
 			checkCalled := false
-			checkLink := func(link string) bool {
+			checkLink := func(link string) (bool, error) {
 				checkCalled = true
-				return tc.checkValue == link
+				return tc.checkLink(link)
 			}
 
 			m := &LeadingVCheck{mapper: tc.wrapped, checkLink: checkLink}
@@ -116,40 +154,40 @@ func TestLeadingVCheck_switchDepLeadingV(t *testing.T) {
 	m := &LeadingVCheck{}
 
 	testCases := []struct {
-		Name     string
-		Original changelog.Dependency
-		changed  bool
-		Expected changelog.Dependency
+		name     string
+		original changelog.Dependency
+		err      bool
+		expected changelog.Dependency
 	}{
 		{
-			Name:     "With leading v",
-			Original: changelog.Dependency{To: semver.MustParse("v1.2.3")},
-			Expected: changelog.Dependency{To: semver.MustParse("1.2.3")},
-			changed:  true,
+			name:     "With leading v",
+			original: changelog.Dependency{To: semver.MustParse("v1.2.3")},
+			expected: changelog.Dependency{To: semver.MustParse("1.2.3")},
 		},
 		{
-			Name:     "Can include leading v",
-			Original: changelog.Dependency{To: semver.MustParse("1.2.3")},
-			Expected: changelog.Dependency{To: semver.MustParse("v1.2.3")},
-			changed:  true,
+			name:     "Without leading v",
+			original: changelog.Dependency{To: semver.MustParse("1.2.3")},
+			expected: changelog.Dependency{To: semver.MustParse("v1.2.3")},
 		},
 		{
-			Name:     "Error including leading v",
-			Original: changelog.Dependency{To: &semver.Version{}},
-			changed:  false,
+			name:     "Error including leading v",
+			original: changelog.Dependency{To: &semver.Version{}},
+			err:      true,
 		},
 	}
 
 	for _, tc := range testCases {
 		tc := tc
-		t.Run(tc.Name, func(t *testing.T) {
+		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			got, couldCreate := m.switchDepLeadingV(tc.Original)
-			assert.Equal(t, tc.changed, couldCreate)
-			if couldCreate {
-				assert.Equal(t, tc.Expected, got)
+			got, err := m.switchDepLeadingV(tc.original)
+			if tc.err {
+				assert.Error(t, err)
+				return
 			}
+			assert.NoError(t, err)
+			assert.Equal(t, tc.expected, got)
 		})
 	}
 }
@@ -158,27 +196,29 @@ func TestLeadingVCheck_checkLink(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
-		Name    string
+		name    string
 		handler http.HandlerFunc
-		OK      bool
+		ok      bool
+		err     bool
 	}{
 		{
-			Name: "Request OK",
-			OK:   true,
+			name: "Request OK",
+			ok:   true,
 			handler: func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
 			},
 		},
 		{
-			Name: "Not found",
-			OK:   false,
+			name: "Not found",
+			ok:   false,
 			handler: func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusNotFound)
 			},
 		},
 		{
-			Name: "Timeout",
-			OK:   false,
+			name: "Timeout",
+			ok:   false,
+			err:  true,
 			handler: func(w http.ResponseWriter, r *http.Request) {
 				time.Sleep(2 * time.Second)
 				w.WriteHeader(http.StatusOK)
@@ -188,11 +228,16 @@ func TestLeadingVCheck_checkLink(t *testing.T) {
 
 	for _, tc := range testCases {
 		tc := tc
-		t.Run(tc.Name, func(t *testing.T) {
+		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			server := httptest.NewServer(tc.handler)
 			defer server.Close()
-			assert.Equal(t, tc.OK, checkLinkResponse(server.URL))
+			result, err := checkLinkResponse(server.URL)
+			if tc.err {
+				require.Error(t, err)
+				return
+			}
+			assert.Equal(t, tc.ok, result)
 		})
 	}
 }

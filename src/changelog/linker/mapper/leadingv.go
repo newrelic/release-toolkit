@@ -1,6 +1,7 @@
 package mapper
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -19,7 +20,7 @@ const (
 // successful, it tries to generate it prepending a leading v to the version.
 type LeadingVCheck struct {
 	mapper    linker.Mapper
-	checkLink func(link string) bool
+	checkLink func(link string) (bool, error)
 }
 
 // WithLeadingVCheck returns a LeadingVCheck with the provided underlying mapper and a check function which
@@ -30,24 +31,32 @@ func WithLeadingVCheck(mapper linker.Mapper) *LeadingVCheck {
 
 func (l *LeadingVCheck) Map(dep changelog.Dependency) string {
 	link := l.mapper.Map(dep)
-	if link == "" || l.checkLink(link) {
+	if link == "" {
+		log.Debug("Link check was skipped because the underlying mapper didn't return anything.")
 		return link
 	}
 
-	newDep, changed := l.switchDepLeadingV(dep)
-	if !changed {
+	if l.isValid((link)) {
+		return link
+	}
+
+	newDep, err := l.switchDepLeadingV(dep)
+	if err != nil { // it shouldn't happen unless `dep.To` is already invalid
+		log.Errorf("Internal error checking links: %s", err)
 		return ""
 	}
 
 	link = l.mapper.Map(newDep)
-	if l.checkLink(link) {
+	if l.isValid((link)) {
 		return link
 	}
+
+	log.Debugf("All checks failed, link for %q is omitted", dep)
 
 	return ""
 }
 
-func (l *LeadingVCheck) switchDepLeadingV(dep changelog.Dependency) (changelog.Dependency, bool) {
+func (l *LeadingVCheck) switchDepLeadingV(dep changelog.Dependency) (changelog.Dependency, error) {
 	literal := dep.To.Original()
 	switchedLiteral := ""
 	if strings.HasPrefix(literal, "v") {
@@ -58,25 +67,35 @@ func (l *LeadingVCheck) switchDepLeadingV(dep changelog.Dependency) (changelog.D
 	switchedDep := dep
 	switchedVersion, err := semver.NewVersion(switchedLiteral)
 	if err != nil {
-		log.Debugf("Could not switch leading v to %q valid semver version: %s.", literal, err)
-		return dep, false
+		return dep, fmt.Errorf("error switching leading v in %q: %w", literal, err)
 	}
 
 	switchedDep.To = switchedVersion
 
-	return switchedDep, true
+	return switchedDep, nil
 }
 
-func checkLinkResponse(link string) bool {
+func (l *LeadingVCheck) isValid(link string) bool {
+	log.Debugf("Performing link check on %q", link)
+
+	linkOK, err := l.checkLink(link)
+	if err != nil {
+		log.Warningf("The link %q could not be checked due to an unexpected error, it may be incorrect. Details: %s", link, err)
+		return true
+	}
+
+	return linkOK
+}
+
+func checkLinkResponse(link string) (bool, error) {
 	client := http.Client{
 		Timeout: checkTimeoutSeconds * time.Second,
 	}
 	resp, err := client.Get(link) //nolint:noctx
 	if err != nil {
-		log.Warnf("Link %q could not be checked: %s.", link, err)
-		return false
+		return false, fmt.Errorf("error performing the request to check %q link: %w", link, err)
 	}
 	defer resp.Body.Close()
 
-	return resp.StatusCode == http.StatusOK
+	return resp.StatusCode == http.StatusOK, nil
 }
