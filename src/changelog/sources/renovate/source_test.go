@@ -53,6 +53,16 @@ func TestSource_Source(t *testing.T) {
 		errExpected          error
 	}{
 		{
+			name:          "This_Test_Should_Fail",
+			defaultAuthor: "renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
+			commitMessages: []git.Commit{
+				{Message: "chore(deps): update helm release common-library-3"},
+			},
+			expectedDependencies: []changelog.Dependency{
+				{Name: "common-library-3", From: semver.MustParse("v1.2.3")},
+			},
+		},
+		{
 			name:          "Matching_and_not_matching-commits",
 			defaultAuthor: "renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
 			commitMessages: []git.Commit{
