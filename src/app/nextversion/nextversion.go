@@ -1,6 +1,7 @@
 package nextversion
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -37,8 +38,9 @@ var Cmd = &cli.Command{
 	Usage: "Prints the next version according to the current one, the changelog.yaml file, and semver conventions.",
 	UsageText: `Current version is automatically discovered from git tags in the repository, in semver order. 
 Tags that do not conform to semver standards are ignored.
-Several flags can be specified to limit the set of tags that are scanned, and to override both the current version ` +
-		`being detected and the computed next version.`,
+Several flags can be specified to limit the set of tags that are scanned, and to override both the current version being
+detected and the computed next version.
+next-version will exit with an error if no previous versions are found in the git repository.`,
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    tagPrefix,
@@ -129,6 +131,12 @@ func NextVersion(cCtx *cli.Context) error {
 	bmpr.DependencyCap = dependencyCap
 
 	next, err := bmpr.BumpSource(versionSrc)
+
+	// Other errors are computed after checking for overrides in the switch statement.
+	if errors.Is(err, bumper.ErrEmptySource) {
+		log.Errorf("Refusing to compute next version as no previous version was found. Please create an initial version first.")
+		return fmt.Errorf("computing next version: %w", err)
+	}
 
 	nextStr := ""
 	switch {

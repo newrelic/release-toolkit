@@ -163,6 +163,8 @@ bugfix      => Patch
 
 Dependency bumps will propagate the bump made to the library: Bumping the major version of a dependency will bump the major version of the program. As this may be an undesired effect, it is possible to "cap" the largest bump that dependencies can cause.
 
+`next-version` will return an error if it cannot find a previous version to bump. This is done to surface potentially unintended changes in the configuration of the command that causes it to stop reading existing versions.
+
 ## Additional features
 
 ### `link-dependencies`

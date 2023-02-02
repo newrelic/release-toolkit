@@ -303,16 +303,19 @@ func TestBumper_BumpSource_Bumps(t *testing.T) {
 
 func TestBumper_BumpSource_InitialVersion(t *testing.T) {
 	t.Parallel()
-	b := bumper.New(changelog.Changelog{})
+	b := bumper.New(changelog.Changelog{
+		Changes: []changelog.Entry{
+			{
+				Type:    changelog.TypeEnhancement,
+				Message: "An enhancement",
+			},
+		},
+	})
 	source := mockSource{}
 
 	bumped, err := b.BumpSource(source)
-	if err != nil {
-		t.Fatalf("Unexpected error %v", err)
-	}
-
-	if bumped.String() != "0.0.1" {
-		t.Fatalf("Expected %v, got %v", "0.0.1", bumped.String())
+	if err == nil {
+		t.Fatalf("Expected bumper to error when source is empty, got %v", bumped)
 	}
 }
 
