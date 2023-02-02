@@ -47,8 +47,9 @@ func (r Source) Changelog() (*changelog.Changelog, error) {
 		var commitDependencies []changelog.Dependency
 
 		commitLine := strings.Split(c.Message, "\n")[0]
-		if !strings.Contains(strings.ToLower(c.Author), renovateAuthor) {
-			log.Debugf("skipping commit as it is not authored by renovate\n> %q", commitLine)
+		isRevert := strings.HasPrefix(strings.ToLower(commitLine), "revert")
+		if !strings.Contains(strings.ToLower(c.Author), renovateAuthor) && !isRevert {
+			log.Debugf("skipping commit as it is neither authored by renovate nor a revert\n> %q", commitLine)
 			continue
 		}
 
@@ -64,6 +65,13 @@ func (r Source) Changelog() (*changelog.Changelog, error) {
 		if len(bodyDependencies) == 0 {
 			// If we do not find the dependency table in the body, we attempt to parse the title.
 			commitDependencies = append(commitDependencies, r.titleDependencies(commitLine)...)
+		}
+
+		if isRevert {
+			//If this is a revert commit, swap to/from for all commitDependencies.
+			for i := range commitDependencies {
+				commitDependencies[i].From, commitDependencies[i].To = commitDependencies[i].To, commitDependencies[i].From
+			}
 		}
 
 		// Add commit hash and copy to dependencies
