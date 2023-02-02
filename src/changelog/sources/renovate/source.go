@@ -26,6 +26,7 @@ func NewSource(tagsVersionGetter git.TagsVersionGetter, commitsGetter git.Commit
 	}
 }
 
+//nolint:gocyclo,cyclop
 func (r Source) Changelog() (*changelog.Changelog, error) {
 	lastHash, err := r.tagsVersionGetter.LastVersionHash()
 	if err != nil {
@@ -68,7 +69,7 @@ func (r Source) Changelog() (*changelog.Changelog, error) {
 		}
 
 		if isRevert {
-			//If this is a revert commit, swap to/from for all commitDependencies.
+			// If this is a revert commit, swap to/from for all commitDependencies.
 			for i := range commitDependencies {
 				commitDependencies[i].From, commitDependencies[i].To = commitDependencies[i].To, commitDependencies[i].From
 			}

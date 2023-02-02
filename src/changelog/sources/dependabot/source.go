@@ -28,6 +28,7 @@ func NewSource(tagsVersionGetter git.TagsVersionGetter, commitsGetter git.Commit
 	}
 }
 
+//nolint:gocyclo,cyclop
 func (r Source) Changelog() (*changelog.Changelog, error) {
 	lastHash, err := r.tagsVersionGetter.LastVersionHash()
 	if err != nil {
