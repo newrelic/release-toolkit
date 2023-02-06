@@ -3,20 +3,13 @@ description: Wrapper for release toolkit that runs commands needed to release an
 inputs:
   excluded-dirs:
     description: 'Exclude commits whose changes only impact files in specified dirs relative to repository root. Defaults to ".github".'
-    required: true
     default: '.github'
   fail-if-held:
     description: 'Fail if the held toggle is active'
-    required: true
     default: 'true'
-  link-dependencies-enable:
-    description: 'Enables/disables link dependencies step'
-    required: true
-    default: 'false'
   link-dependencies-dictionary:
     description: 'Sets the link dependency dictionary. Defaults to ".github/rt-dictionary.yaml".'
-    required: true
-    default: '.github/rt-dictionary.yaml'
+    default: ''
 outputs:
   next-version:
     description: "Version of this release"
@@ -33,30 +26,38 @@ outputs:
 runs:
   using: composite
   steps:
-    - uses: newrelic/release-toolkit/validate-markdown@v1
-    - uses: newrelic/release-toolkit/generate-yaml@v1
+    - name: Validate that the markdown is correct
+      uses: newrelic/release-toolkit/validate-markdown@v1
+    - name: Generate YAML
+      uses: newrelic/release-toolkit/generate-yaml@v1
       with:
         excluded-dirs: ${{ inputs.excluded-dirs }}
-    - uses: newrelic/release-toolkit/is-held@v1
+    - name: Check if the release is held
       id: held
-    - if: ${{ steps.held.outputs.is-held == 'true' && inputs.fail-if-held == 'true' }}
+      uses: newrelic/release-toolkit/is-held@v1
+    - name: Abort releasing if the release is held
+      if: ${{ steps.held.outputs.is-held == 'true' && inputs.fail-if-held == 'true' }}
       shell: bash
       run: |
         echo "Releases are being held. Aborting." >&2
         exit 1
-    - if: ${{ inputs.link-dependencies-enable == 'true' }}
+    - name: Link dependencies
       uses: newrelic/release-toolkit/link-dependencies@v1
       with:
         dictionary: ${{ inputs.link-dependencies-dictionary }}
-    - uses: newrelic/release-toolkit/next-version@v1
+    - name: Calculate next version
       id: version
-    - uses: newrelic/release-toolkit/update-markdown@v1
+      uses: newrelic/release-toolkit/next-version@v1
+    - name: Update the markdown
+      uses: newrelic/release-toolkit/update-markdown@v1
       with:
         version: ${{ steps.version.outputs.next-version }}
-    - uses: newrelic/release-toolkit/render@v1
+    - name: Render the changelog snippet
+      uses: newrelic/release-toolkit/render@v1
       with:
         version: ${{ steps.version.outputs.next-version }}
-    - shell: bash
+    - name: Create outputs
+      shell: bash
       id: release
       run: |
         echo "title=$(grep -E "^## " CHANGELOG.partial.md | sed 's|^## ||')" >> $GITHUB_OUTPUT
@@ -68,7 +69,8 @@ runs:
         echo "changelog<<EOF" >> $GITHUB_OUTPUT
         cat CHANGELOG.md      >> $GITHUB_OUTPUT
         echo "EOF"            >> $GITHUB_OUTPUT
-    - shell: bash
+    - name: Clean the workspace
+      shell: bash
       run: |
         rm CHANGELOG.md.bak
         rm changelog.yaml

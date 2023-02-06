@@ -98,7 +98,11 @@ ${RT_BIN} validate-markdown
 # generating the changelog
 ${RT_BIN} generate-yaml --excluded-dirs "$EXCLUDED_DIRECTORIES"
 ${RT_BIN} is-held ${IS_HELD_FAIL} > /dev/null
-${RT_BIN} link-dependencies
+if [ -f "$DICTIONARY" ]; then
+    ${RT_BIN} link-dependencies --dictionary "$DICTIONARY"
+else
+    ${RT_BIN} link-dependencies
+fi
 NEXT_VERSION="$(${RT_BIN} next-version)"
 ${RT_BIN} update-markdown --version "$NEXT_VERSION"
 ${RT_BIN} render-changelog --version "$NEXT_VERSION"
