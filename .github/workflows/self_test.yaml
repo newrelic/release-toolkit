@@ -518,15 +518,19 @@ jobs:
         with:
           git-root: ${{ env.MOCK_REPO_ACTION }}
       - name: Run script
-        working-directory: ${{ env.MOCK_REPO_SCRIPT }}
-        run: $(git rev-parse --show-toplevel)/contrib/ohi-release/run.sh
+        run: |
+          cd "${{ env.MOCK_REPO_SCRIPT }}"
+          # CLI autodetects whether it is running on GHA or not. If we let GHA set this to true, as it normally does,
+          # tests cases where GITHUB_ACTIONS is expected to be unset would fail.
+          GITHUB_ACTIONS=false "${GITHUB_WORKSPACE}/contrib/ohi-release/run.sh"
       - name: Action outputs
         working-directory: ${{ env.ACTION_OUTPUTS }}
         run: |
           echo "${{ steps.ohi-release.outputs.changelog }}" > CHANGELOG.md
           echo "${{ steps.ohi-release.outputs.changelog-partial }}" > CHANGELOG.partial.md
 
-      - run: |
+      - name: Asserts
+        run: |
           exit_status=0
 
           if ! cmp --silent expected-changelog.md ${{ env.MOCK_REPO_ACTION }}/CHANGELOG.md; then
