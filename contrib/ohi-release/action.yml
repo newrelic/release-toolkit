@@ -71,7 +71,7 @@ runs:
     - name: Render the changelog snippet
       uses: newrelic/release-toolkit/render@v1
       with:
-        markdown: ${{ inputs.git-root }}/CHANGELOG.md
+        markdown: ${{ inputs.git-root }}/CHANGELOG.partial.md
         yaml: ${{ inputs.git-root }}/changelog.yaml
         version: ${{ steps.version.outputs.next-version }}
     - name: Create outputs
