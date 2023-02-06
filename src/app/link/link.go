@@ -99,7 +99,7 @@ func Link(cCtx *cli.Context) error {
 	var githubMapper linker.Mapper = mapper.Github{}
 
 	if !cCtx.Bool(disableGithubValidationFlag) {
-		githubMapper = mapper.WithLeadingVCheck(githubMapper)
+		githubMapper = mapper.NewWithLeadingVCheck(githubMapper)
 	}
 
 	mappers = append(mappers, githubMapper)

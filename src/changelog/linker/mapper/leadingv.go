@@ -23,9 +23,9 @@ type LeadingVCheck struct {
 	checkLink func(link string) (bool, error)
 }
 
-// WithLeadingVCheck returns a LeadingVCheck with the provided underlying mapper and a check function which
+// NewWithLeadingVCheck returns a LeadingVCheck with the provided underlying mapper and a check function which
 // performs a request to the url corresponding to the link and check its status code.
-func WithLeadingVCheck(mapper linker.Mapper) *LeadingVCheck {
+func NewWithLeadingVCheck(mapper linker.Mapper) *LeadingVCheck {
 	return &LeadingVCheck{mapper: mapper, checkLink: checkLinkResponse}
 }
 
