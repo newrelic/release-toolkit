@@ -10,8 +10,8 @@ ARGS="$*"
 TEMP_BIN=$(mktemp -dt release-toolkit-XXX)
 function cleanup() {
     rm -rf $TEMP_BIN    || true
-    rm CHANGELOG.md.bak || true
-    rm changelog.yaml   || true
+    rm "${GIT_ROOT}/CHANGELOG.md.bak" || true
+    rm "${GIT_ROOT}/changelog.yaml"   || true
 }
 trap cleanup EXIT
 
@@ -48,6 +48,7 @@ DESCRIPTION:
     * A CHANGELOG.partial.md with the changes for this release only.
 
 OPTIONS:
+   --git-root       Run all the command using this path as root
    --verbose        Adds verbose mode to this script.
    --help           Show this help message and exits.
    --excluded-dirs  Exclude commits whose changes only impact files in specified dirs relative to repository root. Defaults to ".github".
@@ -63,6 +64,7 @@ EOM
 EXCLUDED_DIRECTORIES=".github"
 IS_HELD_FAIL="--fail"
 DICTIONARY=".github/rt-dictionary.yaml"
+GIT_ROOT="."
 
 while true; do
     if [ -z "${1:-}" ]; then
@@ -71,6 +73,8 @@ while true; do
         case "${1}" in
             -v | --verbose ) set -x; echo "Called with these arguments: $ARGS"; shift ;;
             -h | --help ) help ;;
+            # Flags for all
+            --git-root ) GIT_ROOT="$2"; shift 2 ;;
             # Flags for generate-yaml
             --excluded-dirs ) EXCLUDED_DIRECTORIES="$2"; shift 2 ;;
             # Flags for is-held
@@ -82,7 +86,6 @@ while true; do
     fi
 done
 
-
 # building rt
 GOBIN="${TEMP_BIN}" go install ${RT_PKG}
 RT_BIN="${TEMP_BIN}/release-toolkit"
@@ -91,20 +94,24 @@ if ! [ -x $RT_BIN ]; then
 fi
 
 
-# checking that working directory is correctly set
-${RT_BIN} validate-markdown
+(
+    cd "${GIT_ROOT}"
+
+    # checking that working directory is correctly set
+    ${RT_BIN} validate-markdown
 
 
-# generating the changelog
-${RT_BIN} generate-yaml --excluded-dirs "$EXCLUDED_DIRECTORIES"
-${RT_BIN} is-held ${IS_HELD_FAIL} > /dev/null
-if [ -f "$DICTIONARY" ]; then
-    ${RT_BIN} link-dependencies --dictionary "$DICTIONARY"
-else
-    ${RT_BIN} link-dependencies
-fi
-NEXT_VERSION="$(${RT_BIN} next-version)"
-${RT_BIN} update-markdown --version "$NEXT_VERSION"
-${RT_BIN} render-changelog --version "$NEXT_VERSION"
+    # generating the changelog
+    ${RT_BIN} generate-yaml --excluded-dirs "$EXCLUDED_DIRECTORIES"
+    ${RT_BIN} is-held ${IS_HELD_FAIL} > /dev/null
+    if [ -f "$DICTIONARY" ]; then
+        ${RT_BIN} link-dependencies --dictionary "$DICTIONARY"
+    else
+        ${RT_BIN} link-dependencies
+    fi
+    NEXT_VERSION="$(${RT_BIN} next-version)"
+    ${RT_BIN} update-markdown --version "$NEXT_VERSION"
+    ${RT_BIN} render-changelog --version "$NEXT_VERSION"
 
-echo "Release title should be: $(grep -E "^## " CHANGELOG.partial.md | sed 's|^## ||')"
+    echo "Release title should be: $(grep -E "^## " CHANGELOG.partial.md | sed 's|^## ||')"
+)

@@ -427,3 +427,138 @@ jobs:
             echo "valid should have returned false" >&2
             exit 1
           fi
+
+  contrib-ohi-release:
+    name: validate ohi-release (contrib action)
+    runs-on: ubuntu-latest
+    env:
+      MOCK_REPO_ACTION: ./mock_repo_action
+      MOCK_REPO_SCRIPT: ./mock_repo_script
+      ACTION_OUTPUTS: ./action_outputs
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configure test repo
+        shell: bash
+        run: |
+          # MOCK_REPO_SCRIPT is not needed as it is copied from ACTION one.
+          mkdir -pv "${MOCK_REPO_ACTION}" "${ACTION_OUTPUTS}"
+          cd "${MOCK_REPO_ACTION}"
+
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+
+          git init
+          cat > CHANGELOG.md <<EOF
+          # Changelog
+            This is based on blah blah blah
+
+          ## v1.2.3 - 20YY-DD-MM
+
+          ### Enhancements
+          - This is in the past and should be preserved
+          EOF
+
+          git add CHANGELOG.md
+          for i in 1 2 3; do
+            touch file$i
+            git add file$i
+            git commit -m commit_$i
+          done
+          git tag 1.2.3
+
+
+          cat > CHANGELOG.md <<EOF
+          # Changelog
+            This is based on blah blah blah
+
+          ## Unreleased
+          ### Enhancement
+          - test
+
+          ## v1.2.3 - 20YY-DD-MM
+
+          ### Enhancements
+          - This is in the past and should be preserved
+          EOF
+
+          cd $OLDPWD
+          cp -r "${MOCK_REPO_ACTION}" "${MOCK_REPO_SCRIPT}"
+      - name: Expected CHANGELOG
+        shell: bash
+        run: |
+          cat > expected-changelog.md <<EOF
+          # Changelog
+            This is based on blah blah blah
+
+          ## Unreleased
+
+          ## v1.3.0 - $(date +%Y-%m-%d)
+
+          ### 🚀 Enhancements
+          - test
+
+          ## v1.2.3 - 20YY-DD-MM
+
+          ### Enhancements
+          - This is in the past and should be preserved
+          EOF
+      - name: Expected partial CHANGELOG
+        shell: bash
+        run: |
+          cat > expected-partial.md <<EOF
+          ## v1.3.0 - $(date +%Y-%m-%d)
+
+          ### 🚀 Enhancements
+          - test
+          EOF
+
+      - name: Run action
+        uses: ./contrib/ohi-release
+        id: ohi-release
+        with:
+          git-root: ${{ env.MOCK_REPO_ACTION }}
+      - name: Run script
+        working-directory: ${{ env.MOCK_REPO_SCRIPT }}
+        run: $(git rev-parse --show-toplevel)/contrib/ohi-release/run.sh
+      - name: Action outputs
+        working-directory: ${{ env.ACTION_OUTPUTS }}
+        run: |
+          echo "${{ steps.ohi-release.outputs.changelog }}" > CHANGELOG.md
+          echo "${{ steps.ohi-release.outputs.changelog-partial }}" > CHANGELOG.partial.md
+
+      - run: |
+          exit_status=0
+
+          if ! cmp --silent expected-changelog.md ${{ env.MOCK_REPO_ACTION }}/CHANGELOG.md; then
+            echo "Action's CHANGELOG.md should be equal to the expected" >&2
+            diff expected-changelog.md ${{ env.MOCK_REPO_ACTION }}/CHANGELOG.md
+            ((exit_status++))
+          fi
+          if ! cmp --silent expected-changelog.md ${{ env.MOCK_REPO_SCRIPT }}/CHANGELOG.md; then
+            echo "script's CHANGELOG.md should be equal to the expected" >&2
+            diff expected-changelog.md ${{ env.MOCK_REPO_SCRIPT }}/CHANGELOG.md
+            ((exit_status++))
+          fi
+          if ! cmp --silent expected-changelog.md ${{ env.MOCK_REPO_SCRIPT }}/CHANGELOG.md; then
+            echo "script's CHANGELOG.md should be equal to the expected" >&2
+            diff expected-changelog.md ${{ env.ACTION_OUTPUTS }}/CHANGELOG.md
+            ((exit_status++))
+          fi
+
+          if ! cmp --silent expected-partial.md ${{ env.MOCK_REPO_ACTION }}/CHANGELOG.partial.md; then
+            echo "Action's CHANGELOG.partial.md should be equal to the expected" >&2
+            diff expected-partial.md ${{ env.MOCK_REPO_ACTION }}/CHANGELOG.partial.md
+            ((exit_status++))
+          fi
+          if ! cmp --silent expected-partial.md ${{ env.MOCK_REPO_SCRIPT }}/CHANGELOG.partial.md; then
+            echo "script's CHANGELOG.partial.md should be equal to the expected" >&2
+            diff expected-partial.md ${{ env.MOCK_REPO_SCRIPT }}/CHANGELOG.partial.md
+            ((exit_status++))
+          fi
+          if ! cmp --silent expected-partial.md ${{ env.MOCK_REPO_SCRIPT }}/CHANGELOG.partial.md; then
+            echo "script's CHANGELOG.partial.md should be equal to the expected" >&2
+            diff expected-partial.md ${{ env.ACTION_OUTPUTS }}/CHANGELOG.partial.md
+            ((exit_status++))
+          fi
+
+          exit $exit_status
