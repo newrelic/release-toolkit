@@ -208,7 +208,7 @@ the changelog link is automatically rendered using `https://github.com/<org>/<re
 
 After rendering, the release toolkit checks if the changelog link is valid by performing a HTTP request, so only valid
 changelog links are used. As some repositories include a leading `v` in the tag name identifying the release and some
-others don't, both possible links are checked.
+others don't, both possible links are checked. This validation can be disabled using  the `disable-github-validation` flag.
 
 ### Automated releasing
 

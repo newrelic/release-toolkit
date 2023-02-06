@@ -13,9 +13,10 @@ import (
 )
 
 const (
-	dictionaryPathFlag = "dictionary"
-	sampleFlag         = "sample"
-	chFilePermissions  = os.FileMode(0o666)
+	dictionaryPathFlag          = "dictionary"
+	sampleFlag                  = "sample"
+	disableGithubValidationFlag = "disable-github-validation"
+	chFilePermissions           = os.FileMode(0o666)
 )
 
 // Cmd is the cli.Command object for the link-dependencies command.
@@ -31,8 +32,8 @@ var Cmd = &cli.Command{
 			EnvVars: common.EnvFor(dictionaryPathFlag),
 			Usage: "Path to a dictionary file mapping dependencies to their changelogs. " +
 				"A dictionary is a YAML file with a root dictionary object, which contains a map from " +
-				"dependency names to a template that will be rendered into a URL pointing to its changelog." +
-				"The template link must be in Go tpl format and typically will include the {{.To.Original}} variable" +
+				"dependency names to a template that will be rendered into a URL pointing to its changelog. " +
+				"The template link must be in Go tpl format and typically will include the {{.To.Original}} variable " +
 				"that will be replaced by the last bumped version (execute link-dependencies with --sample flag to see a dictionary.yml sample)",
 			Value: "",
 		},
@@ -40,6 +41,14 @@ var Cmd = &cli.Command{
 			Name:    sampleFlag,
 			EnvVars: common.EnvFor(sampleFlag),
 			Usage:   "Prints a sample dictionary to stdout.",
+		},
+		&cli.BoolFlag{
+			Name:    disableGithubValidationFlag,
+			EnvVars: common.EnvFor(disableGithubValidationFlag),
+			Usage: "Disables changelog links validation for automatically detected Github repositories. " +
+				"When disabled, changelog links for Github repositories are directly rendered using " +
+				"https://github.com/<org>/<repo>/releases/tag/<new-version> with no validation, so no external request are performed.",
+			Value: false,
 		},
 	},
 	Action: Link,
@@ -87,7 +96,12 @@ func Link(cCtx *cli.Context) error {
 		mappers = append(mappers, dic)
 	}
 
-	githubMapper := mapper.WithLeadingVCheck(mapper.Github{})
+	var githubMapper linker.Mapper = mapper.Github{}
+
+	if !cCtx.Bool(disableGithubValidationFlag) {
+		githubMapper = mapper.WithLeadingVCheck(githubMapper)
+	}
+
 	mappers = append(mappers, githubMapper)
 
 	link := linker.New(mappers...)
