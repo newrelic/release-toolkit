@@ -526,8 +526,8 @@ jobs:
       - name: Action outputs
         working-directory: ${{ env.ACTION_OUTPUTS }}
         run: |
-          echo "${{ steps.ohi-release.outputs.changelog }}" > CHANGELOG.md
-          echo "${{ steps.ohi-release.outputs.changelog-partial }}" > CHANGELOG.partial.md
+          echo -ne "${{ steps.ohi-release.outputs.changelog }}" > CHANGELOG.md
+          echo -ne "${{ steps.ohi-release.outputs.changelog-partial }}" > CHANGELOG.partial.md
 
       - name: Asserts
         run: |
