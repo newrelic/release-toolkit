@@ -94,5 +94,14 @@ func Render(cCtx *cli.Context) error {
 		return fmt.Errorf("rendering changelog: %w", err)
 	}
 
+	// At the time of writing this, this is a comment you can read in the changelog renderer:
+	// > For templates to be sane and readable, we need to put spaces between sections _after_ them. This comes with the
+	// > problem of the last section of the doc also printing those spaces, leading to two empty newlines.
+	// Because of that, rendered will output the markdown without a leading line jump that we have to add here.
+	_, err = fmt.Fprintf(mdFile, "\n")
+	if err != nil {
+		return fmt.Errorf("rendering changelog: %w", err)
+	}
+
 	return nil
 }

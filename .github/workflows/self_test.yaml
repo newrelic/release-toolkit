@@ -26,7 +26,7 @@ jobs:
             git add file$i
             git commit -m commit_$i
           done
-          
+
           cat > changelog.yaml <<EOF
           held: true
           EOF
@@ -103,7 +103,7 @@ jobs:
             echo "Changelog.yaml should not be empty" >&2
             exit 1
           fi
-          
+
           if grep -e 'changes: \[\]' $MOCK_REPO/changelog.yaml; then
             echo "Changelog.yaml should not have an empty changes section" >&2
             exit 2
@@ -176,9 +176,9 @@ jobs:
             git add file$i
             git commit -m commit_$i
           done
-          
+
           git tag v1.2.3
-          
+
           cat > changelog.yaml <<EOF
           changes:
             - type: breaking
@@ -218,7 +218,7 @@ jobs:
             git add file$i
             git commit -m commit_$i
           done
-          
+
           cat > dictionary.yaml <<EOF
           dictionary:            
             infrastructure-agent: "https://github.com/newrelic/infrastructure-agent/releases/tag/{{.To.Original}}"
@@ -241,7 +241,7 @@ jobs:
           dictionary: ${{ env.MOCK_REPO }}/dictionary.yaml
       - run: |
           cat $MOCK_REPO/changelog.yaml
-          
+
           if ! grep -e 'changelog: https://github.com/newrelic/infrastructure-agent/releases/tag/v1.2.3' $MOCK_REPO/changelog.yaml; then
             echo "Changelog.yaml should have infrastructure-agent changelog linked" >&2
             exit 2
@@ -285,14 +285,14 @@ jobs:
             - type: breaking
               message: Support has been removed
           EOF
-          
-          head -c -1 > expected-changelog.md <<EOF
+
+          cat > expected-changelog.md <<EOF
           ## v1.2.3 - $(date +%Y-%m-%d)
-          
+
           ### Important announcement (note)
-          
+
           This is a release note
-          
+
           ### ⚠️️ Breaking changes ⚠️
           - Support has been removed
           EOF
@@ -303,7 +303,7 @@ jobs:
           version: v1.2.3
       - run: |
           cat $MOCK_REPO/expected-changelog.md
-          
+
           if ! cmp --silent ${{ env.MOCK_REPO }}/expected-changelog.md ${{ env.MOCK_REPO }}/CHANGELOG.partial.md; then
             echo "CHANGELOG.partial.md should be equal to the expected" >&2
             exit 2
@@ -336,38 +336,38 @@ jobs:
           cat > changelog.yaml <<EOF
           notes: |-
             ### Important announcement (note)
-          
+
             This is a release note
           changes:
             - type: breaking
               message: Support has been removed
           EOF
-          
+
           cat > existing.md <<EOF
           # Changelog
             This is based on blah blah blah
-          
+
           ## v1.2.3 - 20YY-DD-MM
-          
+
           ### Enhancements
           - This is in the past and should be preserved
           EOF
-          
+
           cat > expected-changelog.md <<EOF
           # Changelog
             This is based on blah blah blah
-          
+
           ## v1.2.3 - $(date +%Y-%m-%d)
-          
+
           ### Important announcement (note)
-          
+
           This is a release note
-          
+
           ### ⚠️️ Breaking changes ⚠️
           - Support has been removed
-          
+
           ## v1.2.3 - 20YY-DD-MM
-          
+
           ### Enhancements
           - This is in the past and should be preserved
           EOF
@@ -378,7 +378,7 @@ jobs:
           version: v1.2.3
       - run: |
           cat $MOCK_REPO/existing.md
-          
+
           if ! cmp ${{ env.MOCK_REPO }}/expected-changelog.md ${{ env.MOCK_REPO }}/existing.md; then
             echo "Changelog md was not updated to its expected contents" >&2
             exit 2
@@ -407,13 +407,13 @@ jobs:
             git add file$i
             git commit -m commit_$i
           done
-          
+
           cat > changelog.md <<EOF
           # Wrong-Changelog
             This is based on blah blah blah
-          
+
           ## v1.2.3 - 20YY-DD-MM
-          
+
           ### Enhancements
           - This is in the past and should be preserved
           EOF

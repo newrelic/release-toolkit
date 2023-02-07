@@ -101,7 +101,7 @@ dependencies:
       commit: a72b98709dfa0d28cf7c73020f3dede670f7a37f
 ```
 
-In addition to the fields listed above, there's a fourth boolean field called `is-held`. Purpose and behavior of this field is explained in the advanced section of this manual.
+In addition to the fields listed above, there's a fourth boolean field called `held`. Purpose and behavior of this field is explained in the advanced section of this manual.
 
 This `generate-yaml` command will extract this changes and notes from 3 different sources:
 

@@ -55,7 +55,7 @@ This is a release note
 
 ### ⛓️ Dependencies
 - Upgraded foobar from 0.0.1 to 0.1.0
-			`),
+			`) + "\n",
 		},
 		{
 			name: "Changelog_With_Version",
@@ -95,7 +95,7 @@ This is a release note
 
 ### ⛓️ Dependencies
 - Upgraded foobar from 0.0.1 to 0.1.0
-			`),
+			`) + "\n",
 		},
 		{
 			name: "Changelog_With_Version_And_Date",
@@ -118,7 +118,7 @@ This is a release note
 
 ### ⚠️️ Breaking changes ⚠️
 - Support has been removed
-			`),
+			`) + "\n",
 		},
 	} {
 		tc := tc
