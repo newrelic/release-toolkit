@@ -1,11 +1,11 @@
-# 🛠️ `ohi-release`
+# 🛠️ `ohi-release-notes`
 
 This is a wrapper of all the steps needed to update the changelog and render a snippet to be ready to be used as a release message. This contribution also includes a script that allow to replicate what this action does locally.
 
 ## Example Usage
 
 ```yaml
-- uses: newrelic/release-toolkit/contrib/ohi-release@v1
+- uses: newrelic/release-toolkit/contrib/ohi-release-notes@v1
   id: release
 - name: Commit updated changelog
   run: |
@@ -36,7 +36,7 @@ There is a `run.sh` script that should do the same as this action: Leaves the fi
 
 You can run it by bashpipeing this script:
 ```shell
-curl "https://raw.githubusercontent.com/newrelic/release-toolkit/v1/contrib/ohi-release/run.sh" | bash
+curl "https://raw.githubusercontent.com/newrelic/release-toolkit/v1/contrib/ohi-release-notes/run.sh" | bash
 ```
 
 ## Contributing

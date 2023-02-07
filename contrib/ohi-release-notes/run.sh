@@ -29,13 +29,13 @@ function help() {
 
     cat <<EOM
 NAME:
-   $0 - release toolkit wrapper to release OHIs
+   $0 - release toolkit wrapper to create release notes for OHIs
 
 USAGE:
    $0 [options]
 
 DESCRIPTION:
-   Wrapper for release toolkit that runs commands needed to release an OHI:
+   Wrapper for release toolkit that runs commands needed to create the release notes for an OHI:
     * rt validate-markdown
     * rt generate-yaml
     * rt is-held
@@ -43,9 +43,10 @@ DESCRIPTION:
     * rt update-markdown (with the version calculated from the next-version command)
     * rt render-changelog (with the version calculated from the next-version command)
 
-   At the end of the run, this command should output three files:
-    * CHANGELOG.md updated with the last changelog rendered (Old CHANGELOG backed up as CHANGELOG.md.bak)
+   At the end of the run, this command should output two files and a string:
+    * CHANGELOG.md updated with the last changelog rendered.
     * A CHANGELOG.partial.md with the changes for this release only.
+    * The version that was computed for this release.
 
 OPTIONS:
    --git-root       Run all the command using this path as root

@@ -428,8 +428,8 @@ jobs:
             exit 1
           fi
 
-  contrib-ohi-release:
-    name: validate ohi-release (contrib action)
+  contrib-ohi-release-notes:
+    name: validate ohi-release-notes (contrib action)
     runs-on: ubuntu-latest
     env:
       MOCK_REPO_ACTION: ./mock_repo_action
@@ -513,8 +513,8 @@ jobs:
           EOF
 
       - name: Run action
-        uses: ./contrib/ohi-release
-        id: ohi-release
+        uses: ./contrib/ohi-release-notes
+        id: ohi-release-notes
         with:
           git-root: ${{ env.MOCK_REPO_ACTION }}
       - name: Run script
@@ -522,12 +522,12 @@ jobs:
           cd "${{ env.MOCK_REPO_SCRIPT }}"
           # CLI autodetects whether it is running on GHA or not. If we let GHA set this to true, as it normally does,
           # tests cases where GITHUB_ACTIONS is expected to be unset would fail.
-          GITHUB_ACTIONS=false "${GITHUB_WORKSPACE}/contrib/ohi-release/run.sh"
+          GITHUB_ACTIONS=false "${GITHUB_WORKSPACE}/contrib/ohi-release-notes/run.sh"
       - name: Action outputs
         working-directory: ${{ env.ACTION_OUTPUTS }}
         run: |
-          echo -ne "${{ steps.ohi-release.outputs.changelog }}" > CHANGELOG.md
-          echo -ne "${{ steps.ohi-release.outputs.changelog-partial }}" > CHANGELOG.partial.md
+          echo -ne "${{ steps.ohi-release-notes.outputs.changelog }}" > CHANGELOG.md
+          echo -ne "${{ steps.ohi-release-notes.outputs.changelog-partial }}" > CHANGELOG.partial.md
 
       - name: Asserts
         run: |

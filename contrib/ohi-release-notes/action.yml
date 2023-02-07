@@ -1,17 +1,17 @@
-name: OHI release
+name: OHI release notes
 description: Wrapper for release toolkit that runs commands needed to release an OHI
 inputs:
   git-root:
-    description: Path to the root of the git repository to source bot commits from
+    description: Path to the root of the git repository to source bot commits from.
     default: "."
   excluded-dirs:
-    description: 'Exclude commits whose changes only impact files in specified dirs relative to repository root. Defaults to ".github".'
+    description: Exclude commits whose changes only impact files in specified dirs relative to repository root. Defaults to ".github".
     default: '.github'
   fail-if-held:
-    description: 'Fail if the held toggle is active'
+    description: Fail if the held toggle is active. Defaults to `true`.
     default: 'true'
   link-dependencies-dictionary:
-    description: 'Sets the link dependency dictionary. Defaults to ".github/rt-dictionary.yaml".'
+    description: Sets the link dependency dictionary. Defaults to ".github/rt-dictionary.yaml".
     default: ''
 outputs:
   next-version:
