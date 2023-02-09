@@ -94,5 +94,15 @@ func Render(cCtx *cli.Context) error {
 		return fmt.Errorf("rendering changelog: %w", err)
 	}
 
+	// At the time of writing this, there is a comment in the renderer.Render function that explains that we put
+	// spaces and line jumps _after_ them. Render renders the changelog snippet without new lines because they add
+	// two line jumps at the end of the release notes: one from Render and one from Merger.
+	// So we are adding here a new line in the same way that we do in the Merger:
+	// https://github.com/newrelic/release-toolkit/blob/55454a9e7e/src/changelog/sources/markdown/merger/merger.go#L66
+	_, err = fmt.Fprintf(mdFile, "\n")
+	if err != nil {
+		return fmt.Errorf("rendering changelog: %w", err)
+	}
+
 	return nil
 }
