@@ -533,35 +533,113 @@ jobs:
         run: |
           exit_status=0
 
-          if ! cmp --silent expected-changelog.md ${{ env.MOCK_REPO_ACTION }}/CHANGELOG.md; then
-            echo "Action's CHANGELOG.md should be equal to the expected" >&2
+          echo "Action's CHANGELOG.md should be equal"
+          echo RESULT:
+          cat "${{ env.MOCK_REPO_ACTION }}/CHANGELOG.md"
+          echo EXPECTED:
+          cat expected-changelog.md
+          echo TEST:
+          if cmp --silent expected-changelog.md ${{ env.MOCK_REPO_ACTION }}/CHANGELOG.md; then
+            echo PASS
+          else
+            echo FAIL - diff between expected and the output:
             diff expected-changelog.md ${{ env.MOCK_REPO_ACTION }}/CHANGELOG.md
             ((exit_status++))
           fi
-          if ! cmp --silent expected-changelog.md ${{ env.MOCK_REPO_SCRIPT }}/CHANGELOG.md; then
-            echo "script's CHANGELOG.md should be equal to the expected" >&2
+          echo =================================================================
+          echo "script's CHANGELOG.md should be equal"
+          echo RESULT:
+          cat "${{ env.MOCK_REPO_SCRIPT }}/CHANGELOG.md"
+          echo EXPECTED:
+          cat expected-changelog.md
+          echo TEST:
+          if cmp --silent expected-changelog.md ${{ env.MOCK_REPO_SCRIPT }}/CHANGELOG.md; then
+            echo PASS
+          else
+            echo FAIL - diff between expected and the output:
             diff expected-changelog.md ${{ env.MOCK_REPO_SCRIPT }}/CHANGELOG.md
             ((exit_status++))
           fi
-          if ! cmp --silent expected-changelog.md ${{ env.MOCK_REPO_SCRIPT }}/CHANGELOG.md; then
-            echo "script's CHANGELOG.md should be equal to the expected" >&2
+          echo =================================================================
+          echo "script's CHANGELOG.md should be equal"
+          echo RESULT:
+          cat "${{ env.MOCK_REPO_SCRIPT }}/CHANGELOG.md"
+          echo EXPECTED:
+          cat expected-changelog.md
+          echo TEST:
+          if cmp --silent expected-changelog.md ${{ env.MOCK_REPO_SCRIPT }}/CHANGELOG.md; then
+            echo PASS
+          else
+            echo FAIL - diff between expected and the output:
             diff expected-changelog.md ${{ env.ACTION_OUTPUTS }}/CHANGELOG.md
             ((exit_status++))
           fi
-
-          if ! cmp --silent expected-partial.md ${{ env.MOCK_REPO_ACTION }}/CHANGELOG.partial.md; then
-            echo "Action's CHANGELOG.partial.md should be equal to the expected" >&2
+          echo =================================================================
+          echo "Action's CHANGELOG.partial.md should be equal"
+          echo RESULT:
+          cat "${{ env.MOCK_REPO_ACTION }}/CHANGELOG.partial.md"
+          echo EXPECTED:
+          cat expected-partial.md
+          echo TEST:
+          if cmp --silent expected-partial.md ${{ env.MOCK_REPO_ACTION }}/CHANGELOG.partial.md; then
+            echo PASS
+          else
+            echo FAIL - diff between expected and the output:
             diff expected-partial.md ${{ env.MOCK_REPO_ACTION }}/CHANGELOG.partial.md
             ((exit_status++))
           fi
-          if ! cmp --silent expected-partial.md ${{ env.MOCK_REPO_SCRIPT }}/CHANGELOG.partial.md; then
-            echo "script's CHANGELOG.partial.md should be equal to the expected" >&2
+          echo =================================================================
+          echo "script's CHANGELOG.partial.md should be equal"
+          echo RESULT:
+          cat "${{ env.MOCK_REPO_SCRIPT }}/CHANGELOG.partial.md"
+          echo EXPECTED:
+          cat expected-partial.md
+          echo TEST:
+          if cmp --silent expected-partial.md ${{ env.MOCK_REPO_SCRIPT }}/CHANGELOG.partial.md; then
+            echo PASS
+          else
+            echo FAIL - diff between expected and the output:
             diff expected-partial.md ${{ env.MOCK_REPO_SCRIPT }}/CHANGELOG.partial.md
             ((exit_status++))
           fi
-          if ! cmp --silent expected-partial.md ${{ env.MOCK_REPO_SCRIPT }}/CHANGELOG.partial.md; then
-            echo "script's CHANGELOG.partial.md should be equal to the expected" >&2
+          echo =================================================================
+          echo "script's CHANGELOG.partial.md should be equal"
+          echo RESULT:
+          cat "${{ env.MOCK_REPO_SCRIPT }}/CHANGELOG.partial.md"
+          echo EXPECTED:
+          cat expected-partial.md
+          echo TEST:
+          if cmp --silent expected-partial.md ${{ env.MOCK_REPO_SCRIPT }}/CHANGELOG.partial.md; then
+            echo PASS
+          else
+            echo FAIL - diff between expected and the output:
             diff expected-partial.md ${{ env.ACTION_OUTPUTS }}/CHANGELOG.partial.md
+            ((exit_status++))
+          fi
+          echo =================================================================
+          echo "action output 'next-version' return the expected value"
+          echo EXPECTED:
+          echo "v1.3.0"
+          echo RESULT:
+          echo "${{ steps.ohi-release-notes.outputs.next-version }}"
+          echo TEST:
+          if [ "${{ steps.ohi-release-notes.outputs.next-version }}" = "v1.3.0" ] ; then
+            echo PASS
+          else
+            echo FAIL - action output 'next-version' does not return the expected value
+            ((exit_status++))
+          fi
+          echo =================================================================
+          echo "action output 'release-title' return the expected value"
+          echo EXPECTED:
+          echo "v1.3.0 - $(date +%Y-%m-%d)"
+          echo RESULT:
+          echo "${{ steps.ohi-release-notes.outputs.release-title }}"
+          echo TEST:
+          if [ "${{ steps.ohi-release-notes.outputs.release-title }}" = "v1.3.0 - $(date +%Y-%m-%d)" ] ; then
+            echo PASS
+          else
+            echo FAIL - action output 'release-title' does not return the expected value
             ((exit_status++))
           fi
 
