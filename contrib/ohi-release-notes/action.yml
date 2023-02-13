@@ -11,7 +11,7 @@ inputs:
     description: Fail if the held toggle is active. Defaults to `true`.
     default: 'true'
   link-dependencies-dictionary:
-    description: Sets the link dependency dictionary. Defaults to ".github/rt-dictionary.yaml".
+    description: Sets the link dependency dictionary.
     default: ''
 outputs:
   next-version:

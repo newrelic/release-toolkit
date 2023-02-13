@@ -16,7 +16,7 @@ function cleanup() {
 trap cleanup EXIT
 
 
-# usage and helm command. It is also an error exit in case flags are not correct.
+# usage and help command. It is also an error exit in case flags are not correct.
 function help() {
     set +x  # Disable verbosity. If it is enabled at this point, it is not needed anymore.
     ERRNO=0
