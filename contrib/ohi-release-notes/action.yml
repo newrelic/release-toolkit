@@ -1,0 +1,94 @@
+name: OHI release notes
+description: Wrapper for release toolkit that runs commands needed to release an OHI
+inputs:
+  git-root:
+    description: Path to the root of the git repository to source bot commits from.
+    default: "."
+  excluded-dirs:
+    description: Exclude commits whose changes only impact files in specified dirs relative to repository root. Defaults to ".github".
+    default: '.github'
+  fail-if-held:
+    description: Fail if the held toggle is active. Defaults to `true`.
+    default: 'true'
+  link-dependencies-dictionary:
+    description: Sets the link dependency dictionary.
+    default: ''
+outputs:
+  next-version:
+    description: "Version of this release"
+    value: ${{ steps.version.outputs.next-version }}
+  release-title:
+    description: "Title of this release"
+    value: ${{ steps.release.outputs.title }}
+  release-changelog:
+    description: "Complete changelog of this release"
+    value: ${{ steps.release.outputs.changelog }}
+  release-changelog-partial:
+    description: "Changelog for only this release"
+    value: ${{ steps.release.outputs.changelog-partial }}
+runs:
+  using: composite
+  steps:
+    - name: Validate that the markdown is correct
+      uses: ./validate-markdown
+      with:
+        markdown: ${{ inputs.git-root }}/CHANGELOG.md
+    - name: Generate YAML
+      uses: ./generate-yaml
+      with:
+        excluded-dirs: ${{ inputs.excluded-dirs }}
+        git-root: ${{ inputs.git-root }}
+        markdown: ${{ inputs.git-root }}/CHANGELOG.md
+        yaml: ${{ inputs.git-root }}/changelog.yaml
+    - name: Check if the release is held
+      id: held
+      uses: ./is-held
+      with:
+        yaml: ${{ inputs.git-root }}/changelog.yaml
+    - name: Abort releasing if the release is held
+      if: ${{ steps.held.outputs.is-held == 'true' && inputs.fail-if-held == 'true' }}
+      shell: bash
+      run: |
+        echo "Releases are being held. Aborting." >&2
+        exit 1
+    - name: Link dependencies
+      uses: ./link-dependencies
+      with:
+        dictionary: ${{ inputs.link-dependencies-dictionary }}
+        yaml: ${{ inputs.git-root }}/changelog.yaml
+    - name: Calculate next version
+      id: version
+      uses: ./next-version
+      with:
+        git-root: ${{ inputs.git-root }}
+        yaml: ${{ inputs.git-root }}/changelog.yaml
+    - name: Update the markdown
+      uses: ./update-markdown
+      with:
+        markdown: ${{ inputs.git-root }}/CHANGELOG.md
+        yaml: ${{ inputs.git-root }}/changelog.yaml
+        version: ${{ steps.version.outputs.next-version }}
+    - name: Render the changelog snippet
+      uses: ./render
+      with:
+        markdown: ${{ inputs.git-root }}/CHANGELOG.partial.md
+        yaml: ${{ inputs.git-root }}/changelog.yaml
+        version: ${{ steps.version.outputs.next-version }}
+    - name: Create outputs
+      shell: bash
+      id: release
+      run: |
+        echo "title=$(grep -E "^## " ${{ inputs.git-root }}/CHANGELOG.partial.md | sed 's|^## ||')" >> $GITHUB_OUTPUT
+
+        echo "changelog-partial<<EOF"                    >> $GITHUB_OUTPUT
+        cat ${{ inputs.git-root }}/CHANGELOG.partial.md  >> $GITHUB_OUTPUT
+        echo "EOF"                                       >> $GITHUB_OUTPUT
+
+        echo "changelog<<EOF"                    >> $GITHUB_OUTPUT
+        cat ${{ inputs.git-root }}/CHANGELOG.md  >> $GITHUB_OUTPUT
+        echo "EOF"                               >> $GITHUB_OUTPUT
+    - name: Clean the workspace
+      shell: bash
+      run: |
+        rm ${{ inputs.git-root }}/CHANGELOG.md.bak
+        rm ${{ inputs.git-root }}/changelog.yaml
