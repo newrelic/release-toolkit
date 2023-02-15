@@ -46,6 +46,9 @@ var Cmd = &cli.Command{
 			Name:    disableGithubValidationFlag,
 			EnvVars: common.EnvFor(disableGithubValidationFlag),
 			Usage: "Disables changelog links validation for automatically detected Github repositories. " +
+				"Github links validation performs a request to the rendered link in order to check if it actually exits. It the validation " +
+				"fails, it will try a new link with/without the version's leading 'v' (which is a common issue when rendering Github links). " +
+				"If generating a valid link is not possible, no link will be obtained for that particular dependency. " +
 				"When disabled, changelog links for Github repositories are directly rendered using " +
 				"https://github.com/<org>/<repo>/releases/tag/<new-version> with no validation, so no external request are performed.",
 			Value: false,
