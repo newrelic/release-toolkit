@@ -2,12 +2,14 @@ package link_test
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"path"
 	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/h2non/gock"
 
 	"github.com/newrelic/release-toolkit/src/app"
 )
@@ -18,6 +20,7 @@ func TestLink(t *testing.T) {
 		name       string
 		chlog      string
 		dictionary string
+		args       string
 		expected   string
 	}{
 		{
@@ -99,16 +102,56 @@ dependencies:
     - name: github.com/spf13/viper
       from: 4.0.3
       to: 4.1.2
-      changelog: https://github.com/spf13/viper/releases/tag/4.1.2
+      changelog: https://github.com/spf13/viper/releases/tag/v4.1.2
     - name: foobar
       from: 1.0.0
       to: 2.0.0
+`, "\n"),
+		},
+		{
+			name: "Disable_Github_Link_Check",
+			args: "-disable-github-validation",
+			chlog: strings.TrimSpace(`
+notes: |-
+    ### Important announcement (note)
+
+    This is a release note
+changes:
+- type: breaking
+  message: Support has been removed
+dependencies:
+- name: github.com/spf13/viper
+  from: 4.0.3
+  to: 4.1.2
+			`),
+			expected: strings.TrimLeft(`
+notes: |-
+    ### Important announcement (note)
+
+    This is a release note
+changes:
+    - type: breaking
+      message: Support has been removed
+dependencies:
+    - name: github.com/spf13/viper
+      from: 4.0.3
+      to: 4.1.2
+      changelog: https://github.com/spf13/viper/releases/tag/4.1.2
 `, "\n"),
 		},
 	} {
 		tc := tc
 		//nolint:paralleltest // urfave/cli cannot be tested concurrently.
 		t.Run(tc.name, func(t *testing.T) {
+			// setup http mock to avoid external requests to check github links.
+			defer gock.Off()
+			gock.New("https://github.com").
+				Get("/spf13/viper/releases/tag/4.1.2").
+				Reply(http.StatusNotFound)
+			gock.New("https://github.com").
+				Get("/spf13/viper/releases/tag/v4.1.2").
+				Reply(http.StatusOK)
+
 			tDir := t.TempDir()
 
 			app := app.App()
@@ -132,7 +175,9 @@ dependencies:
 			buf := &strings.Builder{}
 			app.Writer = buf
 
-			err = app.Run(strings.Fields(fmt.Sprintf("rt -yaml %s link-dependencies -dictionary %s", chlogPath, dicPath)))
+			err = app.Run(strings.Fields(
+				fmt.Sprintf("rt -yaml %s link-dependencies -dictionary %s %s", chlogPath, dicPath, tc.args),
+			))
 			if err != nil {
 				t.Fatalf("Error running app: %v", err)
 			}
