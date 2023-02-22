@@ -422,7 +422,7 @@ dependencies:
 			args: "-fail=1",
 			createRepoFunc: func(t *testing.T) string {
 				t.Helper()
-				return repoWithTags(t, "v0.1.0") // Empty tag list.
+				return repoWithTags(t, "v0.1.0")
 			},
 			yaml: strings.TrimSpace(`
 notes: "adfafds"
