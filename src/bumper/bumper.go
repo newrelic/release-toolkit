@@ -12,10 +12,9 @@ import (
 )
 
 var (
-	ErrEmptySource = errors.New("could not find any existing version")
-	ErrNoNewVersion = errors.New("no newer version to be bumped")
+	ErrEmptySource  = errors.New("could not find any existing version")
+	ErrNoNewVersion = errors.New("bump did not change the version")
 )
-
 
 // Bumper takes a changelog and a version and figures out the next one.
 type Bumper struct {
@@ -69,7 +68,7 @@ func (b Bumper) BumpSource(source version.Source) (*semver.Version, error) {
 
 	nextVersion := b.Bump(versions[0])
 	if versions[0] == nextVersion {
-		return nil, ErrNoNewVersion
+		return nextVersion, ErrNoNewVersion
 	}
 
 	return nextVersion, nil

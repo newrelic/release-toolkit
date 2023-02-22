@@ -11,7 +11,6 @@ import (
 
 	"github.com/newrelic/release-toolkit/src/app"
 	"github.com/newrelic/release-toolkit/src/bump"
-	"github.com/newrelic/release-toolkit/src/bumper"
 )
 
 //nolint:paralleltest, funlen // urfave/cli cannot be tested concurrently.
@@ -88,9 +87,9 @@ changes:
 			`),
 		},
 		{
-			name:          "No_Bump",
-			args:          "-current v1.2.3",
-			errorExpected: bumper.ErrNoNewVersion,
+			name:     "No_Bump",
+			args:     "-current v1.2.3",
+			expected: "v1.2.3",
 			yaml: strings.TrimSpace(`
 changes: []
 			`),
@@ -329,6 +328,15 @@ dependencies:
   to: 1.0.0
 			`),
 		},
+		{
+			name:     "When_Repo_Has_No_Canges_But_Fail_Is_False",
+			expected: "v0.1.0",
+			args:     "--fail=0",
+			tags:     []string{"v0.1.0"},
+			yaml: strings.TrimSpace(`
+notes: "adfafds"
+			`),
+		},
 	} {
 		tc := tc
 		//nolint:paralleltest // urfave/cli cannot be tested concurrently.
@@ -407,6 +415,17 @@ dependencies:
 - name: foobar
   from: 0.0.1
   to: 0.1.0
+			`),
+		},
+		{
+			name: "When_Repo_Has_No_Changes_And_Must_Fail",
+			args: "-fail=1",
+			createRepoFunc: func(t *testing.T) string {
+				t.Helper()
+				return repoWithTags(t, "v0.1.0") // Empty tag list.
+			},
+			yaml: strings.TrimSpace(`
+notes: "adfafds"
 			`),
 		},
 	} {

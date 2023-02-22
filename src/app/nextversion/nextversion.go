@@ -26,6 +26,7 @@ const (
 	gitRootFlag       = "git-root"
 	BumpCapFlag       = "bump-cap"
 	DependencyCapFlag = "dependency-cap"
+	failFlag          = "fail"
 )
 
 const nextVersionOutput = "next-version"
@@ -83,6 +84,13 @@ next-version will exit with an error if no previous versions are found in the gi
 			EnvVars: common.EnvFor(DependencyCapFlag),
 			Usage:   "In case of having to bump the version of base on a dependency, limit to this semVer type",
 			Value:   string(bump.MajorName),
+		},
+		&cli.BoolFlag{
+			Name:    failFlag,
+			EnvVars: common.EnvFor(failFlag),
+			Usage: "If set, command will exit with a code of 1 if no new version bump is produced. If not set," +
+				"the current version will be returned.",
+			Value: false,
 		},
 	},
 	Action: NextVersion,
@@ -154,6 +162,13 @@ func NextVersion(cCtx *cli.Context) error {
 
 	case nextOverride == nil && next != nil:
 		nextStr = next.String()
+		// If we don't have an override, the bumper did not bump anything, and the user has set `--fail`, then we should error out.
+		if errors.Is(err, bumper.ErrNoNewVersion) {
+			log.Warnf("None of the changelog entries produced a version bump, returning current version")
+			if cCtx.Bool("fail") {
+				return fmt.Errorf("failing by user request: %w", err)
+			}
+		}
 
 	case nextOverride == nil && next == nil:
 		return fmt.Errorf("bumping source: %w", err)

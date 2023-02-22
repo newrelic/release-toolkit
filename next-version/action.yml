@@ -17,6 +17,10 @@ inputs:
     description: The prefix to prepend when printing the output version
     required: false
     default: "v"
+  fail:
+    description: Fail if no new version found, by default the current version will be returned in that case
+    required: false
+    default: "0"
 outputs:
   next-version:
     description: Semver next version, with leading v
@@ -33,3 +37,4 @@ runs:
     - ${{ inputs.tag-prefix }}
     - --output-prefix
     - ${{ inputs.output-prefix }}
+    - --fail=${{ inputs.fail }}

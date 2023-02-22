@@ -339,6 +339,7 @@ func TestBumper_BumpSource_Errors(t *testing.T) {
 			name:          "Error_When_No_New_Version",
 			source:        mockSource{"v1.2.3"},
 			errorExpected: bumper.ErrNoNewVersion,
+			expected:      semver.MustParse("v1.2.3"),
 			changelog: changelog.Changelog{
 				Changes: []changelog.Entry{},
 			},
@@ -349,7 +350,12 @@ func TestBumper_BumpSource_Errors(t *testing.T) {
 		tc := tc
 
 		b := bumper.New(tc.changelog)
-		if _, err := b.BumpSource(tc.source); !errors.Is(err, tc.errorExpected) {
+		next, err := b.BumpSource(tc.source)
+
+		if !tc.expected.Equal(next) {
+			t.Fatalf("Expected %v, got %v", tc.expected, next)
+		}
+		if !errors.Is(err, tc.errorExpected) {
 			t.Fatalf("Expected bump.ErrNoTags, got %v", err)
 		}
 	}
