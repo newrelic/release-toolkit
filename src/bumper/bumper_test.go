@@ -1,6 +1,7 @@
 package bumper_test
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/Masterminds/semver"
@@ -10,10 +11,12 @@ import (
 )
 
 type testCase struct {
-	name      string
-	changelog changelog.Changelog
-	current   *semver.Version
-	expected  *semver.Version
+	name          string
+	changelog     changelog.Changelog
+	current       *semver.Version
+	expected      *semver.Version
+	source        mockSource
+	errorExpected error
 }
 
 type testCaseWithCap struct {
@@ -123,6 +126,22 @@ func TestBumper_Bump(t *testing.T) {
 				},
 			},
 		},
+
+		// Test cases for notes and empty
+		{
+			name:     "Same_On_Notes",
+			current:  semver.MustParse("v1.2.3"),
+			expected: semver.MustParse("v1.2.3"),
+			changelog: changelog.Changelog{
+				Notes: "### Awesome note",
+			},
+		},
+		{
+			name:      "Same_On_Empty",
+			current:   semver.MustParse("v1.2.3"),
+			expected:  semver.MustParse("v1.2.3"),
+			changelog: changelog.Changelog{},
+		},
 	}
 
 	for _, tc := range testCases {
@@ -131,11 +150,7 @@ func TestBumper_Bump(t *testing.T) {
 			t.Parallel()
 
 			bumper := bumper.New(tc.changelog)
-			next, err := bumper.Bump(tc.current)
-			if err != nil {
-				t.Fatalf("Bumping version: %v", err)
-			}
-
+			next := bumper.Bump(tc.current)
 			if !tc.expected.Equal(next) {
 				t.Fatalf("Expected %v, got %v", tc.expected, next)
 			}
@@ -261,10 +276,7 @@ func TestBumper_BumpWithCap(t *testing.T) {
 			bumper.EntryCap = tc.entryCap
 			bumper.DependencyCap = tc.dependencyCap
 
-			next, err := bumper.Bump(tc.current)
-			if err != nil {
-				t.Fatalf("Bumping version: %v", err)
-			}
+			next := bumper.Bump(tc.current)
 
 			if !tc.expected.Equal(next) {
 				t.Fatalf("Expected %v, got %v", tc.expected, next)
@@ -316,6 +328,36 @@ func TestBumper_BumpSource_InitialVersion(t *testing.T) {
 	bumped, err := b.BumpSource(source)
 	if err == nil {
 		t.Fatalf("Expected bumper to error when source is empty, got %v", bumped)
+	}
+}
+
+func TestBumper_BumpSource_Errors(t *testing.T) {
+	t.Parallel()
+
+	cases := []testCase{
+		{
+			name:          "Error_When_No_New_Version",
+			source:        mockSource{"v1.2.3"},
+			errorExpected: bumper.ErrNoNewVersion,
+			expected:      semver.MustParse("v1.2.3"),
+			changelog: changelog.Changelog{
+				Changes: []changelog.Entry{},
+			},
+		},
+	}
+
+	for _, tc := range cases {
+		tc := tc
+
+		b := bumper.New(tc.changelog)
+		next, err := b.BumpSource(tc.source)
+
+		if !tc.expected.Equal(next) {
+			t.Fatalf("Expected %v, got %v", tc.expected, next)
+		}
+		if !errors.Is(err, tc.errorExpected) {
+			t.Fatalf("Expected bump.ErrNoTags, got %v", err)
+		}
 	}
 }
 

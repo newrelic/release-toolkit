@@ -11,7 +11,10 @@ import (
 	"github.com/newrelic/release-toolkit/src/version"
 )
 
-var ErrEmptySource = errors.New("could not find any existing version")
+var (
+	ErrEmptySource  = errors.New("could not find any existing version")
+	ErrNoNewVersion = errors.New("bump did not change the version")
+)
 
 // Bumper takes a changelog and a version and figures out the next one.
 type Bumper struct {
@@ -30,7 +33,7 @@ func New(c changelog.Changelog) Bumper {
 }
 
 // Bump uses the Bumper's changelog.Changelog to compute the next version from v.
-func (b Bumper) Bump(v *semver.Version) (*semver.Version, error) {
+func (b Bumper) Bump(v *semver.Version) *semver.Version {
 	entryBump := bump.None
 	for _, e := range b.changelog.Changes {
 		entryBump = entryBump.With(e.BumpType())
@@ -43,7 +46,7 @@ func (b Bumper) Bump(v *semver.Version) (*semver.Version, error) {
 	}
 	dependencyBump = dependencyBump.Cap(b.DependencyCap)
 
-	return bump.Bump(v, entryBump.With(dependencyBump)), nil
+	return bump.Bump(v, entryBump.With(dependencyBump))
 }
 
 // BumpSource operates just like Bump, except it extracts tags from the supplied tag.Source and applies the bump
@@ -63,5 +66,10 @@ func (b Bumper) BumpSource(source version.Source) (*semver.Version, error) {
 		return versions[i].GreaterThan(versions[j])
 	})
 
-	return b.Bump(versions[0])
+	nextVersion := b.Bump(versions[0])
+	if versions[0] == nextVersion {
+		return nextVersion, ErrNoNewVersion
+	}
+
+	return nextVersion, nil
 }
