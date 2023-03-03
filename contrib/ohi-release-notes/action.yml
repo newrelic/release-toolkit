@@ -30,11 +30,11 @@ runs:
   using: composite
   steps:
     - name: Validate that the markdown is correct
-      uses: ./validate-markdown
+      uses: newrelic/release-toolkit/validate-markdown@v1
       with:
         markdown: ${{ inputs.git-root }}/CHANGELOG.md
     - name: Generate YAML
-      uses: ./generate-yaml
+      uses: newrelic/release-toolkit/generate-yaml@v1
       with:
         excluded-dirs: ${{ inputs.excluded-dirs }}
         git-root: ${{ inputs.git-root }}
@@ -42,7 +42,7 @@ runs:
         yaml: ${{ inputs.git-root }}/changelog.yaml
     - name: Check if the release is held
       id: held
-      uses: ./is-held
+      uses: newrelic/release-toolkit/is-held@v1
       with:
         yaml: ${{ inputs.git-root }}/changelog.yaml
     - name: Abort releasing if the release is held
@@ -52,24 +52,24 @@ runs:
         echo "Releases are being held. Aborting." >&2
         exit 1
     - name: Link dependencies
-      uses: ./link-dependencies
+      uses: newrelic/release-toolkit/link-dependencies@v1
       with:
         dictionary: ${{ inputs.link-dependencies-dictionary }}
         yaml: ${{ inputs.git-root }}/changelog.yaml
     - name: Calculate next version
       id: version
-      uses: ./next-version
+      uses: newrelic/release-toolkit/next-version@v1
       with:
         git-root: ${{ inputs.git-root }}
         yaml: ${{ inputs.git-root }}/changelog.yaml
     - name: Update the markdown
-      uses: ./update-markdown
+      uses: newrelic/release-toolkit/update-markdown@v1
       with:
         markdown: ${{ inputs.git-root }}/CHANGELOG.md
         yaml: ${{ inputs.git-root }}/changelog.yaml
         version: ${{ steps.version.outputs.next-version }}
     - name: Render the changelog snippet
-      uses: ./render
+      uses: newrelic/release-toolkit/render@v1
       with:
         markdown: ${{ inputs.git-root }}/CHANGELOG.partial.md
         yaml: ${{ inputs.git-root }}/changelog.yaml
