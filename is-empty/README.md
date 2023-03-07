@@ -1,17 +1,17 @@
-# 🛠️ `is-held`
+# 🛠️ `is-empty`
 
-Outputs whether automated releases should be skipped since it is held.
+Outputs whether automated releases should be skipped since the changelog is empty.
 
 ## Example Usage
 
-Example checking if changelog.yaml is held and accessing the output in next step:
+Example checking if changelog.yaml is empty and accessing the output in next step:
 ```yaml
-- name: Check if the release must be held
-  id: held
-  uses: newrelic/release-toolkit/is-held@v1
+- name: Check if the release is not needed
+  id: empty
+  uses: newrelic/release-toolkit/is-empty@v1
 - run: |
-    if [[ "${{ steps.held.outputs.is-held }}" == "true" ]]; then
-      echo "Releases are being held, skipping weekly release" >&2
+    if [[ "${{ steps.empty.outputs.is-empty }}" == "true" ]]; then
+      echo "Release are empty, skipping weekly release" >&2
       exit 1
     fi
 ```
@@ -22,7 +22,7 @@ All parameters are optional and match the ones used for the cli command flag.
 
 ## Outputs
 
-`is-held`: Returns `true` if next release should not be automated
+`is-empty`: Returns `true` if next release should not be created since there are no changes.
 
 ## Contributing
 

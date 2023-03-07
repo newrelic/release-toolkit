@@ -19,7 +19,7 @@ const (
 	dateFlag         = "date"
 )
 
-// Cmd is the cli.Command object for the is-held command.
+// Cmd is the cli.Command object for the render command.
 //
 //nolint:gochecknoglobals // We could overengineer this to avoid the global command but I don't think it's worth it.
 var Cmd = &cli.Command{

@@ -20,7 +20,7 @@ const isHeldOutput = "is-held"
 //nolint:gochecknoglobals // We could overengineer this to avoid the global command but I don't think it's worth it.
 var Cmd = &cli.Command{
 	Name:  "is-held",
-	Usage: "Outputs whether automated releases should be skipped",
+	Usage: "Outputs whether automated releases should be skipped since it is held",
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
 			Name:    failFlag,

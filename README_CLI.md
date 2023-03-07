@@ -34,6 +34,16 @@ rt is-held [-flags]
 | `yaml`  | `changelog.yaml`  | Path to the changelog.yaml file                                        |
 | `fail`  | `false`           | If set, command will exit with a code of 1 if changelog should be held |
 
+## Is empty
+```shell
+rt is-empty [-flags]
+```
+| Flags   | Default           | Description                                                      |
+|---------|-------------------|------------------------------------------------------------------|
+| `yaml`  | `changelog.yaml`  | Path to the changelog.yaml file                                  |
+| `fail`  | `false`           | If set, command will exit with a code of 1 if changelog is empty |
+
+
 ## Link dependencies
 Add links to the original changelog for all the dependencies in a changelog.yml detecting the link if the name is a full route or getting the link from a dictionary file if present
 ```shell

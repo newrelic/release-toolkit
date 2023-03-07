@@ -1,12 +1,12 @@
-name: Is Held
-description: Outputs whether automated releases should be skipped since it is held
+name: Is Empty
+description: Outputs whether automated releases should be skipped since the changelog is empty
 inputs:
   yaml:
     description: Path to changelog.yaml
     required: false
     default: changelog.yaml
 outputs:
-  is-held:
+  is-empty:
     description: Returns `true` if next release should not be automated
 runs:
   using: docker
@@ -14,4 +14,4 @@ runs:
   args:
     - --yaml
     - ${{ inputs.yaml }}
-    - is-held
+    - is-empty

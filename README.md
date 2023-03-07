@@ -262,6 +262,7 @@ This flag can be readily checked using the `is-held` action/command. `is-held` w
 
 - [Generate YAML changelog](./generate-yaml/README.md)
 - [Is Held](./is-held/README.md)
+- [Is Empty](./is-empty/README.md)
 - [Link dependencies](./link-dependencies/README.md)
 - [Next Version](./next-version/README.md)
 - [render](./render/README.md)
