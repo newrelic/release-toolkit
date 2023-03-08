@@ -50,7 +50,7 @@ jobs:
           yaml: ${{ env.MOCK_REPO }}/changelog.yaml
       - run: |
           if [[ "${{ steps.held.outputs.is-held }}" != "true" ]]; then
-            echo "is-held should have returned false" >&2
+            echo "is-held should have returned true" >&2
             exit 1
           fi
 

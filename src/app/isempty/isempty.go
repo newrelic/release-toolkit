@@ -20,7 +20,7 @@ const failFlag = "fail"
 //nolint:gochecknoglobals
 var Cmd = &cli.Command{
 	Name:  "is-empty",
-	Usage: "Outputs whether automated releases is not needed since changelog is empty",
+	Usage: "Outputs whether automated releases are not needed since changelog is empty",
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
 			Name:    failFlag,
@@ -47,10 +47,11 @@ func IsEmpty(cCtx *cli.Context) error {
 		return fmt.Errorf("loading changelog from file: %w", err)
 	}
 
-	_, _ = fmt.Fprintf(cCtx.App.Writer, "%v\n", ch.Empty())
+	chEmpty := ch.Empty()
+	_, _ = fmt.Fprintf(cCtx.App.Writer, "%v\n", chEmpty)
 
-	gh.SetOutput(isEmptyOutput, ch.Empty())
-	if cCtx.Bool("fail") && ch.Empty() {
+	gh.SetOutput(isEmptyOutput, chEmpty)
+	if cCtx.Bool("fail") && chEmpty {
 		return cli.Exit("changelog is empty", 1)
 	}
 
