@@ -54,6 +54,73 @@ jobs:
             exit 1
           fi
 
+  is-empty:
+    name: is-empty action
+    runs-on: ubuntu-latest
+    env:
+      MOCK_REPO: ./mock_repo
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configure test repo
+        id: repo
+        shell: bash
+        run: |
+          mkdir $MOCK_REPO
+          cd $MOCK_REPO
+
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+
+          git init
+          for i in 1 2 3; do
+            touch file$i
+            git add file$i
+            git commit -m commit_$i
+          done
+
+          cat > changelog.yaml <<EOF
+          notes: ""
+          changes: []
+          dependencies: []
+          EOF
+
+      - uses: ./is-empty
+        id: empty
+        with:
+          yaml: ${{ env.MOCK_REPO }}/changelog.yaml
+      - run: |
+          if [[ "${{ steps.empty.outputs.is-empty }}" != "true" ]]; then
+            echo "is-empty should have returned true" >&2
+            exit 1
+          fi
+      - name: Update changelog.yaml
+        id: repo-update
+        shell: bash
+        run: |
+          cd $MOCK_REPO
+          
+          cat > changelog.yaml <<EOF
+          notes: ""
+          changes: []
+          dependencies:
+            - name: github.com/stretchr/testify
+              from: 1.8.1
+              to: 1.8.2
+              changelog: https://github.com/stretchr/testify/releases/tag/v1.8.2
+              meta:
+                pr: "212"
+                commit: 2394d3e450a2992224c1c56a20df1ba0e06bdf59
+          EOF
+      - uses: ./is-empty
+        id: empty-updated
+        with:
+          yaml: ${{ env.MOCK_REPO }}/changelog.yaml
+      - run: |
+          if [[ "${{ steps.empty-updated.outputs.is-empty }}" != "false" ]]; then
+            echo "is-empty should have returned false" >&2
+            exit 1
+          fi
+
   generate-yaml:
     name: generate-yaml action
     runs-on: ubuntu-latest

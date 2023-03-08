@@ -31,7 +31,7 @@ const (
 
 const nextVersionOutput = "next-version"
 
-// Cmd is the cli.Command object for the is-held command.
+// Cmd is the cli.Command object for the next-version command.
 //
 //nolint:gochecknoglobals // We could overengineer this to avoid the global command but I don't think it's worth it.
 var Cmd = &cli.Command{
