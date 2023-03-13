@@ -38,6 +38,7 @@ DESCRIPTION:
    Wrapper for release toolkit that runs commands needed to create the release notes for an OHI:
     * rt validate-markdown
     * rt generate-yaml
+    * rt is-empty
     * rt is-held
     * rt link-dependencies
     * rt update-markdown (with the version calculated from the next-version command)
@@ -63,6 +64,7 @@ EOM
 
 # parsing flags
 EXCLUDED_DIRECTORIES=".github"
+IS_EMPTY_FAIL="--fail"
 IS_HELD_FAIL="--fail"
 DICTIONARY=".github/rt-dictionary.yaml"
 GIT_ROOT="."
@@ -104,7 +106,8 @@ fi
 
     # generating the changelog
     ${RT_BIN} generate-yaml --excluded-dirs "$EXCLUDED_DIRECTORIES"
-    ${RT_BIN} is-held ${IS_HELD_FAIL} > /dev/null
+    ${RT_BIN} is-empty "${IS_EMPTY_FAIL}" > /dev/null
+    ${RT_BIN} is-held "${IS_HELD_FAIL}" > /dev/null
     if [ -f "$DICTIONARY" ]; then
         ${RT_BIN} link-dependencies --dictionary "$DICTIONARY"
     else
