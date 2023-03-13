@@ -83,7 +83,7 @@ func (r Source) Changelog() (*changelog.Changelog, error) {
 }
 
 var (
-	renovateRegex = regexp.MustCompile(`update (.+)`)
+	renovateRegex = regexp.MustCompile(`[Uu]pdate (.+)`)
 	prRegex       = regexp.MustCompile(`(.+) \([#!](\d+)\)$`)
 	versionRegex  = regexp.MustCompile(`(.+) to (v?\d\S*)`)
 )
