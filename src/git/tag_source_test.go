@@ -49,7 +49,7 @@ func executeCMDs(t *testing.T, cmds []string, dir string) {
 		cmd.Stderr = &out
 		if err := cmd.Run(); err != nil {
 			t.Errorf("%s output:\n%s", cmdline, out.String())
-			t.Fatalf("Error bootstraping test git repo: %v", err)
+			t.Fatalf("Error bootstrapping test git repo: %v", err)
 		}
 	}
 }
