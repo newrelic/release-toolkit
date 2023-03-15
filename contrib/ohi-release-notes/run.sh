@@ -64,7 +64,6 @@ EOM
 
 # parsing flags
 EXCLUDED_DIRECTORIES=".github"
-IS_EMPTY_FAIL="--fail"
 IS_HELD_FAIL="--fail"
 DICTIONARY=".github/rt-dictionary.yaml"
 GIT_ROOT="."
@@ -106,7 +105,7 @@ fi
 
     # generating the changelog
     ${RT_BIN} generate-yaml --excluded-dirs "$EXCLUDED_DIRECTORIES"
-    ${RT_BIN} is-empty "${IS_EMPTY_FAIL}" > /dev/null
+    ${RT_BIN} is-empty > /dev/null
     ${RT_BIN} is-held "${IS_HELD_FAIL}" > /dev/null
     if [ -f "$DICTIONARY" ]; then
         ${RT_BIN} link-dependencies --dictionary "$DICTIONARY"

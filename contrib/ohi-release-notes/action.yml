@@ -7,9 +7,6 @@ inputs:
   excluded-dirs:
     description: Exclude commits whose changes only impact files in specified dirs relative to repository root. Defaults to ".github".
     default: '.github'
-  fail-if-empty:
-    description: Fail if the empty toggle is active. Defaults to `true`.
-    default: 'true'
   fail-if-held:
     description: Fail if the held toggle is active. Defaults to `true`.
     default: 'true'
@@ -23,6 +20,9 @@ outputs:
   is-held:
     description: "Outputs if changelog is held"
     value: ${{ steps.held.outputs.is-held }}
+  skip-release:
+    description: "Outputs if a release should be skipped"
+    value: ${{ steps.check-release.outputs.skip }}
   next-version:
     description: "Version of this release"
     value: ${{ steps.version.outputs.next-version }}
@@ -54,53 +54,45 @@ runs:
       uses: newrelic/release-toolkit/is-empty@v1
       with:
         yaml: ${{ inputs.git-root }}/changelog.yaml
-    - name: Abort releasing if the changelog is empty
-      if: ${{ steps.empty.outputs.is-empty == 'true' && inputs.fail-if-empty == 'true' }}
-      shell: bash
-      run: |
-        echo "Aborting release, changelog is empty is-empty=${{ steps.empty.outputs.is-empty }}"
-        exit 0
     - name: Check if the release is held
-      if: ${{ steps.empty.outputs.is-empty != 'true' }}
       id: held
       uses: newrelic/release-toolkit/is-held@v1
       with:
         yaml: ${{ inputs.git-root }}/changelog.yaml
-    - name: Abort releasing if the release is held
-      if: ${{ steps.held.outputs.is-held == 'true' && inputs.fail-if-held == 'true' && steps.empty.outputs.is-empty != 'true' }}
+    - name: Check if the release should be skipped
+      id: check-release
       shell: bash
       run: |
-        echo "Release is being held, is-held=${{ steps.held.outputs.is-held }}"
-        exit 0
+        echo "::set-output name=skip::${{ steps.empty.outputs.is-empty == 'true' || steps.held.outputs.is-held == 'true' }}"
     - name: Link dependencies
-      if: ${{ steps.empty.outputs.is-empty != 'true' && steps.held.outputs.is-held != 'true' }}
+      if: ${{ steps.check-release.outputs.skip != 'true' }}
       uses: newrelic/release-toolkit/link-dependencies@v1
       with:
         dictionary: ${{ inputs.link-dependencies-dictionary }}
         yaml: ${{ inputs.git-root }}/changelog.yaml
     - name: Calculate next version
-      if: ${{ steps.empty.outputs.is-empty != 'true' && steps.held.outputs.is-held != 'true' }}
+      if: ${{ steps.check-release.outputs.skip != 'true' }}
       id: version
       uses: newrelic/release-toolkit/next-version@v1
       with:
         git-root: ${{ inputs.git-root }}
         yaml: ${{ inputs.git-root }}/changelog.yaml
     - name: Update the markdown
-      if: ${{ steps.empty.outputs.is-empty != 'true' && steps.held.outputs.is-held != 'true' }}
+      if: ${{ steps.check-release.outputs.skip != 'true' }}
       uses: newrelic/release-toolkit/update-markdown@v1
       with:
         markdown: ${{ inputs.git-root }}/CHANGELOG.md
         yaml: ${{ inputs.git-root }}/changelog.yaml
         version: ${{ steps.version.outputs.next-version }}
     - name: Render the changelog snippet
-      if: ${{ steps.empty.outputs.is-empty != 'true' && steps.held.outputs.is-held != 'true' }}
+      if: ${{ steps.check-release.outputs.skip != 'true' }}
       uses: newrelic/release-toolkit/render@v1
       with:
         markdown: ${{ inputs.git-root }}/CHANGELOG.partial.md
         yaml: ${{ inputs.git-root }}/changelog.yaml
         version: ${{ steps.version.outputs.next-version }}
     - name: Create outputs
-      if: ${{ steps.empty.outputs.is-empty != 'true' && steps.held.outputs.is-held != 'true' }}
+      if: ${{ steps.check-release.outputs.skip != 'true' }}
       shell: bash
       id: release
       run: |
@@ -114,7 +106,7 @@ runs:
         cat ${{ inputs.git-root }}/CHANGELOG.md  >> $GITHUB_OUTPUT
         echo "EOF"                               >> $GITHUB_OUTPUT
     - name: Clean the workspace
-      if: ${{ steps.empty.outputs.is-empty != 'true' && steps.held.outputs.is-held != 'true' }}
+      if: ${{ steps.check-release.outputs.skip != 'true' }}
       shell: bash
       run: |
         rm ${{ inputs.git-root }}/CHANGELOG.md.bak
