@@ -14,6 +14,15 @@ inputs:
     description: Sets the link dependency dictionary.
     default: ''
 outputs:
+  is-empty:
+    description: "Outputs if changelog is empty"
+    value: ${{ steps.empty.outputs.is-empty }}
+  is-held:
+    description: "Outputs if changelog is held"
+    value: ${{ steps.held.outputs.is-held }}
+  skip-release:
+    description: "Outputs if a release should be skipped"
+    value: ${{ steps.check-release.outputs.skip }}
   next-version:
     description: "Version of this release"
     value: ${{ steps.version.outputs.next-version }}
@@ -40,41 +49,50 @@ runs:
         git-root: ${{ inputs.git-root }}
         markdown: ${{ inputs.git-root }}/CHANGELOG.md
         yaml: ${{ inputs.git-root }}/changelog.yaml
+    - name: Check if the release is empty
+      id: empty
+      uses: newrelic/release-toolkit/is-empty@v1
+      with:
+        yaml: ${{ inputs.git-root }}/changelog.yaml
     - name: Check if the release is held
       id: held
       uses: newrelic/release-toolkit/is-held@v1
       with:
         yaml: ${{ inputs.git-root }}/changelog.yaml
-    - name: Abort releasing if the release is held
-      if: ${{ steps.held.outputs.is-held == 'true' && inputs.fail-if-held == 'true' }}
+    - name: Check if the release should be skipped
+      id: check-release
       shell: bash
       run: |
-        echo "Releases are being held. Aborting." >&2
-        exit 1
+        echo "::set-output name=skip::${{ steps.empty.outputs.is-empty == 'true' || steps.held.outputs.is-held == 'true' }}"
     - name: Link dependencies
+      if: ${{ steps.check-release.outputs.skip != 'true' }}
       uses: newrelic/release-toolkit/link-dependencies@v1
       with:
         dictionary: ${{ inputs.link-dependencies-dictionary }}
         yaml: ${{ inputs.git-root }}/changelog.yaml
     - name: Calculate next version
+      if: ${{ steps.check-release.outputs.skip != 'true' }}
       id: version
       uses: newrelic/release-toolkit/next-version@v1
       with:
         git-root: ${{ inputs.git-root }}
         yaml: ${{ inputs.git-root }}/changelog.yaml
     - name: Update the markdown
+      if: ${{ steps.check-release.outputs.skip != 'true' }}
       uses: newrelic/release-toolkit/update-markdown@v1
       with:
         markdown: ${{ inputs.git-root }}/CHANGELOG.md
         yaml: ${{ inputs.git-root }}/changelog.yaml
         version: ${{ steps.version.outputs.next-version }}
     - name: Render the changelog snippet
+      if: ${{ steps.check-release.outputs.skip != 'true' }}
       uses: newrelic/release-toolkit/render@v1
       with:
         markdown: ${{ inputs.git-root }}/CHANGELOG.partial.md
         yaml: ${{ inputs.git-root }}/changelog.yaml
         version: ${{ steps.version.outputs.next-version }}
     - name: Create outputs
+      if: ${{ steps.check-release.outputs.skip != 'true' }}
       shell: bash
       id: release
       run: |
@@ -88,6 +106,7 @@ runs:
         cat ${{ inputs.git-root }}/CHANGELOG.md  >> $GITHUB_OUTPUT
         echo "EOF"                               >> $GITHUB_OUTPUT
     - name: Clean the workspace
+      if: ${{ steps.check-release.outputs.skip != 'true' }}
       shell: bash
       run: |
         rm ${{ inputs.git-root }}/CHANGELOG.md.bak

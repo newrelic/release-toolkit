@@ -57,7 +57,7 @@ func repoWithCommitsAndTags(t *testing.T, commitsAndTags ...testCommitTag) strin
 		cmd.Stderr = &out
 		if err := cmd.Run(); err != nil {
 			t.Errorf("%s output:\n%s", cmdline, out.String())
-			t.Fatalf("Error bootstraping test git repo: %v", err)
+			t.Fatalf("Error bootstrapping test git repo: %v", err)
 		}
 	}
 
