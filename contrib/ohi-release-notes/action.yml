@@ -15,7 +15,7 @@ inputs:
     default: ''
 outputs:
   is-empty:
-    description: "Outputs if there is no new release to be done"
+    description: "Outputs if changelog is empty"
     value: ${{ steps.empty.outputs.is-empty }}
   is-held:
     description: "Outputs if changelog is held"
