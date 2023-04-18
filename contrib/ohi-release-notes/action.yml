@@ -49,6 +49,7 @@ runs:
         git-root: ${{ inputs.git-root }}
         markdown: ${{ inputs.git-root }}/CHANGELOG.md
         yaml: ${{ inputs.git-root }}/changelog.yaml
+        exit-code: "0"
     - name: Check if the release is empty
       id: empty
       uses: newrelic/release-toolkit/is-empty@v1
