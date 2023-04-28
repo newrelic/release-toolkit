@@ -41,7 +41,7 @@ func (c *commitsGetterMock) Commits(_ string) ([]git.Commit, error) {
 	return commits, nil
 }
 
-//nolint:funlen
+//nolint:funlen,maintidx
 func TestSource_Source(t *testing.T) {
 	t.Parallel()
 	for _, tc := range []struct {
@@ -193,6 +193,19 @@ func TestSource_Source(t *testing.T) {
 						PR:     "",
 						Commit: "abcda222",
 					},
+				},
+			},
+		},
+		{
+			name:          "Matches_Reverts",
+			defaultAuthor: "not-a-bot",
+			commitMessages: []git.Commit{
+				{Message: "Revert \"update noprefix to v1.2.3\""},
+			},
+			expectedDependencies: []changelog.Dependency{
+				{
+					Name: "noprefix",
+					From: semver.MustParse("v1.2.3"),
 				},
 			},
 		},

@@ -263,6 +263,11 @@ Bumps [actions/github-script](https://github.com/actions/github-script) from 4.0
 			errExpected: errRandomError,
 			expected:    nil,
 		},
+		{
+			name:     "Revert_Matching_Commit_Single_Root_Minor",
+			commit:   git.Commit{Message: "Revert \"chore(deps): bump my-dep from 1.2.3 to 2.0.0\"", Author: "Not-a-bot"},
+			expected: []changelog.Dependency{{Name: "my-dep", From: semver.MustParse("2.0.0"), To: semver.MustParse("1.2.3")}},
+		},
 	} {
 		tc := tc
 		if tc.name == "" {

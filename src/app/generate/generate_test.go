@@ -34,7 +34,7 @@ This is a release note
 - This is in the past and should not be included
 `
 
-//nolint:funlen,paralleltest
+//nolint:funlen,maintidx,paralleltest
 func TestGenerate(t *testing.T) {
 	for _, tc := range []struct {
 		name           string
@@ -118,6 +118,72 @@ dependencies:
       meta:
         pr: "69"
         commit: chore(deps): bump anotherdep from 0.0.1 to 0.0.2 (#69)
+			`) + "\n",
+		},
+		{
+			name: "Markdown_Reverted_Dependency",
+			md: strings.TrimSpace(`
+# Changelog
+This is based on blah blah blah
+
+## Unreleased
+
+## v1.2.3 - 20YY-DD-MM
+
+### Enhancements
+- This is in the past and should not be included
+			`) + "\n",
+			args:   "",
+			author: "not a bot <not-a@bot.com>",
+			commits: []string{
+				"Revert \"chore(deps): bump thisdep from 1.7.0 to 1.10.1\"",
+			},
+			expected: strings.TrimSpace(`
+notes: ""
+changes: []
+dependencies:
+    - name: thisdep
+      from: 1.10.1
+      to: 1.7.0
+      meta:
+        commit: Revert "chore(deps): bump thisdep from 1.7.0 to 1.10.1"
+			`) + "\n",
+		},
+		{
+			// This test case does not represent the behavior we would like, but servers as an acknowledgement
+			// of the limitations of the current behavior.
+			name: "Markdown_Dependency_And_Revert",
+			md: strings.TrimSpace(`
+# Changelog
+This is based on blah blah blah
+
+## Unreleased
+
+## v1.2.3 - 20YY-DD-MM
+
+### Enhancements
+- This is in the past and should not be included
+			`) + "\n",
+			args:   "",
+			author: "dependabot <dependabot@github.com>",
+			commits: []string{
+				"chore(deps): bump thisdep from 1.7.0 to 1.10.1",
+				"Revert \"chore(deps): bump thisdep from 1.7.0 to 1.10.1\"",
+			},
+			expected: strings.TrimSpace(`
+notes: ""
+changes: []
+dependencies:
+    - name: thisdep
+      from: 1.7.0
+      to: 1.10.1
+      meta:
+        commit: chore(deps): bump thisdep from 1.7.0 to 1.10.1
+    - name: thisdep
+      from: 1.10.1
+      to: 1.7.0
+      meta:
+        commit: Revert "chore(deps): bump thisdep from 1.7.0 to 1.10.1"
 			`) + "\n",
 		},
 		{
