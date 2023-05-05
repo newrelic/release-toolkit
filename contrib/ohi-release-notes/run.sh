@@ -3,13 +3,14 @@
 set -euo pipefail
 
 RT_PKG="github.com/newrelic/release-toolkit@latest"
+DICTIONARY_URL="https://raw.githubusercontent.com/newrelic/release-toolkit/v1/contrib/ohi-release-notes/rt-dictionary.yml"
 ARGS="$*"
 
 
 # creating a temporary folder where to build the rt binary and cleaning after exiting.
-TEMP_BIN=$(mktemp -dt release-toolkit-XXX)
+TEMP_DIR=$(mktemp -dt release-toolkit-XXX)
 function cleanup() {
-    rm -rf $TEMP_BIN    || true
+    rm -rf $TEMP_DIR    || true
     rm "${GIT_ROOT}/CHANGELOG.md.bak" || true
     rm "${GIT_ROOT}/changelog.yaml"   || true
 }
@@ -55,7 +56,7 @@ OPTIONS:
    --help           Show this help message and exits.
    --excluded-dirs  Exclude commits whose changes only impact files in specified dirs relative to repository root. Defaults to ".github".
    --no-fail        Do not fail even in the held toggle is active
-   --dictionary     Sets the link dependency dictionary. Defaults to ".github/rt-dictionary.yaml".
+   --dictionary     Sets the link dependency dictionary file path. Defaults file located at "$DICTIONARY_URL" is used.
 
 EOM
     exit $ERRNO
@@ -65,7 +66,7 @@ EOM
 # parsing flags
 EXCLUDED_DIRECTORIES=".github"
 IS_HELD_FAIL="--fail"
-DICTIONARY=".github/rt-dictionary.yaml"
+DICTIONARY=""
 GIT_ROOT="."
 
 while true; do
@@ -89,12 +90,17 @@ while true; do
 done
 
 # building rt
-GOBIN="${TEMP_BIN}" go install ${RT_PKG}
-RT_BIN="${TEMP_BIN}/release-toolkit"
+GOBIN="${TEMP_DIR}" go install ${RT_PKG}
+RT_BIN="${TEMP_DIR}/release-toolkit"
 if ! [ -x $RT_BIN ]; then
     help "rt binary is not executable: \"${RT_BIN}\""
 fi
 
+# fetch default dictionary by default
+if [ -z "$DICTIONARY" ]; then
+    DICTIONARY="${TEMP_DIR}/rt-dictionary.yml"
+    curl -s -o "$DICTIONARY" "$DICTIONARY_URL"
+fi
 
 (
     cd "${GIT_ROOT}"

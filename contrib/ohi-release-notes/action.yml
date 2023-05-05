@@ -10,9 +10,6 @@ inputs:
   fail-if-held:
     description: Fail if the held toggle is active. Defaults to `true`.
     default: 'true'
-  link-dependencies-dictionary:
-    description: Sets the link dependency dictionary.
-    default: ''
 outputs:
   is-empty:
     description: "Outputs if changelog is empty"
@@ -65,11 +62,19 @@ runs:
       shell: bash
       run: |
         echo "::set-output name=skip::${{ steps.empty.outputs.is-empty == 'true' || steps.held.outputs.is-held == 'true' }}"
+    # rt-dictionary is a file contained by this action and is located inside $GITHUB_ACTION_PATH, but this
+    # folder is not mounted in the container that runs the link-dependencies action, so we copied the file to
+    # /home/runner/work/_temp/_github_home/ which is mounted in /github/home/
+    - name: Copy dictionary to temp folder mounted by the link-dependencies action
+      shell: bash
+      run: |
+        cp ${{ github.action_path }}/rt-dictionary.yml /home/runner/work/_temp/_github_home/rt-dictionary.yml
     - name: Link dependencies
       if: ${{ steps.check-release.outputs.skip != 'true' }}
       uses: newrelic/release-toolkit/link-dependencies@v1
       with:
-        dictionary: ${{ inputs.link-dependencies-dictionary }}
+        # see comment from last step regarding this file.
+        dictionary: /github/home/rt-dictionary.yml
         yaml: ${{ inputs.git-root }}/changelog.yaml
     - name: Calculate next version
       if: ${{ steps.check-release.outputs.skip != 'true' }}
