@@ -99,7 +99,7 @@ if ! [ -x $RT_BIN ]; then
 fi
 
 # fetch default dictionary by default
-if [ -f "$DICTIONARY" ]; then
+if ! [ -f "$DICTIONARY" ]; then
     DICTIONARY="${TEMP_DIR}/rt-dictionary.yml"
     curl -s -o "$DICTIONARY" "$DICTIONARY_URL"
 fi
