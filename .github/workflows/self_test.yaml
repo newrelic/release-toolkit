@@ -528,6 +528,9 @@ jobs:
           done
           git tag 1.2.3
 
+          touch dependencies
+          git add dependencies
+          git commit -m "chore(deps): bump newrelic/infrastructure from 0.0.0 to 0.0.1 (#1)" --author="dependabot[bot] <db@users.noreply.github.com>"
 
           cat > CHANGELOG.md <<EOF
           # Changelog
@@ -559,6 +562,9 @@ jobs:
           ### 🚀 Enhancements
           - test
 
+          ### ⛓️ Dependencies
+          - Upgraded newrelic/infrastructure from 0.0.0 to 0.0.1 - [Changelog 🔗](https://github.com/newrelic/infrastructure-agent/releases/tag/0.0.1)
+
           ## v1.2.3 - 20YY-DD-MM
 
           ### Enhancements
@@ -572,6 +578,9 @@ jobs:
 
           ### 🚀 Enhancements
           - test
+
+          ### ⛓️ Dependencies
+          - Upgraded newrelic/infrastructure from 0.0.0 to 0.0.1 - [Changelog 🔗](https://github.com/newrelic/infrastructure-agent/releases/tag/0.0.1)
           EOF
 
       - name: Run action

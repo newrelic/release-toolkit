@@ -36,12 +36,12 @@ type mockRenderer struct {
 	called int
 }
 
-func (mr *mockRenderer) RenderNode(w io.Writer, node ast.Node, entering bool) ast.WalkStatus {
+func (mr *mockRenderer) RenderNode(_ io.Writer, _ ast.Node, _ bool) ast.WalkStatus {
 	mr.called++
 	return ast.GoToNext
 }
-func (mr *mockRenderer) RenderHeader(w io.Writer, ast ast.Node) {}
-func (mr *mockRenderer) RenderFooter(w io.Writer, ast ast.Node) {}
+func (mr *mockRenderer) RenderHeader(_ io.Writer, _ ast.Node) {}
+func (mr *mockRenderer) RenderFooter(_ io.Writer, _ ast.Node) {}
 
 func TestFilterRenderer(t *testing.T) {
 	t.Parallel()
