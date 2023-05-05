@@ -58,7 +58,7 @@ func (l *LeadingVCheck) Map(dep changelog.Dependency) string {
 
 func (l *LeadingVCheck) switchDepLeadingV(dep changelog.Dependency) (changelog.Dependency, error) {
 	literal := dep.To.Original()
-	switchedLiteral := ""
+	var switchedLiteral string
 	if strings.HasPrefix(literal, "v") {
 		switchedLiteral = strings.TrimPrefix(literal, "v")
 	} else {
