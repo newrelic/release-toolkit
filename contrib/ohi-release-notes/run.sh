@@ -68,7 +68,7 @@ EOM
 # parsing flags
 EXCLUDED_DIRECTORIES=".github"
 IS_HELD_FAIL="--fail"
-DICTIONARY=""
+DICTIONARY=".github/rt-dictionary.yml"
 GIT_ROOT="."
 
 while true; do
@@ -99,7 +99,7 @@ if ! [ -x $RT_BIN ]; then
 fi
 
 # fetch default dictionary by default
-if [ -z "$DICTIONARY" ]; then
+if [ -f "$DICTIONARY" ]; then
     DICTIONARY="${TEMP_DIR}/rt-dictionary.yml"
     curl -s -o "$DICTIONARY" "$DICTIONARY_URL"
 fi
