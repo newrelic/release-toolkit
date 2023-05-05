@@ -3,7 +3,9 @@
 set -euo pipefail
 
 RT_PKG="github.com/newrelic/release-toolkit@latest"
-DICTIONARY_URL="https://raw.githubusercontent.com/newrelic/release-toolkit/v1/contrib/ohi-release-notes/rt-dictionary.yml"
+# TODO this is just added to check the CI tests are passing and should be reverted before merge , chicken egg thing.
+# DICTIONARY_URL="https://raw.githubusercontent.com/newrelic/release-toolkit/v1/contrib/ohi-release-notes/rt-dictionary.yml"
+DICTIONARY_URL="https://raw.githubusercontent.com/newrelic/newrelic-infra-checkers/main/rt-dictionary/.rt-dictionary.yml"
 ARGS="$*"
 
 
