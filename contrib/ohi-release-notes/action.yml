@@ -7,6 +7,9 @@ inputs:
   excluded-dirs:
     description: Exclude commits whose changes only impact files in specified dirs relative to repository root. Defaults to ".github".
     default: '.github'
+  excluded-files:
+    description: Exclude commits whose changes only impact files in specified files relative to repository root. Defaults to "".
+    default: ''
   fail-if-held:
     description: Fail if the held toggle is active. Defaults to `true`.
     default: 'true'
@@ -46,6 +49,7 @@ runs:
       uses: newrelic/release-toolkit/generate-yaml@v1
       with:
         excluded-dirs: ${{ inputs.excluded-dirs }}
+        excluded-files: ${{ inputs.excluded-files }}
         git-root: ${{ inputs.git-root }}
         markdown: ${{ inputs.git-root }}/CHANGELOG.md
         yaml: ${{ inputs.git-root }}/changelog.yaml

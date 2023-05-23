@@ -19,6 +19,7 @@ This is a wrapper of all the steps needed to update the changelog and render a s
 
 All parameters are optional:
   * `excluded-dirs` exclude commits whose changes only impact files in specified dirs relative to repository root. Defaults to ".github".
+  * `excluded-files` Exclude commits whose changes only impact files in specified files relative to repository root. Defaults to "".
   * `fail-if-held` fails if the held toggle is active
   * `dictionary` sets the link dependency dictionary. Defaults to ".github/rt-dictionary.yaml".
 

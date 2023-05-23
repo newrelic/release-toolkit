@@ -186,9 +186,19 @@ func TestCommitFilter_NewCommitFilter(t *testing.T) {
 			expectedError: git.ErrDirNotValid,
 		},
 		{
+			name: "Directory_for_files_Throw_No_Error",
+			opts: []git.CommitFilterOptionFunc{
+				git.ExcludedFiles(".a/b.c/"),
+			},
+			expectedError: git.ErrFileNotValid,
+		},
+		{
 			name: "Correct_Paths_Throw_No_Error",
 			opts: []git.CommitFilterOptionFunc{
-				git.ExcludedDirs(".a/b.c", "a"),
+				git.ExcludedDirs(".a/b.c/", "a"),
+				git.IncludedDirs(".a/b.c/", "a"),
+				git.IncludedFiles(".a/b.c", "a"),
+				git.ExcludedFiles(".a/b.c", "a"),
 			},
 			expectedError: nil,
 		},
