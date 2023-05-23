@@ -2,7 +2,8 @@
 
 set -euo pipefail
 
-RT_PKG="github.com/newrelic/release-toolkit@latest"
+# TODO
+RT_PKG="github.com/newrelic/release-toolkit@includeExcludeFiles"
 DICTIONARY_URL="https://raw.githubusercontent.com/newrelic/release-toolkit/v1/contrib/ohi-release-notes/rt-dictionary.yml"
 ARGS="$*"
 
@@ -55,6 +56,7 @@ OPTIONS:
    --verbose        Adds verbose mode to this script.
    --help           Show this help message and exits.
    --excluded-dirs  Exclude commits whose changes only impact files in specified dirs relative to repository root. Defaults to ".github".
+   --excluded-files Exclude commits whose changes only impact files in the list, paths relative to repository root. Defaults to "".
    --no-fail        Do not fail even in the held toggle is active
    --dictionary     Sets the link dependency dictionary file path. Defaults file located at "$DICTIONARY_URL" is used.
 
@@ -65,6 +67,7 @@ EOM
 
 # parsing flags
 EXCLUDED_DIRECTORIES=".github"
+EXCLUDED_FILES=""
 IS_HELD_FAIL="--fail"
 DICTIONARY=".github/rt-dictionary.yml"
 GIT_ROOT="."
@@ -80,6 +83,7 @@ while true; do
             --git-root ) GIT_ROOT="$2"; shift 2 ;;
             # Flags for generate-yaml
             --excluded-dirs ) EXCLUDED_DIRECTORIES="$2"; shift 2 ;;
+            --excluded-files ) EXCLUDED_FILES="$2"; shift 2 ;;
             # Flags for is-held
             --no-fail ) IS_HELD_FAIL=""; shift ;;
             # Flags for link-dependencies
@@ -110,7 +114,7 @@ fi
 
 
     # generating the changelog
-    ${RT_BIN} generate-yaml --excluded-dirs "$EXCLUDED_DIRECTORIES"
+    ${RT_BIN} generate-yaml --excluded-dirs "$EXCLUDED_DIRECTORIES" --excluded-files "$EXCLUDED_FILES"
     ${RT_BIN} is-empty > /dev/null
     ${RT_BIN} is-held "${IS_HELD_FAIL}" > /dev/null
     if [ -f "$DICTIONARY" ]; then
