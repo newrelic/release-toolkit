@@ -34,7 +34,7 @@ This is a release note
 - This is in the past and should not be included
 `
 
-//nolint:funlen,paralleltest
+//nolint:funlen,paralleltest,maintidx
 func TestGenerate(t *testing.T) {
 	for _, tc := range []struct {
 		name           string

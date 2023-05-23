@@ -2,7 +2,8 @@
 
 set -euo pipefail
 
-RT_PKG="github.com/newrelic/release-toolkit@latest"
+# TODO
+RT_PKG="github.com/newrelic/release-toolkit@feat/includeExcludeFiles"
 DICTIONARY_URL="https://raw.githubusercontent.com/newrelic/release-toolkit/v1/contrib/ohi-release-notes/rt-dictionary.yml"
 ARGS="$*"
 
@@ -55,7 +56,7 @@ OPTIONS:
    --verbose        Adds verbose mode to this script.
    --help           Show this help message and exits.
    --excluded-dirs  Exclude commits whose changes only impact files in specified dirs relative to repository root. Defaults to ".github".
-   --excluded-files  Exclude commits whose changes only impact files in specified files relative to repository root. Defaults to "".
+   --excluded-files Exclude commits whose changes only impact files in the list, paths relative to repository root. Defaults to "".
    --no-fail        Do not fail even in the held toggle is active
    --dictionary     Sets the link dependency dictionary file path. Defaults file located at "$DICTIONARY_URL" is used.
 

@@ -61,7 +61,7 @@ var Cmd = &cli.Command{
 		},
 		&cli.StringSliceFlag{
 			Name:    excludedDirsFlag,
-			EnvVars: common.EnvFor(includedDirsFlag),
+			EnvVars: common.EnvFor(excludedDirsFlag),
 			Usage: `Exclude commits whose changes only impact files in specified dirs relative to repository root (--dir) (separated by comma) ` +
 				`(Paths may not start with "/" or contain ".." or "." tokens)`,
 		},
@@ -73,7 +73,7 @@ var Cmd = &cli.Command{
 		},
 		&cli.StringSliceFlag{
 			Name:    excludedFilesFlag,
-			EnvVars: common.EnvFor(includedFilesFlag),
+			EnvVars: common.EnvFor(excludedFilesFlag),
 			Usage: `Exclude commits whose changes only impact the specified files, path are relative to repository root (--dir) (separated by comma) ` +
 				`(Paths may not start or end with "/" or contain ".." or "." tokens)`,
 		},
