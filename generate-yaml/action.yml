@@ -52,9 +52,7 @@ runs:
     - ${{ inputs.git-root }}
     - --tag-prefix
     - ${{ inputs.tag-prefix }}
-    - --included-dirs
-    - ${{ inputs.included-dirs }}
-    - --excluded-dirs
-    - ${{ inputs.excluded-dirs }}
+    - --included-dirs=${{ inputs.included-dirs }}
+    - --excluded-dirs=${{ inputs.excluded-dirs }}
     - --exit-code
     - ${{ inputs.exit-code }}

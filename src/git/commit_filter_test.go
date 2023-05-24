@@ -64,11 +64,11 @@ func TestCommitFilter_Commits(t *testing.T) {
 		{
 			name: "Exclude_Folder1",
 			opts: []git.CommitFilterOptionFunc{
-				git.ExcludedDirs("folder1"),
+				git.IncludedDirs(""),
 			},
 			commits: allCommits,
 			expectedCommits: []git.Commit{
-				singleFileRoot, twoFilesFolder2, threeFilesFolders, rootAndFolder,
+				singleFileRoot, rootAndFolder,
 			},
 		},
 		{
