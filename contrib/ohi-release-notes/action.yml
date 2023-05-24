@@ -43,7 +43,7 @@ runs:
       with:
         markdown: ${{ inputs.git-root }}/CHANGELOG.md
     - name: Generate YAML
-      uses: newrelic/release-toolkit/generate-yaml@v1
+      uses: newrelic/release-toolkit/generate-yaml@debug
       with:
         excluded-dirs: ${{ inputs.excluded-dirs }}
         git-root: ${{ inputs.git-root }}
