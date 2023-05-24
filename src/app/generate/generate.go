@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/newrelic/release-toolkit/src/app/common"
 	"github.com/newrelic/release-toolkit/src/app/gha"
 	"github.com/newrelic/release-toolkit/src/changelog"
@@ -111,6 +113,9 @@ func Generate(cCtx *cli.Context) error {
 
 	includedDirs := cCtx.StringSlice(includedDirsFlag)
 	excludedDirs := cCtx.StringSlice(excludedDirsFlag)
+
+	log.Errorf("includedDirs = %q", includedDirs)
+	log.Errorf("excludedDirs = %q", excludedDirs)
 
 	if cCtx.Bool(renovateFlag) {
 		appendDep := func(sources []changelog.Source, tgv git.TagsVersionGetter, getter git.CommitsGetter) []changelog.Source {
