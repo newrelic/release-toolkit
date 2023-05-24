@@ -57,6 +57,8 @@ OPTIONS:
    --help           Show this help message and exits.
    --excluded-dirs  Exclude commits whose changes only impact files in specified dirs relative to repository root. Defaults to ".github".
    --excluded-files Exclude commits whose changes only impact files in the list, paths relative to repository root. Defaults to "".
+   --included-dirs  Only scan commits scoping at least one file in any of the following comma-separated directories Defaults to "".
+   --included-files Only scan commits scoping at least one file in the following comma-separated list. Defaults to "".
    --no-fail        Do not fail even in the held toggle is active
    --dictionary     Sets the link dependency dictionary file path. Defaults file located at "$DICTIONARY_URL" is used.
 
@@ -68,6 +70,8 @@ EOM
 # parsing flags
 EXCLUDED_DIRECTORIES_FLAG="--excluded-dirs=.github"
 EXCLUDED_FILES_FLAG=""
+INCLUDED_DIRECTORIES_FLAG=""
+INCLUDED_FILES_FLAG=""
 IS_HELD_FAIL="--fail"
 DICTIONARY=".github/rt-dictionary.yml"
 GIT_ROOT="."
@@ -84,6 +88,8 @@ while true; do
             # Flags for generate-yaml
             --excluded-dirs ) EXCLUDED_DIRECTORIES_FLAG="--excluded-dirs=$2"; shift 2 ;;
             --excluded-files ) EXCLUDED_FILES_FLAG="--excluded-files=$2"; shift 2 ;;
+            --included-dirs ) INCLUDED_DIRECTORIES_FLAG="--included-dirs=$2"; shift 2 ;;
+            --included-files ) INCLUDED_FILES_FLAG="--included-files=$2"; shift 2 ;;
             # Flags for is-held
             --no-fail ) IS_HELD_FAIL=""; shift ;;
             # Flags for link-dependencies
@@ -114,7 +120,7 @@ fi
 
 
     # generating the changelog
-    ${RT_BIN} generate-yaml "$EXCLUDED_DIRECTORIES_FLAG" "$EXCLUDED_FILES_FLAG"
+    ${RT_BIN} generate-yaml "$EXCLUDED_DIRECTORIES_FLAG" "$EXCLUDED_FILES_FLAG" "$INCLUDED_DIRECTORIES_FLAG" "$INCLUDED_FILES_FLAG"
     ${RT_BIN} is-empty > /dev/null
     ${RT_BIN} is-held "${IS_HELD_FAIL}" > /dev/null
     if [ -f "$DICTIONARY" ]; then

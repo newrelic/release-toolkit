@@ -10,6 +10,14 @@ inputs:
   excluded-files:
     description: Exclude commits whose changes only impact files in specified files relative to repository root. Defaults to "".
     default: ''
+  included-dirs:
+    description: Only scan commits scoping at least one file in any of the following comma-separated directories
+    required: false
+    default: ""
+  included-files:
+    description: Only scan commits scoping at least one file in the following comma-separated list
+    required: false
+    default: ""
   fail-if-held:
     description: Fail if the held toggle is active. Defaults to `true`.
     default: 'true'
@@ -50,6 +58,8 @@ runs:
       with:
         excluded-dirs: ${{ inputs.excluded-dirs }}
         excluded-files: ${{ inputs.excluded-files }}
+        included-dirs: ${{ inputs.included-dirs }}
+        included-files: ${{ inputs.included-files }}
         git-root: ${{ inputs.git-root }}
         markdown: ${{ inputs.git-root }}/CHANGELOG.md
         yaml: ${{ inputs.git-root }}/changelog.yaml

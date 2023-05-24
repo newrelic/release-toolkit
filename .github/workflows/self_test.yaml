@@ -606,12 +606,14 @@ jobs:
           git-root: ${{ env.MOCK_REPO_ACTION }}
           excluded-files: dependencies-skip1
           excluded-dirs: dependencies-repo-skip
+          included-dirs: dependencies-repo
+          included-files: dependencies
       - name: Run script
         run: |
           cd "${{ env.MOCK_REPO_SCRIPT }}"
           # CLI autodetects whether it is running on GHA or not. If we let GHA set this to true, as it normally does,
           # tests cases where GITHUB_ACTIONS is expected to be unset would fail.
-          GITHUB_ACTIONS=false "${GITHUB_WORKSPACE}/contrib/ohi-release-notes/run.sh" --excluded-files dependencies-skip1 --excluded-dirs dependencies-repo-skip
+          GITHUB_ACTIONS=false "${GITHUB_WORKSPACE}/contrib/ohi-release-notes/run.sh" --included-dirs dependencies-repo --included-files dependencies --excluded-files dependencies-skip1 --excluded-dirs dependencies-repo-skip
       - name: Action outputs
         working-directory: ${{ env.ACTION_OUTPUTS }}
         run: |
