@@ -137,6 +137,41 @@ func TestCommitFilter_Commits(t *testing.T) {
 				twoFilesFolder2, threeFilesFolders,
 			},
 		},
+		{
+			name: "Include_Folder2_Exclude_Folder1",
+			opts: []git.CommitFilterOptionFunc{
+				git.IncludedDirs("folder2"),
+				git.ExcludedDirs("folder1"),
+			},
+			expectedCommits: []git.Commit{
+				// Commit will not be excluded as some changes scope.
+				twoFilesFolder2, threeFilesFolders,
+			},
+		},
+		{
+			name: "Include_Exclude_mixed",
+			opts: []git.CommitFilterOptionFunc{
+				git.IncludedDirs("folder2"),
+				git.ExcludedDirs("folder1"),
+				git.IncludedFiles("single-file-on-root"),
+				git.ExcludedFiles("folder2/file"),
+			},
+			expectedCommits: []git.Commit{
+				// Commit will not be excluded as some changes scope.
+				singleFileRoot, twoFilesFolder2,
+			},
+		},
+		{
+			name: "Mixed_exclude_precedence",
+			opts: []git.CommitFilterOptionFunc{
+				git.ExcludedDirs("folder2", "folder1"),
+				git.IncludedFiles("single-file-on-root", "file-on-root", "folder2/file"),
+			},
+			expectedCommits: []git.Commit{
+				// Commit will not be excluded as some changes scope.
+				singleFileRoot, rootAndFolder,
+			},
+		},
 	} {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
