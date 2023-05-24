@@ -31,6 +31,7 @@ func IncludedDirs(includedDirs ...string) CommitFilterOptionFunc {
 				return fmt.Errorf("included dir %s : %w", dir, ErrDirNotValid)
 			}
 		}
+
 		s.includedDirs = includedDirs
 		return nil
 	}
