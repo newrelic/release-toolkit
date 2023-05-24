@@ -119,12 +119,12 @@ func (s *CommitFilter) Commits(lastHash string) ([]Commit, error) {
 }
 
 // commitChangesExcluded returns true if all changes are excluded or if none of the changes are included.
-// Notice that the exclude-clause takes precedence
+// Notice that the exclude-clause takes precedence.
 func (s *CommitFilter) commitChangesExcluded(files []string) bool {
 	for _, file := range files {
 		var changeIsExcluded bool
 
-		if s.fileIncluded(file) == false {
+		if !s.fileIncluded(file) {
 			changeIsExcluded = true
 		}
 

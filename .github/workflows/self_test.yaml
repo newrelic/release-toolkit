@@ -532,6 +532,20 @@ jobs:
           git add dependencies
           git commit -m "chore(deps): bump newrelic/infrastructure from 0.0.0 to 0.0.1 (#1)" --author="dependabot[bot] <db@users.noreply.github.com>"
 
+          touch dependencies-skip1
+          git add dependencies-skip1
+          git commit -m "chore(deps): bump newrelic/infrastructure from 0.0.1 to 0.0.2 (#2)" --author="dependabot[bot] <db@users.noreply.github.com>"
+
+          mkdir dependencies-repo-skip
+          touch dependencies-repo-skip/dependencies-skip2
+          git add dependencies-repo-skip/dependencies-skip2
+          git commit -m "chore(deps): bump newrelic/infrastructure from 0.0.2 to 0.0.3 (#3)" --author="dependabot[bot] <db@users.noreply.github.com>"
+
+          mkdir dependencies-repo
+          touch dependencies-repo/dependencies
+          git add dependencies-repo/dependencies
+          git commit -m "chore(deps): bump newrelic/infrastructure from 0.0.3 to 0.0.4 (#4)" --author="dependabot[bot] <db@users.noreply.github.com>"
+
           cat > CHANGELOG.md <<EOF
           # Changelog
             This is based on blah blah blah
@@ -564,6 +578,7 @@ jobs:
 
           ### ⛓️ Dependencies
           - Upgraded newrelic/infrastructure from 0.0.0 to 0.0.1 - [Changelog 🔗](https://github.com/newrelic/infrastructure-agent/releases/tag/0.0.1)
+          - Upgraded newrelic/infrastructure from 0.0.3 to 0.0.4 - [Changelog 🔗](https://github.com/newrelic/infrastructure-agent/releases/tag/0.0.4)
 
           ## v1.2.3 - 20YY-DD-MM
 
@@ -581,6 +596,7 @@ jobs:
 
           ### ⛓️ Dependencies
           - Upgraded newrelic/infrastructure from 0.0.0 to 0.0.1 - [Changelog 🔗](https://github.com/newrelic/infrastructure-agent/releases/tag/0.0.1)
+          - Upgraded newrelic/infrastructure from 0.0.3 to 0.0.4 - [Changelog 🔗](https://github.com/newrelic/infrastructure-agent/releases/tag/0.0.4)
           EOF
 
       - name: Run action
@@ -588,12 +604,14 @@ jobs:
         id: ohi-release-notes
         with:
           git-root: ${{ env.MOCK_REPO_ACTION }}
+          excluded-files: dependencies-skip1
+          excluded-dirs: dependencies-repo-skip
       - name: Run script
         run: |
           cd "${{ env.MOCK_REPO_SCRIPT }}"
           # CLI autodetects whether it is running on GHA or not. If we let GHA set this to true, as it normally does,
           # tests cases where GITHUB_ACTIONS is expected to be unset would fail.
-          GITHUB_ACTIONS=false "${GITHUB_WORKSPACE}/contrib/ohi-release-notes/run.sh"
+          GITHUB_ACTIONS=false "${GITHUB_WORKSPACE}/contrib/ohi-release-notes/run.sh" --excluded-files dependencies-skip1 --excluded-dirs dependencies-repo-skip
       - name: Action outputs
         working-directory: ${{ env.ACTION_OUTPUTS }}
         run: |

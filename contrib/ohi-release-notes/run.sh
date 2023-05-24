@@ -66,8 +66,8 @@ EOM
 
 
 # parsing flags
-EXCLUDED_DIRECTORIES=".github"
-EXCLUDED_FILES=""
+EXCLUDED_DIRECTORIES_FLAG="--excluded-dirs=.github"
+EXCLUDED_FILES_FLAG=""
 IS_HELD_FAIL="--fail"
 DICTIONARY=".github/rt-dictionary.yml"
 GIT_ROOT="."
@@ -82,8 +82,8 @@ while true; do
             # Flags for all
             --git-root ) GIT_ROOT="$2"; shift 2 ;;
             # Flags for generate-yaml
-            --excluded-dirs ) EXCLUDED_DIRECTORIES="$2"; shift 2 ;;
-            --excluded-files ) EXCLUDED_FILES="$2"; shift 2 ;;
+            --excluded-dirs ) EXCLUDED_DIRECTORIES_FLAG="--excluded-dirs=$2"; shift 2 ;;
+            --excluded-files ) EXCLUDED_FILES_FLAG="--excluded-files=$2"; shift 2 ;;
             # Flags for is-held
             --no-fail ) IS_HELD_FAIL=""; shift ;;
             # Flags for link-dependencies
@@ -114,7 +114,7 @@ fi
 
 
     # generating the changelog
-    ${RT_BIN} generate-yaml --excluded-dirs "$EXCLUDED_DIRECTORIES" --excluded-files "$EXCLUDED_FILES"
+    ${RT_BIN} generate-yaml "$EXCLUDED_DIRECTORIES_FLAG" "$EXCLUDED_FILES_FLAG"
     ${RT_BIN} is-empty > /dev/null
     ${RT_BIN} is-held "${IS_HELD_FAIL}" > /dev/null
     if [ -f "$DICTIONARY" ]; then
