@@ -239,7 +239,7 @@ func tagVersionGetter(cCtx *cli.Context) (*git.TagsSource, error) {
 
 func sanitizeValue(in []string) []string {
 	// Even if the user passes "an empty string it is considered as an element "",
-	// and translated to "./" causing an unexpected behaviour.
+	// and translated to "./" causing an unexpected behavior.
 	if len(in) == 1 {
 		if in[0] == "" {
 			return []string{}
