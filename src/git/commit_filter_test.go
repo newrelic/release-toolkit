@@ -220,6 +220,13 @@ func TestCommitFilter_NewCommitFilter(t *testing.T) {
 			expectedError: git.ErrDirNotValid,
 		},
 		{
+			name: "Empty_config_is_refused",
+			opts: []git.CommitFilterOptionFunc{
+				git.ExcludedDirs("invented", "", "an-other-invented"),
+			},
+			expectedError: git.ErrDirNotValid,
+		},
+		{
 			name: "Only_._Symbol_Included_Throws_Error",
 			opts: []git.CommitFilterOptionFunc{
 				git.IncludedDirs("."),
