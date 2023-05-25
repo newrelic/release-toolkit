@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	ErrDirNotValid  = errors.New(`invalid dir path, it can't be ".", "..", start by "/" or contain "./"`)
-	ErrFileNotValid = errors.New(`invalid file path, it can't be ".", "..", start or end by "/" or contain "./"`)
+	ErrDirNotValid  = errors.New(`invalid dir path, it can't be "",".", "..", start by "/" or contain "./"`)
+	ErrFileNotValid = errors.New(`invalid file path, it can't be "",".", "..", start or end by "/" or contain "./"`)
 )
 
 // CommitFilter filters commits from a git repository based in included and excluded directories.
@@ -77,7 +77,7 @@ func ExcludedFiles(excludedFiles ...string) CommitFilterOptionFunc {
 }
 
 func isDirNameInvalid(dir string) bool {
-	return dir == "." || dir == ".." || strings.HasPrefix(dir, "/") || strings.Contains(dir, "./")
+	return dir == "." || dir == ".." || dir == "" || strings.HasPrefix(dir, "/") || strings.Contains(dir, "./")
 }
 
 func isFileNameInvalid(file string) bool {

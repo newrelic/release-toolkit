@@ -238,12 +238,8 @@ func tagVersionGetter(cCtx *cli.Context) (*git.TagsSource, error) {
 }
 
 func sanitizeValue(in []string) []string {
-	// The action leverages docker, but having no default the argument "--included-dirs=" causes
-	// to get an "empty" includeDir definition, but with "" as an element
-	// time="2023-05-24T15:25:42Z" level=error msg="includedDirs = [\"\"]"
-	// This causes "" to be passed as an element, that is translated to . and a slash is added becoming "./".
-	// We have an issue there since "./" matches all files on root, but not any of the folders that are specified as "folder1/..".
-
+	// Even if the user passes "an empty string it is considered as an element "",
+	// and translated to "./" causing an unexpected behaviour.
 	if len(in) == 1 {
 		if in[0] == "" {
 			return []string{}

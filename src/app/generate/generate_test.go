@@ -332,6 +332,41 @@ dependencies:
         commit: chore(deps): bump thisdep from 1.7.0 to 1.10.1`) + "\n",
 		},
 		{
+			name:   "Markdown_Dependabot_Filter_IncludedFiles",
+			md:     mdChangelog,
+			args:   "--renovate=false --included-files=",
+			author: "dependabot <dependabot@github.com>",
+			commits: []string{
+				"chore(deps): bump thisdep from 1.7.0 to 1.10.1",
+				"chore(deps): bump anotherdep from 0.0.1 to 0.0.2 (#69)",
+			},
+			// Note: meta.commit is actually the commit hash.
+			// As it is nontrivial to know the commit hash in advance, to make tests easier to write, test writers
+			// should specify the commit message instead. This test will replace it with the actual hash in runtime.
+			expected: strings.TrimSpace(`
+notes: |-
+    ### Important announcement (note)
+    This is a release note
+changes:
+    - type: breaking
+      message: Support has been removed
+    - type: security
+      message: Fixed a security issue that leaked all data
+dependencies:
+    - name: thisdep
+      from: 1.7.0
+      to: 1.10.1
+      meta:
+        commit: chore(deps): bump thisdep from 1.7.0 to 1.10.1
+    - name: anotherdep
+      from: 0.0.1
+      to: 0.0.2
+      meta:
+        pr: "69"
+        commit: chore(deps): bump anotherdep from 0.0.1 to 0.0.2 (#69)
+			`) + "\n",
+		},
+		{
 			name:   "Markdown_Dependabot_Filter_ExcludedFiles",
 			md:     mdChangelog,
 			args:   "--renovate=false --excluded-files=invented,file0",
