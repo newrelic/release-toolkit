@@ -54,7 +54,7 @@ runs:
       with:
         markdown: ${{ inputs.git-root }}/CHANGELOG.md
     - name: Generate YAML
-      uses: newrelic/release-toolkit/generate-yaml@includeExcludeFiles
+      uses: newrelic/release-toolkit/generate-yaml@v1
       with:
         excluded-dirs: ${{ inputs.excluded-dirs }}
         excluded-files: ${{ inputs.excluded-files }}

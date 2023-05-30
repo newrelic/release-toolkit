@@ -2,8 +2,7 @@
 
 set -euo pipefail
 
-# TODO
-RT_PKG="github.com/newrelic/release-toolkit@includeExcludeFiles"
+RT_PKG="github.com/newrelic/release-toolkit@latest"
 DICTIONARY_URL="https://raw.githubusercontent.com/newrelic/release-toolkit/v1/contrib/ohi-release-notes/rt-dictionary.yml"
 ARGS="$*"
 
