@@ -31,7 +31,7 @@ func TestCommitFilter_Commits(t *testing.T) {
 		Files: []string{"folder1/file", "folder2/file", "folder3/file"},
 	}
 	rootAndFolder := git.Commit{
-		Files: []string{"file-on-root", "folder1/file-on-folder"},
+		Files: []string{"file-on-root", "folder1/file"},
 	}
 
 	allCommits := []git.Commit{
@@ -41,14 +41,12 @@ func TestCommitFilter_Commits(t *testing.T) {
 	for _, tc := range []struct {
 		name            string
 		opts            []git.CommitFilterOptionFunc
-		commits         []git.Commit
 		expectedCommits []git.Commit
 	}{
 		{
 			name: "Included_Folders_All_Excluded_None",
 			opts: []git.CommitFilterOptionFunc{},
 
-			commits:         allCommits,
 			expectedCommits: allCommits,
 		},
 		{
@@ -56,9 +54,17 @@ func TestCommitFilter_Commits(t *testing.T) {
 			opts: []git.CommitFilterOptionFunc{
 				git.IncludedDirs("folder1"),
 			},
-			commits: allCommits,
 			expectedCommits: []git.Commit{
 				singleFileFolder1, threeFilesFolders, rootAndFolder,
+			},
+		},
+		{
+			name: "Include_commits_containing_single_file",
+			opts: []git.CommitFilterOptionFunc{
+				git.IncludedFiles("folder1/single-file-on-folder1"),
+			},
+			expectedCommits: []git.Commit{
+				singleFileFolder1,
 			},
 		},
 		{
@@ -66,28 +72,68 @@ func TestCommitFilter_Commits(t *testing.T) {
 			opts: []git.CommitFilterOptionFunc{
 				git.ExcludedDirs("folder1"),
 			},
-			commits: allCommits,
 			expectedCommits: []git.Commit{
 				singleFileRoot, twoFilesFolder2, threeFilesFolders, rootAndFolder,
 			},
+		},
+		{
+			name: "Exclude_folder1/single-file-on-folder1",
+			opts: []git.CommitFilterOptionFunc{
+				git.ExcludedFiles("folder1/single-file-on-folder1"),
+			},
+			expectedCommits: []git.Commit{
+				singleFileRoot, twoFilesFolder2, threeFilesFolders, rootAndFolder,
+			},
+		},
+		{
+			name: "Exclude_folder2/file1",
+			opts: []git.CommitFilterOptionFunc{
+				git.ExcludedFiles("folder2/file1"),
+			},
+			expectedCommits: allCommits,
 		},
 		{
 			name: "Exclude_Folder2",
 			opts: []git.CommitFilterOptionFunc{
 				git.ExcludedDirs("folder2"),
 			},
-			commits: allCommits,
 			expectedCommits: []git.Commit{
 				singleFileRoot, singleFileFolder1, threeFilesFolders, rootAndFolder,
 			},
+		},
+		{
+			name: "Exclude_folder1/file",
+			opts: []git.CommitFilterOptionFunc{
+				git.ExcludedFiles("folder1/file"),
+			},
+			expectedCommits: allCommits,
 		},
 		{
 			name: "Include_Folder2",
 			opts: []git.CommitFilterOptionFunc{
 				git.IncludedDirs("folder2"),
 			},
-			commits: allCommits,
 			expectedCommits: []git.Commit{
+				twoFilesFolder2, threeFilesFolders,
+			},
+		},
+		{
+			name: "Include_folder1/file",
+			opts: []git.CommitFilterOptionFunc{
+				git.IncludedFiles("folder1/file"),
+			},
+			expectedCommits: []git.Commit{
+				rootAndFolder, threeFilesFolders,
+			},
+		},
+		{
+			name: "Include_Folder2_Exclude_Folder1",
+			opts: []git.CommitFilterOptionFunc{
+				git.IncludedDirs("folder2"),
+				git.ExcludedDirs("folder1"),
+			},
+			expectedCommits: []git.Commit{
+				// Commit will not be excluded as some changes scope.
 				twoFilesFolder2, threeFilesFolders,
 			},
 		},
@@ -97,10 +143,33 @@ func TestCommitFilter_Commits(t *testing.T) {
 				git.IncludedDirs("folder2"),
 				git.ExcludedDirs("folder1"),
 			},
-			commits: allCommits,
 			expectedCommits: []git.Commit{
 				// Commit will not be excluded as some changes scope.
 				twoFilesFolder2, threeFilesFolders,
+			},
+		},
+		{
+			name: "Include_Exclude_mixed",
+			opts: []git.CommitFilterOptionFunc{
+				git.IncludedDirs("folder2"),
+				git.ExcludedDirs("folder1"),
+				git.IncludedFiles("single-file-on-root"),
+				git.ExcludedFiles("folder2/file"),
+			},
+			expectedCommits: []git.Commit{
+				// Commit will not be excluded as some changes scope.
+				singleFileRoot, twoFilesFolder2,
+			},
+		},
+		{
+			name: "Mixed_exclude_precedence",
+			opts: []git.CommitFilterOptionFunc{
+				git.ExcludedDirs("folder2", "folder1"),
+				git.IncludedFiles("single-file-on-root", "file-on-root", "folder2/file"),
+			},
+			expectedCommits: []git.Commit{
+				// Commit will not be excluded as some changes scope.
+				singleFileRoot, rootAndFolder,
 			},
 		},
 	} {
@@ -108,7 +177,7 @@ func TestCommitFilter_Commits(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			commitsFilter, err := git.NewCommitFilter(fakeSource(tc.commits), tc.opts...)
+			commitsFilter, err := git.NewCommitFilter(fakeSource(allCommits), tc.opts...)
 			if err != nil {
 				t.Fatalf("Error creating git source: %v", err)
 			}
@@ -151,6 +220,13 @@ func TestCommitFilter_NewCommitFilter(t *testing.T) {
 			expectedError: git.ErrDirNotValid,
 		},
 		{
+			name: "Empty_config_is_refused",
+			opts: []git.CommitFilterOptionFunc{
+				git.ExcludedDirs("invented", "", "an-other-invented"),
+			},
+			expectedError: git.ErrDirNotValid,
+		},
+		{
 			name: "Only_._Symbol_Included_Throws_Error",
 			opts: []git.CommitFilterOptionFunc{
 				git.IncludedDirs("."),
@@ -186,9 +262,19 @@ func TestCommitFilter_NewCommitFilter(t *testing.T) {
 			expectedError: git.ErrDirNotValid,
 		},
 		{
+			name: "Directory_for_files_Throw_Error",
+			opts: []git.CommitFilterOptionFunc{
+				git.ExcludedFiles(".a/b.c/"),
+			},
+			expectedError: git.ErrFileNotValid,
+		},
+		{
 			name: "Correct_Paths_Throw_No_Error",
 			opts: []git.CommitFilterOptionFunc{
-				git.ExcludedDirs(".a/b.c", "a"),
+				git.ExcludedDirs(".a/b.c/", "a"),
+				git.IncludedDirs(".a/b.c/", "a"),
+				git.IncludedFiles(".a/b.c", "a"),
+				git.ExcludedFiles(".a/b.c", "a"),
 			},
 			expectedError: nil,
 		},

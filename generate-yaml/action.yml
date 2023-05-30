@@ -33,6 +33,14 @@ inputs:
     description: Exclude commits whose changes only impact files in specified dirs relative to repository root
     required: false
     default: ""
+  included-files:
+    description: Only scan commits scoping at least one file in the following comma-separated list
+    required: false
+    default: ""
+  excluded-files:
+    description: Exclude commits whose changes only impact files in the following comma-separated list
+    required: false
+    default: ""
   exit-code:
     description: Exit code if changelog is empty
     required: false
@@ -56,5 +64,9 @@ runs:
     - ${{ inputs.included-dirs }}
     - --excluded-dirs
     - ${{ inputs.excluded-dirs }}
+    - --included-files
+    - ${{ inputs.included-files }}
+    - --excluded-files
+    - ${{ inputs.excluded-files }}
     - --exit-code
     - ${{ inputs.exit-code }}
