@@ -59,7 +59,7 @@ func TestCommitFilter_Commits(t *testing.T) {
 			},
 		},
 		{
-			name: "Include_folder1/single-file-on-folder1",
+			name: "Include_commits_containing_single_file",
 			opts: []git.CommitFilterOptionFunc{
 				git.IncludedFiles("folder1/single-file-on-folder1"),
 			},

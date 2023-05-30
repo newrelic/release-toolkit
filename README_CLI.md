@@ -27,6 +27,15 @@ rt generate-yaml [-flags]
 | `git-root`       | `./`           | Path to the git repo to get commits and tags for                                                                                                                                                                          |
 | `exit-code`      | `1`            | Exit code if generated changelog is empty                                                                                                                                                                                 |                                                                                                                                             |
 
+Notice that included/excluded dirs/files are applied when looking for commits added by bots. Therefore, all entries added manually in the `changelog.yaml` will be included an no rule is applied.
+
+Whenever there are conflicting rules `exclude` takes precedence and if it is `included` and `excluded` at the same time then it is filtered out.
+
+A file is included if:
+```
+(it is not excluded) && ((at least one include rule is specified) && (it is included))
+```
+
 ## Is held
 ```shell
 rt is-held [-flags]
