@@ -58,6 +58,56 @@ This is a release note
 			`) + "\n",
 		},
 		{
+			name: "Changelog_With_Defaults_Deduplicate",
+			yaml: strings.TrimSpace(`
+notes: |-
+    ### Important announcement (note)
+
+    This is a release note
+changes:
+- type: breaking
+  message: Support has been removed
+- type: enhancement
+  message: New feature has been added
+- type: security
+  message: Fixed a security issue that leaked all data
+dependencies:
+- name: foobar2
+  to: 0.1.0
+- name: foobar1
+  to: 0.1.0
+- name: foobar1
+  to: 0.2.0
+- name: foobar3
+  to: 1.0.0
+- name: foobar1
+  to: 0.2.1
+- name: foobar1
+  to: 0.3.4
+- name: foobar2
+  to: 0.1.1
+			`),
+			expected: strings.TrimSpace(`
+### Important announcement (note)
+
+This is a release note
+
+### ⚠️️ Breaking changes ⚠️
+- Support has been removed
+
+### 🛡️ Security notices
+- Fixed a security issue that leaked all data
+
+### 🚀 Enhancements
+- New feature has been added
+
+### ⛓️ Dependencies
+- Updated foobar2 to 0.1.1
+- Updated foobar1 to 0.3.4
+- Updated foobar3 to 1.0.0
+			`) + "\n",
+		},
+		{
 			name: "Changelog_With_Version",
 			args: "-version v1.2.3",
 			yaml: strings.TrimSpace(`
