@@ -111,7 +111,7 @@ func (r Renderer) parse() parsedChangelog {
 	return parsed
 }
 
-// Dependencies are ordered. We keep the latest that should be the one with the latest semVer.
+// Dependencies are sorted in ascending order. We keep the latest that should be the one with the latest semVer.
 func deduplicateDependencies(dependencies []changelog.Dependency) []changelog.Dependency {
 	dedupDeps := []changelog.Dependency{}
 	for _, dep := range dependencies {
