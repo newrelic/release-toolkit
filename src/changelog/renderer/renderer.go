@@ -25,27 +25,13 @@ type Renderer struct {
 	// this function, signifying that the version to which this changelog corresponds was released on said date.
 	ReleasedOn func() time.Time
 
-	changelog               *changelog.Changelog
-	deduplicateDependencies bool
+	changelog *changelog.Changelog
 }
 
-type OptionFunc func(r *Renderer)
-
-func WithDeduplicateDependencies() OptionFunc {
-	return func(r *Renderer) {
-		r.deduplicateDependencies = true
-	}
-}
-
-func New(c *changelog.Changelog, opts ...OptionFunc) Renderer {
-	r := &Renderer{
+func New(c *changelog.Changelog) Renderer {
+	return Renderer{
 		changelog: c,
 	}
-	for _, opt := range opts {
-		opt(r)
-	}
-
-	return *r
 }
 
 type parsedChangelog struct {
@@ -99,10 +85,7 @@ func (r Renderer) parse() parsedChangelog {
 		parsed.Sections[string(entry.Type)] = append(parsed.Sections[string(entry.Type)], entry)
 	}
 
-	deps := r.changelog.Dependencies
-	if r.deduplicateDependencies {
-		deps = deduplicateDependencies(deps)
-	}
+	deps := deduplicateDependencies(r.changelog.Dependencies)
 
 	for _, dep := range deps {
 		parsed.Sections[string(changelog.TypeDependency)] = append(parsed.Sections[string(changelog.TypeDependency)], dep)

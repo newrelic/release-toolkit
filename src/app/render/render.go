@@ -72,7 +72,7 @@ func Render(cCtx *cli.Context) error {
 		return fmt.Errorf("creating destination file at %q: %w", mdPath, err)
 	}
 
-	rnd := renderer.New(ch, renderer.WithDeduplicateDependencies())
+	rnd := renderer.New(ch)
 
 	if t := cCtx.Timestamp(dateFlag); t != nil {
 		tv := *t
