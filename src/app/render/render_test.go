@@ -120,6 +120,57 @@ This is a release note
 - Support has been removed
 			`) + "\n",
 		},
+		{
+			name: "Changelog_With_Long_Dependency_Without_Shorten_deps",
+			yaml: strings.TrimSpace(`
+notes: |-
+    ### Important announcement (note)
+
+    This is a release note
+dependencies:
+- name: foobar
+  from: 0.0.1
+  to: 0.1.0
+- name: github.com/golangci/golangci-lint
+  from: 0.2.5
+  to: 0.3.0
+			`),
+			expected: strings.TrimSpace(`
+### Important announcement (note)
+
+This is a release note
+
+### ⛓️ Dependencies
+- Upgraded foobar from 0.0.1 to 0.1.0
+- Upgraded github.com/golangci/golangci-lint from 0.2.5 to 0.3.0
+			`),
+		},
+		{
+			name: "Changelog_With_Long_Dependency_Shorten_deps",
+			args: "-shorten_deps=true",
+			yaml: strings.TrimSpace(`
+notes: |-
+    ### Important announcement (note)
+
+    This is a release note
+dependencies:
+- name: foobar
+  from: 0.0.1
+  to: 0.1.0
+- name: github.com/golangci/golangci-lint
+  from: 0.2.5
+  to: 0.3.0
+			`),
+			expected: strings.TrimSpace(`
+### Important announcement (note)
+
+This is a release note
+
+### ⛓️ Dependencies
+- Upgraded foobar from 0.0.1 to 0.1.0
+- Upgraded golangci-lint from 0.2.5 to 0.3.0
+			`),
+		},
 	} {
 		tc := tc
 		//nolint:paralleltest // urfave/cli cannot be tested concurrently.

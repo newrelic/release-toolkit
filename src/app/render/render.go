@@ -17,6 +17,7 @@ const (
 	markdownPathFlag = "markdown"
 	versionFlag      = "version"
 	dateFlag         = "date"
+	shortenDepsFlag  = "shorten_deps"
 )
 
 // Cmd is the cli.Command object for the render command.
@@ -47,6 +48,12 @@ var Cmd = &cli.Command{
 			Value:  cli.NewTimestamp(time.Now()),
 			Layout: "2006-01-02",
 		},
+		&cli.BoolFlag{
+			Name:    shortenDepsFlag,
+			EnvVars: common.EnvFor(shortenDepsFlag),
+			Usage:   "If set, dependencies with full-route names will be shortened to the last segment.",
+			Value:   false,
+		},
 	},
 	Action: Render,
 }
@@ -72,7 +79,8 @@ func Render(cCtx *cli.Context) error {
 		return fmt.Errorf("creating destination file at %q: %w", mdPath, err)
 	}
 
-	rnd := renderer.New(ch)
+	shortenDeps := cCtx.Bool(shortenDepsFlag)
+	rnd := renderer.New(ch, renderer.ShortenDeps(shortenDeps))
 
 	if t := cCtx.Timestamp(dateFlag); t != nil {
 		tv := *t

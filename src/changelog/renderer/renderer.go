@@ -3,6 +3,7 @@ package renderer
 import (
 	"fmt"
 	"io"
+	"path"
 	"strings"
 	"text/template"
 	"time"
@@ -17,6 +18,15 @@ type Stringer interface {
 	String() string
 }
 
+type OptionFunc func(*Renderer)
+
+// ShortenDeps returns an option that will set the shortenDeps attribute.
+func ShortenDeps(sDeps bool) OptionFunc {
+	return func(s *Renderer) {
+		s.shortenDeps = sDeps
+	}
+}
+
 // Renderer outputs a human-readable, markdown version of a changelog.
 type Renderer struct {
 	// If non-nil, the output will include a level 2 header with the version to which this changelog corresponds.
@@ -26,12 +36,19 @@ type Renderer struct {
 	ReleasedOn func() time.Time
 
 	changelog *changelog.Changelog
+	// If true, dependencies with full-route names will be shortened to the last segment.
+	shortenDeps bool
 }
 
-func New(c *changelog.Changelog) Renderer {
-	return Renderer{
+func New(c *changelog.Changelog, opts ...OptionFunc) Renderer {
+	r := Renderer{
 		changelog: c,
 	}
+	for _, opt := range opts {
+		opt(&r)
+	}
+
+	return r
 }
 
 type parsedChangelog struct {
@@ -86,6 +103,9 @@ func (r Renderer) parse() parsedChangelog {
 	}
 
 	for _, dep := range r.changelog.Dependencies {
+		if r.shortenDeps {
+			dep.Name = path.Base(dep.Name)
+		}
 		parsed.Sections[string(changelog.TypeDependency)] = append(parsed.Sections[string(changelog.TypeDependency)], dep)
 	}
 

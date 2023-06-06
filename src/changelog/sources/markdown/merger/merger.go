@@ -16,6 +16,15 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+type OptionFunc func(*Merger)
+
+// ShortenDeps returns an option that will set the shortenDeps attribute.
+func ShortenDeps(sDeps bool) OptionFunc {
+	return func(s *Merger) {
+		s.shortenDeps = sDeps
+	}
+}
+
 // Merger is an object that can incorporate a changelog.Changelog (section) into an existing CHANGELOG.md document.
 type Merger struct {
 	// ReleasedOn is a function that returns the date in which the new section was released. It defaults to time.Now.
@@ -25,6 +34,8 @@ type Merger struct {
 	version *semver.Version
 	// ch is the already populated, partial changelog containing the latest changes.
 	ch *changelog.Changelog
+	// If true, dependencies with full-route names will be shortened to the last segment.
+	shortenDeps bool
 }
 
 // New creates a Merger that will integrate the supplied changelog.Changelog into a full Markdown document that contains
@@ -32,12 +43,17 @@ type Merger struct {
 // in the supplied semver.Version, and also marked as released on the date returned by Merger.ReleasedOn.
 // Merger is an immutable object and does not modify the changelog.Changelog object, nor the original document supplied
 // to Merge.
-func New(ch *changelog.Changelog, newVersion *semver.Version) Merger {
-	return Merger{
+func New(ch *changelog.Changelog, newVersion *semver.Version, opts ...OptionFunc) Merger {
+	m := Merger{
 		ReleasedOn: time.Now,
 		ch:         ch,
 		version:    newVersion,
 	}
+	for _, opt := range opts {
+		opt(&m)
+	}
+
+	return m
 }
 
 var (
@@ -55,7 +71,7 @@ var (
 func (m Merger) Merge(srcChangelog io.Reader, dst io.Writer) error {
 	newSection := &bytes.Buffer{}
 
-	rdr := renderer.New(m.ch)
+	rdr := renderer.New(m.ch, renderer.ShortenDeps(m.shortenDeps))
 	rdr.Next = m.version
 	rdr.ReleasedOn = m.ReleasedOn
 
