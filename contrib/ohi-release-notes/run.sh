@@ -4,7 +4,7 @@ set -euo pipefail
 
 RT_PKG="github.com/newrelic/release-toolkit@latest"
 DICTIONARY_URL="https://raw.githubusercontent.com/newrelic/release-toolkit/v1/contrib/ohi-release-notes/rt-dictionary.yml"
-EXCLUDED_DEV_DEPENDENCIES_URL="https://raw.githubusercontent.com/newrelic/release-toolkit/v1/contrib/ohi-release-notes/excluded-dev-dependencies.yml"
+EXCLUDED_DEPENDENCIES_URL="https://raw.githubusercontent.com/newrelic/release-toolkit/v1/contrib/ohi-release-notes/excluded-dependencies.yml"
 ARGS="$*"
 
 
@@ -61,7 +61,7 @@ OPTIONS:
    --included-files             Only scan commits scoping at least one file in the following comma-separated list. Defaults to "".
    --no-fail                    Do not fail even in the held toggle is active
    --dictionary                 Sets the link dependency dictionary file path. Default file located at "$DICTIONARY_URL" is used.
-   --excluded-dev-dependencies  Sets the excluded dev dependencies file path. Default file located at "$EXCLUDED_DEV_DEPENDENCIES_URL".
+   --excluded-dependencies      Sets the excluded dependencies file path. Default file located at "$EXCLUDED_DEPENDENCIES_URL".
 
 EOM
     exit $ERRNO
@@ -76,7 +76,7 @@ INCLUDED_FILES_FLAG=""
 IS_HELD_FAIL="--fail"
 DICTIONARY=".github/rt-dictionary.yml"
 GIT_ROOT="."
-EXCLUDED_DEV_DEPENDENCIES=".github/excluded-dev-dependencies.yml"
+EXCLUDED_DEPENDENCIES=".github/excluded-dependencies.yml"
 
 while true; do
     if [ -z "${1:-}" ]; then
@@ -92,7 +92,7 @@ while true; do
             --excluded-files ) EXCLUDED_FILES_FLAG="--excluded-files=$2"; shift 2 ;;
             --included-dirs ) INCLUDED_DIRECTORIES_FLAG="--included-dirs=$2"; shift 2 ;;
             --included-files ) INCLUDED_FILES_FLAG="--included-files=$2"; shift 2 ;;
-            --excluded-dev-dependencies ) EXCLUDED_DEV_DEPENDENCIES="--excluded-dev-dependencies=$2"; shift 2 ;;
+            --excluded-dependencies ) EXCLUDED_DEPENDENCIES="--excluded-dependencies=$2"; shift 2 ;;
             # Flags for is-held
             --no-fail ) IS_HELD_FAIL=""; shift ;;
             # Flags for link-dependencies
@@ -115,10 +115,10 @@ if ! [ -f "$DICTIONARY" ]; then
     curl -s -o "$DICTIONARY" "$DICTIONARY_URL"
 fi
 
-# fetch default excluded-dev-dependencies by default
-if ! [ -f "$EXCLUDED_DEV_DEPENDENCIES" ]; then
-    EXCLUDED_DEV_DEPENDENCIES="${TEMP_DIR}/excluded-dev-dependencies.yml"
-    curl -s -o "$EXCLUDED_DEV_DEPENDENCIES" "$EXCLUDED_DEV_DEPENDENCIES_URL"
+# fetch default excluded-dependencies by default
+if ! [ -f "$EXCLUDED_DEPENDENCIES" ]; then
+    EXCLUDED_DEPENDENCIES="${TEMP_DIR}/excluded-dependencies.yml"
+    curl -s -o "$EXCLUDED_DEPENDENCIES" "$EXCLUDED_DEPENDENCIES_URL"
 fi
 
 (
@@ -129,8 +129,8 @@ fi
 
 
     # generating the changelog
-    if [ -f "$EXCLUDED_DEV_DEPENDENCIES" ]; then
-      ${RT_BIN} generate-yaml "$EXCLUDED_DIRECTORIES_FLAG" "$EXCLUDED_FILES_FLAG" "$INCLUDED_DIRECTORIES_FLAG" "$INCLUDED_FILES_FLAG" "$EXCLUDED_DEV_DEPENDENCIES"
+    if [ -f "$EXCLUDED_DEPENDENCIES" ]; then
+      ${RT_BIN} generate-yaml "$EXCLUDED_DIRECTORIES_FLAG" "$EXCLUDED_FILES_FLAG" "$INCLUDED_DIRECTORIES_FLAG" "$INCLUDED_FILES_FLAG" "$EXCLUDED_DEPENDENCIES"
     else
       ${RT_BIN} generate-yaml "$EXCLUDED_DIRECTORIES_FLAG" "$EXCLUDED_FILES_FLAG" "$INCLUDED_DIRECTORIES_FLAG" "$INCLUDED_FILES_FLAG"
     fi

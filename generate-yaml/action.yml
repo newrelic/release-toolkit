@@ -41,8 +41,8 @@ inputs:
     description: Exclude commits whose changes only impact files in the following comma-separated list
     required: false
     default: ""
-  excluded-dev-dependencies:
-    description: Exclude development dependencies from the changelog
+  excluded-dependencies:
+    description: Exclude dependencies when their commits contain any of the strings listed
     required: false
     default: ""
   exit-code:
@@ -72,7 +72,7 @@ runs:
     - ${{ inputs.included-files }}
     - --excluded-files
     - ${{ inputs.excluded-files }}
-    - --excluded-dev-dependencies
-    - ${{ inputs.excluded-dev-dependencies }}
+    - --excluded-dependencies
+    - ${{ inputs.excluded-dependencies }}
     - --exit-code
     - ${{ inputs.exit-code }}

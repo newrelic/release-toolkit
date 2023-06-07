@@ -17,17 +17,17 @@ import (
 )
 
 const (
-	markdownPathFlag            = "markdown"
-	renovateFlag                = "renovate"
-	dependabotFlag              = "dependabot"
-	tagPrefixFlag               = "tag-prefix"
-	gitRootFlag                 = "git-root"
-	includedDirsFlag            = "included-dirs"
-	excludedDirsFlag            = "excluded-dirs"
-	includedFilesFlag           = "included-files"
-	excludedFilesFlag           = "excluded-files"
-	excludedDevDependenciesFlag = "excluded-dev-dependencies"
-	exitCodeFlag                = "exit-code"
+	markdownPathFlag         = "markdown"
+	renovateFlag             = "renovate"
+	dependabotFlag           = "dependabot"
+	tagPrefixFlag            = "tag-prefix"
+	gitRootFlag              = "git-root"
+	includedDirsFlag         = "included-dirs"
+	excludedDirsFlag         = "excluded-dirs"
+	includedFilesFlag        = "included-files"
+	excludedFilesFlag        = "excluded-files"
+	excludedDependenciesFlag = "excluded-dependencies"
+	exitCodeFlag             = "exit-code"
 )
 
 const emptyChangelogOutput = "empty-changelog"
@@ -79,8 +79,8 @@ var Cmd = &cli.Command{
 				`(Paths may not start or end with "/" or contain ".." or "." tokens)`,
 		},
 		&cli.StringFlag{
-			Name:    excludedDevDependenciesFlag,
-			EnvVars: common.EnvFor(excludedDevDependenciesFlag),
+			Name:    excludedDependenciesFlag,
+			EnvVars: common.EnvFor(excludedDependenciesFlag),
 			Usage: `Path to a YAML file with the list of development dependencies which are not going to be included` +
 				`in the changelog`,
 		},
@@ -130,11 +130,11 @@ func Generate(cCtx *cli.Context) error {
 	combinedChangelog := &changelog.Changelog{}
 	sources := make([]changelog.Source, 0)
 
-	var excludedDevDependencies []string
-	if excludedDevDependenciesPath := cCtx.String(excludedDevDependenciesFlag); excludedDevDependenciesPath != "" {
-		excludedDevDependencies, err = common.LoadExcludedDevDependencies(excludedDevDependenciesPath)
+	var excludedDependencies []string
+	if excludedDependenciesPath := cCtx.String(excludedDependenciesFlag); excludedDependenciesPath != "" {
+		excludedDependencies, err = common.LoadExcludedDependencies(excludedDependenciesPath)
 		if err != nil {
-			return fmt.Errorf("adding excluded dependencies %q: %w", excludedDevDependenciesPath, err)
+			return fmt.Errorf("adding excluded dependencies %q: %w", excludedDependenciesPath, err)
 		}
 	}
 
@@ -142,7 +142,7 @@ func Generate(cCtx *cli.Context) error {
 		appendDep := func(sources []changelog.Source, tgv git.TagsVersionGetter, getter git.CommitsGetter) []changelog.Source {
 			return append(sources, renovate.NewSource(tgv, getter))
 		}
-		sources, err = addDepSource(cCtx, sources, appendDep, excludedDevDependencies)
+		sources, err = addDepSource(cCtx, sources, appendDep, excludedDependencies)
 		if err != nil {
 			return fmt.Errorf("adding renovate source: %w", err)
 		}
@@ -152,7 +152,7 @@ func Generate(cCtx *cli.Context) error {
 		appendDep := func(sources []changelog.Source, tgv git.TagsVersionGetter, getter git.CommitsGetter) []changelog.Source {
 			return append(sources, dependabot.NewSource(tgv, getter))
 		}
-		sources, err = addDepSource(cCtx, sources, appendDep, excludedDevDependencies)
+		sources, err = addDepSource(cCtx, sources, appendDep, excludedDependencies)
 		if err != nil {
 			return fmt.Errorf("adding dependabot source: %w", err)
 		}
@@ -216,7 +216,7 @@ func addDepSource(cCtx *cli.Context, sources []changelog.Source, appendDep appen
 			git.ExcludedDirs(excludedDirs...),
 			git.IncludedFiles(includedFiles...),
 			git.ExcludedFiles(excludedFiles...),
-			git.ExcludedDevDependencies(deps...),
+			git.ExcludedDependencies(deps...),
 		)
 		if err != nil {
 			return nil, fmt.Errorf("creating git commit filter: %w", err)

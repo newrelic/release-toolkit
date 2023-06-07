@@ -24,7 +24,7 @@ All parameters are optional:
   * `included-files` Only scan commits scoping at least one file in the following comma-separated list
   * `fail-if-held` fails if the held toggle is active
   * `dictionary` sets the link dependency dictionary file path. Defaults to ".github/rt-dictionary.yml".
-  * `excluded-dev-dependencies` sets the excluded dev dependencies file path. Defaults to ".github/excluded-dev-dependencies.yml".
+  * `excluded-dependencies` sets the excluded dependencies file path. Defaults to ".github/excluded-dependencies.yml".
 
 ## Outputs
 

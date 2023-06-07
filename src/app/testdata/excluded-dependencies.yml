@@ -1,3 +1,3 @@
-excluded_dev_dependencies:
+dependencies:
   - github.com/stretchr/testify
   - github.com/testcontainers/testcontainers-go

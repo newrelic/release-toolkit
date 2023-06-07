@@ -397,9 +397,9 @@ dependencies:
 			`) + "\n",
 		},
 		{
-			name:   "Markdown_Renovate_Filter_ExcludedDevDependencies",
+			name:   "Markdown_Renovate_Filter_ExcludedDependencies",
 			md:     mdChangelog,
-			args:   fmt.Sprintf("--dependabot=false --excluded-dev-dependencies=%s", path.Join("..", "testdata", "excluded-dev-dependencies.yml")),
+			args:   fmt.Sprintf("--dependabot=false --excluded-dependencies=%s", path.Join("..", "testdata", "excluded-dependencies.yml")),
 			author: "renovate[bot] <renovatebot@imadethisup.com>",
 			commits: []string{
 				"chore(deps): update github.com/stretchr/testify to 1.8.0",
@@ -426,9 +426,9 @@ dependencies:
 			`) + "\n",
 		},
 		{
-			name:   "Markdown_Dependabot_Filter_ExcludedDevDependencies",
+			name:   "Markdown_Dependabot_Filter_ExcludedDependencies",
 			md:     mdChangelog,
-			args:   fmt.Sprintf("--renovate=false --excluded-dev-dependencies=%s", path.Join("..", "testdata", "excluded-dev-dependencies.yml")),
+			args:   fmt.Sprintf("--renovate=false --excluded-dependencies=%s", path.Join("..", "testdata", "excluded-dependencies.yml")),
 			author: "dependabot <dependabot@github.com>",
 			commits: []string{
 				"chore(deps): bump github.com/stretchr/testify from 1.7.0 to 1.8.0",

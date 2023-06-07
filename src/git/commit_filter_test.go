@@ -19,7 +19,7 @@ func (fs fakeSource) Commits(_ string) ([]git.Commit, error) {
 func TestCommitFilter_Commits(t *testing.T) {
 	t.Parallel()
 
-	devDependency := "github.com/stretchr/testify"
+	excludedDependency := "github.com/stretchr/testify"
 
 	singleFileRoot := git.Commit{
 		Files: []string{"single-file-on-root"},
@@ -36,13 +36,13 @@ func TestCommitFilter_Commits(t *testing.T) {
 	rootAndFolder := git.Commit{
 		Files: []string{"file-on-root", "folder1/file"},
 	}
-	singleFileRootWithDevDependencies := git.Commit{
+	singleFileRootWithDependencies := git.Commit{
 		Files:   []string{"single-file-on-root2"},
-		Message: fmt.Sprintf("chore(deps): update %s to 1.8.0", devDependency),
+		Message: fmt.Sprintf("chore(deps): update %s to 1.8.0", excludedDependency),
 	}
 
 	allCommits := []git.Commit{
-		singleFileRoot, singleFileFolder1, twoFilesFolder2, threeFilesFolders, rootAndFolder, singleFileRootWithDevDependencies,
+		singleFileRoot, singleFileFolder1, twoFilesFolder2, threeFilesFolders, rootAndFolder, singleFileRootWithDependencies,
 	}
 
 	for _, tc := range []struct {
@@ -80,7 +80,7 @@ func TestCommitFilter_Commits(t *testing.T) {
 				git.ExcludedDirs("folder1"),
 			},
 			expectedCommits: []git.Commit{
-				singleFileRoot, twoFilesFolder2, threeFilesFolders, rootAndFolder, singleFileRootWithDevDependencies,
+				singleFileRoot, twoFilesFolder2, threeFilesFolders, rootAndFolder, singleFileRootWithDependencies,
 			},
 		},
 		{
@@ -89,7 +89,7 @@ func TestCommitFilter_Commits(t *testing.T) {
 				git.ExcludedFiles("folder1/single-file-on-folder1"),
 			},
 			expectedCommits: []git.Commit{
-				singleFileRoot, twoFilesFolder2, threeFilesFolders, rootAndFolder, singleFileRootWithDevDependencies,
+				singleFileRoot, twoFilesFolder2, threeFilesFolders, rootAndFolder, singleFileRootWithDependencies,
 			},
 		},
 		{
@@ -105,7 +105,7 @@ func TestCommitFilter_Commits(t *testing.T) {
 				git.ExcludedDirs("folder2"),
 			},
 			expectedCommits: []git.Commit{
-				singleFileRoot, singleFileFolder1, threeFilesFolders, rootAndFolder, singleFileRootWithDevDependencies,
+				singleFileRoot, singleFileFolder1, threeFilesFolders, rootAndFolder, singleFileRootWithDependencies,
 			},
 		},
 		{
@@ -165,7 +165,7 @@ func TestCommitFilter_Commits(t *testing.T) {
 			},
 			expectedCommits: []git.Commit{
 				// Commit will not be excluded as some changes scope.
-				singleFileRoot, twoFilesFolder2, singleFileRootWithDevDependencies,
+				singleFileRoot, twoFilesFolder2, singleFileRootWithDependencies,
 			},
 		},
 		{
@@ -176,13 +176,13 @@ func TestCommitFilter_Commits(t *testing.T) {
 			},
 			expectedCommits: []git.Commit{
 				// Commit will not be excluded as some changes scope.
-				singleFileRoot, rootAndFolder, singleFileRootWithDevDependencies,
+				singleFileRoot, rootAndFolder, singleFileRootWithDependencies,
 			},
 		},
 		{
-			name: "Exclude_Dev_Dependencies",
+			name: "Exclude_Dependencies",
 			opts: []git.CommitFilterOptionFunc{
-				git.ExcludedDevDependencies(devDependency),
+				git.ExcludedDependencies(excludedDependency),
 			},
 			expectedCommits: []git.Commit{
 				singleFileRoot, singleFileFolder1, twoFilesFolder2, threeFilesFolders, rootAndFolder,

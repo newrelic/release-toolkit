@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestLoadExcludedDevDependencies(t *testing.T) {
+func TestLoadExcludedDependencies(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
@@ -18,7 +18,7 @@ func TestLoadExcludedDevDependencies(t *testing.T) {
 	}{
 		{
 			name:     "Test with valid file",
-			filePath: path.Join("..", "testdata", "excluded-dev-dependencies.yml"),
+			filePath: path.Join("..", "testdata", "excluded-dependencies.yml"),
 			expected: []string{"github.com/stretchr/testify", "github.com/testcontainers/testcontainers-go"},
 			wantErr:  false,
 		},
@@ -33,10 +33,10 @@ func TestLoadExcludedDevDependencies(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			got, err := LoadExcludedDevDependencies(tc.filePath)
+			got, err := LoadExcludedDependencies(tc.filePath)
 
 			if (err != nil) != tc.wantErr {
-				t.Fatalf("loadExcludedDevDependencies() error = %v, wantErr %v", err, tc.wantErr)
+				t.Fatalf("loadExcludedDependencies error = %v, wantErr %v", err, tc.wantErr)
 			}
 
 			assert.Equal(t, tc.expected, got)
