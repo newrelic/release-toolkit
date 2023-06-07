@@ -85,9 +85,29 @@ func (r Renderer) parse() parsedChangelog {
 		parsed.Sections[string(entry.Type)] = append(parsed.Sections[string(entry.Type)], entry)
 	}
 
-	for _, dep := range r.changelog.Dependencies {
+	deps := deduplicateDependencies(r.changelog.Dependencies)
+
+	for _, dep := range deps {
 		parsed.Sections[string(changelog.TypeDependency)] = append(parsed.Sections[string(changelog.TypeDependency)], dep)
 	}
 
 	return parsed
+}
+
+// Dependencies are sorted in ascending order. We keep the latest that should be the one with the latest semVer.
+func deduplicateDependencies(dependencies []changelog.Dependency) []changelog.Dependency {
+	dedupDeps := []changelog.Dependency{}
+	for _, dep := range dependencies {
+		found := false
+		for i := range dedupDeps {
+			if dedupDeps[i].Name == dep.Name {
+				found = true
+				dedupDeps[i] = dep
+			}
+		}
+		if !found {
+			dedupDeps = append(dedupDeps, dep)
+		}
+	}
+	return dedupDeps
 }
