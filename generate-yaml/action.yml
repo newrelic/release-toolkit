@@ -42,7 +42,7 @@ inputs:
     required: false
     default: ""
   excluded-dependencies:
-    description: Exclude dependencies when their commits contain any of the strings listed
+    description: Excluded dependencies file path. Dependency commits containing any of the strings listed, will be excluded.
     required: false
     default: ""
   exit-code:

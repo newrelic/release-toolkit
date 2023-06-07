@@ -66,7 +66,7 @@ runs:
           cp ${{ github.action_path }}/excluded-dependencies.yml "${GITHUB_WORKSPACE}/${{ inputs.excluded-dependencies }}"
         fi
     - name: Generate YAML
-      uses: newrelic/release-toolkit/generate-yaml@msanmiquel/exclude-dev-dependencies
+      uses: newrelic/release-toolkit/generate-yaml@v1
       with:
         excluded-dirs: ${{ inputs.excluded-dirs }}
         excluded-files: ${{ inputs.excluded-files }}
