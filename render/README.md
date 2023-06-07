@@ -17,7 +17,7 @@ Example creating a `RELEASE-NOTES.md` file for a helm chart:
 
 ## Parameters
 
-All parameters are optional and match the ones used for the cli command flag, you can see the values and the defaults in [here](../README.md#render))
+All parameters are optional and match the ones used for the cli command flag, you can see the values and the defaults in [here](../README.md#render-markdown-and-update-markdown))
 
 ## Contributing
 
