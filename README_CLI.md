@@ -37,6 +37,13 @@ A file is not filtered out if:
 (it is not excluded) && ((at least one include rule is specified) && (it is included))
 ```
 
+#### Excluded dependencies file example
+```yaml
+dependencies:
+  - github.com/stretchr/testify
+  - github.com/testcontainers/testcontainers-go
+```
+
 ## Is held
 ```shell
 rt is-held [-flags]
