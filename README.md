@@ -120,6 +120,10 @@ The list of entry types, and therefore groups, supported by the release-toolkit 
 
 Additionally, a section with changes to dependencies is also included after the list of changes.
 
+Notice that the list of dependencies is deduplicated in case the very same dependency is updated more than once.
+Merely the latest bump per each dependency is shown in order to simplify the changelog.
+
+
 The Markdown version of the `changelog.yaml` file mentioned above would be:
 
 ```markdown
@@ -205,7 +209,7 @@ dependencies:
 
 #### Automatically detected GitHub repository
 
-When the dependency does not match any entry in the dictionary file but it does match GitHub repositories (`github.com/<org>/<repo>`),
+When the dependency does not match any entry in the dictionary file, but it does match GitHub repositories (`github.com/<org>/<repo>`),
 the changelog link is automatically rendered using `https://github.com/<org>/<repo>/releases/tag/<new-version>`.
 
 After rendering, the release toolkit checks if the changelog link is valid by performing a HTTP request, so only valid
