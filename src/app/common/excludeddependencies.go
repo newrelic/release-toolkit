@@ -7,9 +7,9 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// ExcludedDependencies represents the structure of the YAML file.
-type ExcludedDependencies struct {
-	Dependencies []string `yaml:"dependencies"`
+// excludedDependencies represents the structure of the YAML file.
+type excludedDependencies struct {
+	List []string `yaml:"dependencies"`
 }
 
 // LoadExcludedDependencies loads the YAML file and returns a slice of excluded dev dependencies.
@@ -19,11 +19,11 @@ func LoadExcludedDependencies(filePath string) ([]string, error) {
 		return nil, fmt.Errorf("reading file %q: %w", filePath, err)
 	}
 
-	var excludedDependencies ExcludedDependencies
-	err = yaml.Unmarshal(data, &excludedDependencies)
+	var excludedDeps excludedDependencies
+	err = yaml.Unmarshal(data, &excludedDeps)
 	if err != nil {
 		return nil, fmt.Errorf("unmarshalling YAML data: %w", err)
 	}
 
-	return excludedDependencies.Dependencies, nil
+	return excludedDeps.List, nil
 }

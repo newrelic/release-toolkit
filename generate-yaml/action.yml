@@ -41,8 +41,8 @@ inputs:
     description: Exclude commits whose changes only impact files in the following comma-separated list
     required: false
     default: ""
-  excluded-dependencies:
-    description: Excluded dependencies file path. Dependency commits containing any of the strings listed, will be excluded.
+  excluded-dependencies-manifest:
+    description: Excluded dependencies manifest. Dependency commits containing any of the strings listed, will be excluded.
     required: false
     default: ""
   exit-code:
@@ -72,7 +72,7 @@ runs:
     - ${{ inputs.included-files }}
     - --excluded-files
     - ${{ inputs.excluded-files }}
-    - --excluded-dependencies
-    - ${{ inputs.excluded-dependencies }}
+    - --excluded-dependencies-manifest
+    - ${{ inputs.excluded-dependencies-manifest }}
     - --exit-code
     - ${{ inputs.exit-code }}

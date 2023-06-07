@@ -24,8 +24,8 @@ inputs:
   link-dependencies-dictionary:
     description: Sets the link dependency dictionary. `.github/rt-dictionary.yml` is used by default, if it does not exist a common dictionary is used.
     default: '.github/rt-dictionary.yml'
-  excluded-dependencies:
-    description: Sets the path for the excluded dependencies file, which will be excluded from the changelog when their commits contain any of the strings listed. Defaults to `.github/excluded-dependencies.yml`.
+  excluded-dependencies-manifest:
+    description: Excluded dependencies manifest. Dependency commits containing any of the strings listed, will be excluded. Defaults to `.github/excluded-dependencies.yml`.
     default: '.github/excluded-dependencies.yml'
 outputs:
   is-empty:
@@ -59,20 +59,20 @@ runs:
     # excluded-dependencies is a file contained by this action and is located inside $GITHUB_ACTION_PATH, but this
     # folder is not mounted in the container that runs the generate-yaml action, so we copied the file to
     # ${GITHUB_WORKSPACE} which is mounted in the container.
-    - name: Copy dependencies file to temp folder mounted by the generate action
+    - name: Copy dependencies file to temp folder mounted by the generate-yaml action
       shell: bash
       run: |
-        if ! [ -f "${GITHUB_WORKSPACE}/${{ inputs.excluded-dependencies }}" ]; then
-          cp ${{ github.action_path }}/excluded-dependencies.yml "${GITHUB_WORKSPACE}/${{ inputs.excluded-dependencies }}"
+        if ! [ -f "${GITHUB_WORKSPACE}/${{ inputs.excluded-dependencies-manifest }}" ]; then
+          cp ${{ github.action_path }}/excluded-dependencies.yml "${GITHUB_WORKSPACE}/${{ inputs.excluded-dependencies-manifest }}"
         fi
     - name: Generate YAML
-      uses: newrelic/release-toolkit/generate-yaml@v1
+      uses: newrelic/release-toolkit/generate-yaml@msanmiquel/exclude-dev-dependencies
       with:
         excluded-dirs: ${{ inputs.excluded-dirs }}
         excluded-files: ${{ inputs.excluded-files }}
         included-dirs: ${{ inputs.included-dirs }}
         included-files: ${{ inputs.included-files }}
-        excluded-dependencies: ${{ inputs.excluded-dependencies }}
+        excluded-dependencies-manifest: ${{ inputs.excluded-dependencies-manifest }}
         git-root: ${{ inputs.git-root }}
         markdown: ${{ inputs.git-root }}/CHANGELOG.md
         yaml: ${{ inputs.git-root }}/changelog.yaml
