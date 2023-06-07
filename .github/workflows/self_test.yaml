@@ -547,6 +547,11 @@ jobs:
           touch dependencies-repo/dependencies
           git add dependencies-repo/dependencies
           git commit -m "chore(deps): bump newrelic/infrastructure from 0.0.3 to 0.0.4 (#4)" --author="dependabot[bot] <db@users.noreply.github.com>"
+          
+          mkdir dev-dependencies-repo
+          touch dev-dependencies-repo/dependencies
+          git add dev-dependencies-repo/dependencies
+          git commit -m "chore(deps): bump github.com/stretchr/testify from 1.7.0 to 1.8.0" --author="dependabot[bot] <db@users.noreply.github.com>"
 
           cat > CHANGELOG.md <<EOF
           # Changelog
@@ -608,7 +613,7 @@ jobs:
           git-root: ${{ env.MOCK_REPO_ACTION }}
           excluded-files: dependencies-skip1
           excluded-dirs: dependencies-repo-skip
-          included-dirs: dependencies-repo
+          included-dirs: dependencies-repo,dev-dependencies-repo
           included-files: dependencies
       - name: Run script
         run: |

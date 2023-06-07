@@ -4,6 +4,7 @@ set -euo pipefail
 
 RT_PKG="github.com/newrelic/release-toolkit@latest"
 DICTIONARY_URL="https://raw.githubusercontent.com/newrelic/release-toolkit/v1/contrib/ohi-release-notes/rt-dictionary.yml"
+EXCLUDED_DEV_DEPENDENCIES_URL="https://raw.githubusercontent.com/newrelic/release-toolkit/v1/contrib/ohi-release-notes/excluded-dev-dependencies.yml"
 ARGS="$*"
 
 
@@ -51,15 +52,16 @@ DESCRIPTION:
     * The version that was computed for this release.
 
 OPTIONS:
-   --git-root       Run all the command using this path as root
-   --verbose        Adds verbose mode to this script.
-   --help           Show this help message and exits.
-   --excluded-dirs  Exclude commits whose changes only impact files in specified dirs relative to repository root. Defaults to ".github".
-   --excluded-files Exclude commits whose changes only impact files in the list, paths relative to repository root. Defaults to "".
-   --included-dirs  Only scan commits scoping at least one file in any of the following comma-separated directories Defaults to "".
-   --included-files Only scan commits scoping at least one file in the following comma-separated list. Defaults to "".
-   --no-fail        Do not fail even in the held toggle is active
-   --dictionary     Sets the link dependency dictionary file path. Defaults file located at "$DICTIONARY_URL" is used.
+   --git-root                   Run all the command using this path as root
+   --verbose                    Adds verbose mode to this script.
+   --help                       Show this help message and exits.
+   --excluded-dirs              Exclude commits whose changes only impact files in specified dirs relative to repository root. Defaults to ".github".
+   --excluded-files             Exclude commits whose changes only impact files in the list, paths relative to repository root. Defaults to "".
+   --included-dirs              Only scan commits scoping at least one file in any of the following comma-separated directories Defaults to "".
+   --included-files             Only scan commits scoping at least one file in the following comma-separated list. Defaults to "".
+   --no-fail                    Do not fail even in the held toggle is active
+   --dictionary                 Sets the link dependency dictionary file path. Default file located at "$DICTIONARY_URL" is used.
+   --excluded-dev-dependencies  Sets the excluded dev dependencies file path. Default file located at "$EXCLUDED_DEV_DEPENDENCIES_URL".
 
 EOM
     exit $ERRNO
@@ -74,6 +76,7 @@ INCLUDED_FILES_FLAG=""
 IS_HELD_FAIL="--fail"
 DICTIONARY=".github/rt-dictionary.yml"
 GIT_ROOT="."
+EXCLUDED_DEV_DEPENDENCIES=".github/excluded-dev-dependencies.yml"
 
 while true; do
     if [ -z "${1:-}" ]; then
@@ -89,6 +92,7 @@ while true; do
             --excluded-files ) EXCLUDED_FILES_FLAG="--excluded-files=$2"; shift 2 ;;
             --included-dirs ) INCLUDED_DIRECTORIES_FLAG="--included-dirs=$2"; shift 2 ;;
             --included-files ) INCLUDED_FILES_FLAG="--included-files=$2"; shift 2 ;;
+            --excluded-dev-dependencies ) EXCLUDED_DEV_DEPENDENCIES="--excluded-dev-dependencies=$2"; shift 2 ;;
             # Flags for is-held
             --no-fail ) IS_HELD_FAIL=""; shift ;;
             # Flags for link-dependencies
@@ -111,6 +115,12 @@ if ! [ -f "$DICTIONARY" ]; then
     curl -s -o "$DICTIONARY" "$DICTIONARY_URL"
 fi
 
+# fetch default excluded-dev-dependencies by default
+if ! [ -f "$EXCLUDED_DEV_DEPENDENCIES" ]; then
+    EXCLUDED_DEV_DEPENDENCIES="${TEMP_DIR}/excluded-dev-dependencies.yml"
+    curl -s -o "$EXCLUDED_DEV_DEPENDENCIES" "$EXCLUDED_DEV_DEPENDENCIES_URL"
+fi
+
 (
     cd "${GIT_ROOT}"
 
@@ -119,7 +129,11 @@ fi
 
 
     # generating the changelog
-    ${RT_BIN} generate-yaml "$EXCLUDED_DIRECTORIES_FLAG" "$EXCLUDED_FILES_FLAG" "$INCLUDED_DIRECTORIES_FLAG" "$INCLUDED_FILES_FLAG"
+    if [ -f "$EXCLUDED_DEV_DEPENDENCIES" ]; then
+      ${RT_BIN} generate-yaml "$EXCLUDED_DIRECTORIES_FLAG" "$EXCLUDED_FILES_FLAG" "$INCLUDED_DIRECTORIES_FLAG" "$INCLUDED_FILES_FLAG" "$EXCLUDED_DEV_DEPENDENCIES"
+    else
+      ${RT_BIN} generate-yaml "$EXCLUDED_DIRECTORIES_FLAG" "$EXCLUDED_FILES_FLAG" "$INCLUDED_DIRECTORIES_FLAG" "$INCLUDED_FILES_FLAG"
+    fi
     ${RT_BIN} is-empty > /dev/null
     ${RT_BIN} is-held "${IS_HELD_FAIL}" > /dev/null
     if [ -f "$DICTIONARY" ]; then

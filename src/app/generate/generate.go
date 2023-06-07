@@ -17,16 +17,17 @@ import (
 )
 
 const (
-	markdownPathFlag  = "markdown"
-	renovateFlag      = "renovate"
-	dependabotFlag    = "dependabot"
-	tagPrefixFlag     = "tag-prefix"
-	gitRootFlag       = "git-root"
-	includedDirsFlag  = "included-dirs"
-	excludedDirsFlag  = "excluded-dirs"
-	includedFilesFlag = "included-files"
-	excludedFilesFlag = "excluded-files"
-	exitCodeFlag      = "exit-code"
+	markdownPathFlag            = "markdown"
+	renovateFlag                = "renovate"
+	dependabotFlag              = "dependabot"
+	tagPrefixFlag               = "tag-prefix"
+	gitRootFlag                 = "git-root"
+	includedDirsFlag            = "included-dirs"
+	excludedDirsFlag            = "excluded-dirs"
+	includedFilesFlag           = "included-files"
+	excludedFilesFlag           = "excluded-files"
+	excludedDevDependenciesFlag = "excluded-dev-dependencies"
+	exitCodeFlag                = "exit-code"
 )
 
 const emptyChangelogOutput = "empty-changelog"
@@ -77,6 +78,12 @@ var Cmd = &cli.Command{
 			Usage: `Exclude commits whose changes only impact the specified files, path are relative to repository root (--dir) (separated by comma) ` +
 				`(Paths may not start or end with "/" or contain ".." or "." tokens)`,
 		},
+		&cli.StringFlag{
+			Name:    excludedDevDependenciesFlag,
+			EnvVars: common.EnvFor(excludedDevDependenciesFlag),
+			Usage: `Path to a YAML file with the list of development dependencies which are not going to be included` +
+				`in the changelog`,
+		},
 		&cli.BoolFlag{
 			Name:    dependabotFlag,
 			EnvVars: common.EnvFor(dependabotFlag),
@@ -123,11 +130,19 @@ func Generate(cCtx *cli.Context) error {
 	combinedChangelog := &changelog.Changelog{}
 	sources := make([]changelog.Source, 0)
 
+	var excludedDevDependencies []string
+	if excludedDevDependenciesPath := cCtx.String(excludedDevDependenciesFlag); excludedDevDependenciesPath != "" {
+		excludedDevDependencies, err = common.LoadExcludedDevDependencies(excludedDevDependenciesPath)
+		if err != nil {
+			return fmt.Errorf("adding excluded dependencies %q: %w", excludedDevDependenciesPath, err)
+		}
+	}
+
 	if cCtx.Bool(renovateFlag) {
 		appendDep := func(sources []changelog.Source, tgv git.TagsVersionGetter, getter git.CommitsGetter) []changelog.Source {
 			return append(sources, renovate.NewSource(tgv, getter))
 		}
-		sources, err = addDepSource(cCtx, sources, appendDep)
+		sources, err = addDepSource(cCtx, sources, appendDep, excludedDevDependencies)
 		if err != nil {
 			return fmt.Errorf("adding renovate source: %w", err)
 		}
@@ -137,7 +152,7 @@ func Generate(cCtx *cli.Context) error {
 		appendDep := func(sources []changelog.Source, tgv git.TagsVersionGetter, getter git.CommitsGetter) []changelog.Source {
 			return append(sources, dependabot.NewSource(tgv, getter))
 		}
-		sources, err = addDepSource(cCtx, sources, appendDep)
+		sources, err = addDepSource(cCtx, sources, appendDep, excludedDevDependencies)
 		if err != nil {
 			return fmt.Errorf("adding dependabot source: %w", err)
 		}
@@ -182,7 +197,7 @@ func Generate(cCtx *cli.Context) error {
 	return nil
 }
 
-func addDepSource(cCtx *cli.Context, sources []changelog.Source, appendDep appendDepSrc) ([]changelog.Source, error) {
+func addDepSource(cCtx *cli.Context, sources []changelog.Source, appendDep appendDepSrc, deps []string) ([]changelog.Source, error) {
 	tvg, err := tagVersionGetter(cCtx)
 	if err != nil {
 		return nil, err
@@ -195,12 +210,14 @@ func addDepSource(cCtx *cli.Context, sources []changelog.Source, appendDep appen
 
 	gitCommitGetter := git.NewRepoCommitsGetter(cCtx.String(gitRootFlag))
 
-	if len(includedDirs) > 0 || len(excludedDirs) > 0 || len(includedFiles) > 0 || len(excludedFiles) > 0 {
+	if len(includedDirs) > 0 || len(excludedDirs) > 0 || len(includedFiles) > 0 || len(excludedFiles) > 0 || len(deps) > 0 {
 		commitFilter, err := git.NewCommitFilter(gitCommitGetter,
 			git.IncludedDirs(includedDirs...),
 			git.ExcludedDirs(excludedDirs...),
 			git.IncludedFiles(includedFiles...),
-			git.ExcludedFiles(excludedFiles...))
+			git.ExcludedFiles(excludedFiles...),
+			git.ExcludedDevDependencies(deps...),
+		)
 		if err != nil {
 			return nil, fmt.Errorf("creating git commit filter: %w", err)
 		}
@@ -240,10 +257,9 @@ func tagVersionGetter(cCtx *cli.Context) (*git.TagsSource, error) {
 func sanitizeValue(in []string) []string {
 	// Even if the user passes "an empty string it is considered as an element "",
 	// and translated to "./" causing an unexpected behavior.
-	if len(in) == 1 {
-		if in[0] == "" {
-			return []string{}
-		}
+	if len(in) == 1 && in[0] == "" {
+		return []string{}
 	}
+
 	return in
 }

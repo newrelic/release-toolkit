@@ -24,6 +24,9 @@ inputs:
   link-dependencies-dictionary:
     description: Sets the link dependency dictionary. `.github/rt-dictionary.yml` is used by default, if it does not exist a common dictionary is used.
     default: '.github/rt-dictionary.yml'
+  excluded-dev-dependencies:
+    description: Sets the path for the excluded-dev-dependencies file, which will be excluded from the changelog. Defaults to `.github/excluded-dev-dependencies.yml`.
+    default: '.github/excluded-dev-dependencies.yml'
 outputs:
   is-empty:
     description: "Outputs if changelog is empty"
@@ -53,6 +56,16 @@ runs:
       uses: newrelic/release-toolkit/validate-markdown@v1
       with:
         markdown: ${{ inputs.git-root }}/CHANGELOG.md
+    # excluded-dev-dependencies is a file contained by this action and is located inside $GITHUB_ACTION_PATH, but this
+    # folder is not mounted in the container that runs the generate-yaml action, so we copied the file to
+    # ${GITHUB_WORKSPACE} which is mounted in the container.
+    - name: Copy dependencies file to temp folder mounted by the generate action
+      shell: bash
+      run: |
+        set -x
+        if ! [ -f "${GITHUB_WORKSPACE}/${{ inputs.excluded-dev-dependencies }}" ]; then
+          cp ${{ github.action_path }}/excluded-dev-dependencies.yml "${GITHUB_WORKSPACE}/${{ inputs.excluded-dev-dependencies }}"
+        fi
     - name: Generate YAML
       uses: newrelic/release-toolkit/generate-yaml@v1
       with:
@@ -60,6 +73,7 @@ runs:
         excluded-files: ${{ inputs.excluded-files }}
         included-dirs: ${{ inputs.included-dirs }}
         included-files: ${{ inputs.included-files }}
+        excluded-dev-dependencies: ${{ inputs.excluded-dev-dependencies }}
         git-root: ${{ inputs.git-root }}
         markdown: ${{ inputs.git-root }}/CHANGELOG.md
         yaml: ${{ inputs.git-root }}/changelog.yaml

@@ -14,11 +14,12 @@ var (
 
 // CommitFilter filters commits from a git repository based in included and excluded directories.
 type CommitFilter struct {
-	commitsGetter CommitsGetter
-	includedDirs  []string
-	excludedDirs  []string
-	includedFiles []string
-	excludedFiles []string
+	commitsGetter           CommitsGetter
+	includedDirs            []string
+	excludedDirs            []string
+	includedFiles           []string
+	excludedFiles           []string
+	excludedDevDependencies []string
 }
 
 type CommitFilterOptionFunc func(s *CommitFilter) error
@@ -76,6 +77,13 @@ func ExcludedFiles(excludedFiles ...string) CommitFilterOptionFunc {
 	}
 }
 
+func ExcludedDevDependencies(deps ...string) CommitFilterOptionFunc {
+	return func(s *CommitFilter) error {
+		s.excludedDevDependencies = deps
+		return nil
+	}
+}
+
 func isDirNameInvalid(dir string) bool {
 	return dir == "." || dir == ".." || dir == "" || strings.HasPrefix(dir, "/") || strings.Contains(dir, "./")
 }
@@ -111,7 +119,7 @@ func (s *CommitFilter) Commits(lastHash string) ([]Commit, error) {
 
 	filteredCommits := make([]Commit, 0)
 	for _, commit := range commits {
-		if !s.commitChangesExcluded(commit.Files) {
+		if !s.commitChangesExcluded(commit.Files) && !s.commitDevDependenciesExcluded(commit.Message) {
 			filteredCommits = append(filteredCommits, commit)
 		}
 	}
@@ -149,6 +157,17 @@ func (s *CommitFilter) commitChangesExcluded(files []string) bool {
 	}
 
 	return true
+}
+
+// commitDevDependenciesExcluded checks if the commit message contains any excluded dev dependencies.
+func (s *CommitFilter) commitDevDependenciesExcluded(message string) bool {
+	for _, dep := range s.excludedDevDependencies {
+		if strings.Contains(message, dep) {
+			return true
+		}
+	}
+
+	return false
 }
 
 // commitChangesIncluded returns true if the file is included in includedDirs or includedFiles.
