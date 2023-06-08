@@ -132,7 +132,7 @@ func Generate(cCtx *cli.Context) error {
 
 	var excludedDependencies []string
 	if excludedDependenciesPath := cCtx.String(excludedDependenciesManifestFlag); excludedDependenciesPath != "" {
-		excludedDependencies, err = common.LoadExcludedDependencies(excludedDependenciesPath)
+		excludedDependencies, err = loadExcludedDependencies(excludedDependenciesPath)
 		if err != nil {
 			return fmt.Errorf("excluding dependencies %q: %w", excludedDependenciesPath, err)
 		}

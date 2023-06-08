@@ -92,7 +92,7 @@ while true; do
             --excluded-files ) EXCLUDED_FILES_FLAG="--excluded-files=$2"; shift 2 ;;
             --included-dirs ) INCLUDED_DIRECTORIES_FLAG="--included-dirs=$2"; shift 2 ;;
             --included-files ) INCLUDED_FILES_FLAG="--included-files=$2"; shift 2 ;;
-            --excluded-dependencies-manifest ) EXCLUDED_DEPENDENCIES_MANIFEST="--excluded-dependencies-manifest=$2"; shift 2 ;;
+            --excluded-dependencies-manifest ) EXCLUDED_DEPENDENCIES_MANIFEST="-$2"; shift 2 ;;
             # Flags for is-held
             --no-fail ) IS_HELD_FAIL=""; shift ;;
             # Flags for link-dependencies
@@ -121,6 +121,8 @@ if ! [ -f "$EXCLUDED_DEPENDENCIES_MANIFEST" ]; then
     curl -s -o "$EXCLUDED_DEPENDENCIES_MANIFEST" "$EXCLUDED_DEPENDENCIES_MANIFEST_URL"
 fi
 
+EXCLUDED_DEPENDENCIES_MANIFEST_FLAG="--excluded-dependencies-manifest=${EXCLUDED_DEPENDENCIES_MANIFEST}"
+
 (
     cd "${GIT_ROOT}"
 
@@ -129,7 +131,7 @@ fi
 
 
     # generating the changelog
-    ${RT_BIN} generate-yaml "$EXCLUDED_DIRECTORIES_FLAG" "$EXCLUDED_FILES_FLAG" "$INCLUDED_DIRECTORIES_FLAG" "$INCLUDED_FILES_FLAG" "$EXCLUDED_DEPENDENCIES_MANIFEST"
+    ${RT_BIN} generate-yaml "$EXCLUDED_DIRECTORIES_FLAG" "$EXCLUDED_DEPENDENCIES_MANIFEST_FLAG" "$EXCLUDED_FILES_FLAG" "$INCLUDED_DIRECTORIES_FLAG" "$INCLUDED_FILES_FLAG"
     ${RT_BIN} is-empty > /dev/null
     ${RT_BIN} is-held "${IS_HELD_FAIL}" > /dev/null
     if [ -f "$DICTIONARY" ]; then

@@ -1,4 +1,4 @@
-package common
+package generate
 
 import (
 	"path"
@@ -33,7 +33,7 @@ func TestLoadExcludedDependencies(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			got, err := LoadExcludedDependencies(tc.filePath)
+			got, err := loadExcludedDependencies(tc.filePath)
 
 			if (err != nil) != tc.wantErr {
 				t.Fatalf("loadExcludedDependencies error = %v, wantErr %v", err, tc.wantErr)
