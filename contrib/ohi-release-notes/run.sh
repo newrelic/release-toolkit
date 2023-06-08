@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-RT_PKG="github.com/newrelic/release-toolkit@latest"
+RT_PKG="github.com/newrelic/release-toolkit@msanmiquel/exclude-dev-dependencies"
 DICTIONARY_URL="https://raw.githubusercontent.com/newrelic/release-toolkit/v1/contrib/ohi-release-notes/rt-dictionary.yml"
 EXCLUDED_DEPENDENCIES_MANIFEST_URL="https://raw.githubusercontent.com/newrelic/release-toolkit/msanmiquel/exclude-dev-dependencies/contrib/ohi-release-notes/excluded-dependencies.yml"
 ARGS="$*"
@@ -131,6 +131,8 @@ EXCLUDED_DEPENDENCIES_MANIFEST_FLAG="--excluded-dependencies-manifest=${EXCLUDED
 
 
     # generating the changelog
+    GENERATE_YAML_COMMAND="${RT_BIN} generate-yaml ${EXCLUDED_DIRECTORIES_FLAG} ${EXCLUDED_DEPENDENCIES_MANIFEST_FLAG} ${EXCLUDED_FILES_FLAG} ${INCLUDED_DIRECTORIES_FLAG} ${INCLUDED_FILES_FLAG}"
+    echo "${GENERATE_YAML_COMMAND}"
     ${RT_BIN} generate-yaml "$EXCLUDED_DIRECTORIES_FLAG" "$EXCLUDED_DEPENDENCIES_MANIFEST_FLAG" "$EXCLUDED_FILES_FLAG" "$INCLUDED_DIRECTORIES_FLAG" "$INCLUDED_FILES_FLAG"
     ${RT_BIN} is-empty > /dev/null
     ${RT_BIN} is-held "${IS_HELD_FAIL}" > /dev/null
