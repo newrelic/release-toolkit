@@ -583,7 +583,6 @@ jobs:
           - test
 
           ### ⛓️ Dependencies
-          - Upgraded newrelic/infrastructure from 0.0.0 to 0.0.1 - [Changelog 🔗](https://github.com/newrelic/infrastructure-agent/releases/tag/0.0.1)
           - Upgraded newrelic/infrastructure from 0.0.3 to 0.0.4 - [Changelog 🔗](https://github.com/newrelic/infrastructure-agent/releases/tag/0.0.4)
 
           ## v1.2.3 - 20YY-DD-MM
@@ -601,7 +600,6 @@ jobs:
           - test
 
           ### ⛓️ Dependencies
-          - Upgraded newrelic/infrastructure from 0.0.0 to 0.0.1 - [Changelog 🔗](https://github.com/newrelic/infrastructure-agent/releases/tag/0.0.1)
           - Upgraded newrelic/infrastructure from 0.0.3 to 0.0.4 - [Changelog 🔗](https://github.com/newrelic/infrastructure-agent/releases/tag/0.0.4)
           EOF
 
