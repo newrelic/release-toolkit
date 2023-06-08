@@ -92,7 +92,7 @@ while true; do
             --excluded-files ) EXCLUDED_FILES_FLAG="--excluded-files=$2"; shift 2 ;;
             --included-dirs ) INCLUDED_DIRECTORIES_FLAG="--included-dirs=$2"; shift 2 ;;
             --included-files ) INCLUDED_FILES_FLAG="--included-files=$2"; shift 2 ;;
-            --excluded-dependencies-manifest ) EXCLUDED_DEPENDENCIES_MANIFEST="-$2"; shift 2 ;;
+            --excluded-dependencies-manifest ) EXCLUDED_DEPENDENCIES_MANIFEST="$2"; shift 2 ;;
             # Flags for is-held
             --no-fail ) IS_HELD_FAIL=""; shift ;;
             # Flags for link-dependencies
