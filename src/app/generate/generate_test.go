@@ -164,9 +164,6 @@ dependencies:
 				"chore(deps): update newrelic/infrastructure-bundle docker tag to v2.7.2",
 				"chore(deps): update helm release common-library to v1.0.4 (#401)",
 			},
-			// Note: meta.commit is actually the commit hash.
-			// As it is nontrivial to know the commit hash in advance, to make tests easier to write, test writers
-			// should specify the commit message instead. This test will replace it with the actual hash in runtime.
 			expected: strings.TrimSpace(`
 notes: |-
     ### Important announcement (note)
@@ -197,9 +194,6 @@ dependencies:
 				"chore(deps): update newrelic/infrastructure-bundle docker tag to v2.7.2",
 				"chore(deps): update helm release common-library to v1.0.4 (#401)",
 			},
-			// Note: meta.commit is actually the commit hash.
-			// As it is nontrivial to know the commit hash in advance, to make tests easier to write, test writers
-			// should specify the commit message instead. This test will replace it with the actual hash in runtime.
 			expected: strings.TrimSpace(`
 notes: |-
     ### Important announcement (note)
@@ -221,9 +215,6 @@ dependencies: []
 				"chore(deps): update newrelic/infrastructure-bundle docker tag to v2.7.2",
 				"chore(deps): update helm release common-library to v1.0.4 (#401)",
 			},
-			// Note: meta.commit is actually the commit hash.
-			// As it is nontrivial to know the commit hash in advance, to make tests easier to write, test writers
-			// should specify the commit message instead. This test will replace it with the actual hash in runtime.
 			expected: strings.TrimSpace(`
 notes: |-
     ### Important announcement (note)
@@ -254,9 +245,6 @@ dependencies:
 				"chore(deps): bump thisdep from 1.7.0 to 1.10.1",
 				"chore(deps): bump anotherdep from 0.0.1 to 0.0.2 (#69)",
 			},
-			// Note: meta.commit is actually the commit hash.
-			// As it is nontrivial to know the commit hash in advance, to make tests easier to write, test writers
-			// should specify the commit message instead. This test will replace it with the actual hash in runtime.
 			expected: strings.TrimSpace(`
 notes: |-
     ### Important announcement (note)
@@ -277,9 +265,6 @@ dependencies: []`) + "\n",
 				"chore(deps): bump thisdep from 1.7.0 to 1.10.1",
 				"chore(deps): bump anotherdep from 0.0.1 to 0.0.2 (#69)",
 			},
-			// Note: meta.commit is actually the commit hash.
-			// As it is nontrivial to know the commit hash in advance, to make tests easier to write, test writers
-			// should specify the commit message instead. This test will replace it with the actual hash in runtime.
 			expected: strings.TrimSpace(`
 notes: |-
     ### Important announcement (note)
@@ -312,9 +297,6 @@ dependencies:
 				"chore(deps): bump thisdep from 1.7.0 to 1.10.1",
 				"chore(deps): bump anotherdep from 0.0.1 to 0.0.2 (#69)",
 			},
-			// Note: meta.commit is actually the commit hash.
-			// As it is nontrivial to know the commit hash in advance, to make tests easier to write, test writers
-			// should specify the commit message instead. This test will replace it with the actual hash in runtime.
 			expected: strings.TrimSpace(`
 notes: |-
     ### Important announcement (note)
@@ -340,9 +322,6 @@ dependencies:
 				"chore(deps): bump thisdep from 1.7.0 to 1.10.1",
 				"chore(deps): bump anotherdep from 0.0.1 to 0.0.2 (#69)",
 			},
-			// Note: meta.commit is actually the commit hash.
-			// As it is nontrivial to know the commit hash in advance, to make tests easier to write, test writers
-			// should specify the commit message instead. This test will replace it with the actual hash in runtime.
 			expected: strings.TrimSpace(`
 notes: |-
     ### Important announcement (note)
@@ -375,9 +354,6 @@ dependencies:
 				"chore(deps): bump thisdep from 1.7.0 to 1.10.1",
 				"chore(deps): bump anotherdep from 0.0.1 to 0.0.2 (#69)",
 			},
-			// Note: meta.commit is actually the commit hash.
-			// As it is nontrivial to know the commit hash in advance, to make tests easier to write, test writers
-			// should specify the commit message instead. This test will replace it with the actual hash in runtime.
 			expected: strings.TrimSpace(`
 notes: |-
     ### Important announcement (note)
@@ -394,6 +370,58 @@ dependencies:
       meta:
         pr: "69"
         commit: chore(deps): bump anotherdep from 0.0.1 to 0.0.2 (#69)
+			`) + "\n",
+		},
+		{
+			name:   "Markdown_Renovate_Filter_ExcludedDependencies",
+			md:     mdChangelog,
+			args:   fmt.Sprintf("--dependabot=false --excluded-dependencies-manifest=%s", path.Join("..", "testdata", "excluded-dependencies.yml")),
+			author: "renovate[bot] <renovatebot@imadethisup.com>",
+			commits: []string{
+				"chore(deps): update github.com/stretchr/testify to 1.8.0",
+				"chore(deps): update helm release common-library to v1.0.4 (#401)",
+			},
+			expected: strings.TrimSpace(`
+notes: |-
+    ### Important announcement (note)
+    This is a release note
+changes:
+    - type: breaking
+      message: Support has been removed
+    - type: security
+      message: Fixed a security issue that leaked all data
+dependencies:
+    - name: common-library
+      to: v1.0.4
+      meta:
+        pr: "401"
+        commit: chore(deps): update helm release common-library to v1.0.4 (#401)
+			`) + "\n",
+		},
+		{
+			name:   "Markdown_Dependabot_Filter_ExcludedDependencies",
+			md:     mdChangelog,
+			args:   fmt.Sprintf("--renovate=false --excluded-dependencies-manifest=%s", path.Join("..", "testdata", "excluded-dependencies.yml")),
+			author: "dependabot <dependabot@github.com>",
+			commits: []string{
+				"chore(deps): bump github.com/stretchr/testify from 1.7.0 to 1.8.0",
+				"chore(deps): bump thisdep from 1.7.0 to 1.10.1",
+			},
+			expected: strings.TrimSpace(`
+notes: |-
+    ### Important announcement (note)
+    This is a release note
+changes:
+    - type: breaking
+      message: Support has been removed
+    - type: security
+      message: Fixed a security issue that leaked all data
+dependencies:
+    - name: thisdep
+      from: 1.7.0
+      to: 1.10.1
+      meta:
+        commit: chore(deps): bump thisdep from 1.7.0 to 1.10.1
 			`) + "\n",
 		},
 	} {

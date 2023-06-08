@@ -533,6 +533,10 @@ jobs:
           touch dependencies
           git add dependencies
           git commit -m "chore(deps): bump newrelic/infrastructure from 0.0.0 to 0.0.1 (#1)" --author="dependabot[bot] <db@users.noreply.github.com>"
+          
+          touch dependencies1
+          git add dependencies1
+          git commit -m "chore(deps): bump github.com/stretchr/testify from 1.7.0 to 1.8.0" --author="dependabot[bot] <db@users.noreply.github.com>"
 
           touch dependencies-skip1
           git add dependencies-skip1
@@ -546,8 +550,8 @@ jobs:
           mkdir dependencies-repo
           touch dependencies-repo/dependencies
           git add dependencies-repo/dependencies
-          git commit -m "chore(deps): bump newrelic/infrastructure from 0.0.3 to 0.0.4 (#4)" --author="dependabot[bot] <db@users.noreply.github.com>"
-
+          git commit -m "chore(deps): bump newrelic/nri-docker from 0.0.3 to 0.0.4 (#4)" --author="dependabot[bot] <db@users.noreply.github.com>"
+          
           cat > CHANGELOG.md <<EOF
           # Changelog
             This is based on blah blah blah
@@ -580,7 +584,7 @@ jobs:
 
           ### ⛓️ Dependencies
           - Upgraded newrelic/infrastructure from 0.0.0 to 0.0.1 - [Changelog 🔗](https://github.com/newrelic/infrastructure-agent/releases/tag/0.0.1)
-          - Upgraded newrelic/infrastructure from 0.0.3 to 0.0.4 - [Changelog 🔗](https://github.com/newrelic/infrastructure-agent/releases/tag/0.0.4)
+          - Upgraded newrelic/nri-docker from 0.0.3 to 0.0.4 - [Changelog 🔗](https://github.com/newrelic/nri-docker/releases/tag/0.0.4)
 
           ## v1.2.3 - 20YY-DD-MM
 
@@ -598,7 +602,7 @@ jobs:
 
           ### ⛓️ Dependencies
           - Upgraded newrelic/infrastructure from 0.0.0 to 0.0.1 - [Changelog 🔗](https://github.com/newrelic/infrastructure-agent/releases/tag/0.0.1)
-          - Upgraded newrelic/infrastructure from 0.0.3 to 0.0.4 - [Changelog 🔗](https://github.com/newrelic/infrastructure-agent/releases/tag/0.0.4)
+          - Upgraded newrelic/nri-docker from 0.0.3 to 0.0.4 - [Changelog 🔗](https://github.com/newrelic/nri-docker/releases/tag/0.0.4)
           EOF
 
       - name: Run action
@@ -609,13 +613,13 @@ jobs:
           excluded-files: dependencies-skip1
           excluded-dirs: dependencies-repo-skip
           included-dirs: dependencies-repo
-          included-files: dependencies
+          included-files: dependencies,dependencies1
       - name: Run script
         run: |
           cd "${{ env.MOCK_REPO_SCRIPT }}"
           # CLI autodetects whether it is running on GHA or not. If we let GHA set this to true, as it normally does,
           # tests cases where GITHUB_ACTIONS is expected to be unset would fail.
-          GITHUB_ACTIONS=false "${GITHUB_WORKSPACE}/contrib/ohi-release-notes/run.sh" --included-dirs dependencies-repo --included-files dependencies --excluded-files dependencies-skip1 --excluded-dirs dependencies-repo-skip
+          GITHUB_ACTIONS=false "${GITHUB_WORKSPACE}/contrib/ohi-release-notes/run.sh" --included-dirs dependencies-repo --included-files dependencies,dependencies1 --excluded-files dependencies-skip1 --excluded-dirs dependencies-repo-skip
       - name: Action outputs
         working-directory: ${{ env.ACTION_OUTPUTS }}
         run: |
