@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-RT_PKG="github.com/newrelic/release-toolkit@c36fea71a9b4b948f552e2a2aab0f2c6f0a468c2"
+RT_PKG="github.com/newrelic/release-toolkit@latest"
 DICTIONARY_URL="https://raw.githubusercontent.com/newrelic/release-toolkit/v1/contrib/ohi-release-notes/rt-dictionary.yml"
 EXCLUDED_DEPENDENCIES_MANIFEST_URL="https://raw.githubusercontent.com/newrelic/release-toolkit/msanmiquel/exclude-dev-dependencies/contrib/ohi-release-notes/excluded-dependencies.yml"
 ARGS="$*"
