@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.pull_request
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           # This job might fail for PRs with more than 50 commits. I take that as a feature.
           fetch-depth: 50
@@ -37,7 +37,7 @@ jobs:
     name: Run tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-go@v4
         with:
           go-version: '1.19'
@@ -58,7 +58,7 @@ jobs:
     name: Static analysis and linting
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-go@v4
         with:
           go-version: '1.19'
@@ -82,7 +82,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Codespell test
         uses: codespell-project/actions-codespell@master
         with:
