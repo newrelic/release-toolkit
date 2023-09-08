@@ -11,7 +11,7 @@ jobs:
     env:
       MOCK_REPO: ./mock_repo
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Configure test repo
         id: repo
         shell: bash
@@ -62,7 +62,7 @@ jobs:
     env:
       MOCK_REPO: ./mock_repo
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Configure test repo
         id: repo
         shell: bash
@@ -129,7 +129,7 @@ jobs:
     env:
       MOCK_REPO: ./mock_repo
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Configure test repo
         id: repo
         shell: bash
@@ -184,7 +184,7 @@ jobs:
     env:
       MOCK_REPO: ./mock_repo
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Configure test repo
         id: repo
         shell: bash
@@ -228,7 +228,7 @@ jobs:
     env:
       MOCK_REPO: ./mock_repo
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Configure test repo
         id: repo
         shell: bash
@@ -270,7 +270,7 @@ jobs:
     env:
       MOCK_REPO: ./mock_repo
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Configure test repo
         id: repo
         shell: bash
@@ -322,7 +322,7 @@ jobs:
     env:
       MOCK_REPO: ./mock_repo
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Configure test repo
         id: repo
         shell: bash
@@ -379,7 +379,7 @@ jobs:
     env:
       MOCK_REPO: ./mock_repo
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Configure test repo
         id: repo
         shell: bash
@@ -454,7 +454,7 @@ jobs:
     env:
       MOCK_REPO: ./mock_repo
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Configure test repo
         id: repo
         shell: bash
@@ -500,7 +500,7 @@ jobs:
       MOCK_REPO_SCRIPT: ./mock_repo_script
       ACTION_OUTPUTS: ./action_outputs
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Configure test repo
         shell: bash
         run: |
