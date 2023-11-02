@@ -716,7 +716,7 @@ jobs:
           echo =================================================================
           echo "action output 'next-version' return the expected value"
           echo EXPECTED:
-          echo "v1.3.0"
+          echo "v2.0.0"
           echo RESULT:
           echo "${{ steps.ohi-release-notes.outputs.next-version }}"
           echo TEST:
@@ -729,7 +729,7 @@ jobs:
           echo =================================================================
           echo "action output 'release-title' return the expected value"
           echo EXPECTED:
-          echo "v1.3.0 - $(date +%Y-%m-%d)"
+          echo "v2.0.0 - $(date +%Y-%m-%d)"
           echo RESULT:
           echo "${{ steps.ohi-release-notes.outputs.release-title }}"
           echo TEST:
