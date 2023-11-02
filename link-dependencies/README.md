@@ -22,6 +22,9 @@ dictionary:
   golangci-lint: "https://github.com/golangci/golangci-lint/releases/tag/{{.To.Original}}"
 ```
 
+Notice that the implementation for {{.To}} uses dep.To.ToString that removes the leading v if present. That is ideal
+since it allow us to write down a rule no matter if the version comes as vx.y.z or x.y.z.
+
 ## Parameters
 
 All parameters are optional and match the ones used for the cli command flag, you can see the values and the defaults in [here](../README_CLI.md#link-dependencies))

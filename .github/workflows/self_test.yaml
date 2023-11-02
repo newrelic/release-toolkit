@@ -550,7 +550,7 @@ jobs:
           mkdir dependencies-repo
           touch dependencies-repo/dependencies
           git add dependencies-repo/dependencies
-          git commit -m "chore(deps): bump newrelic/nri-docker from 0.0.3 to 0.0.4 (#4)" --author="dependabot[bot] <db@users.noreply.github.com>"
+          git commit -m "chore(deps): bump newrelic/nri-docker from 0.0.3 to 1.8.26 (#4)" --author="dependabot[bot] <db@users.noreply.github.com>"
           
           cat > CHANGELOG.md <<EOF
           # Changelog
@@ -577,14 +577,14 @@ jobs:
 
           ## Unreleased
 
-          ## v1.3.0 - $(date +%Y-%m-%d)
+          ## v2.0.0 - $(date +%Y-%m-%d)
 
           ### 🚀 Enhancements
           - test
 
           ### ⛓️ Dependencies
           - Upgraded newrelic/infrastructure from 0.0.0 to 0.0.1 - [Changelog 🔗](https://github.com/newrelic/infrastructure-agent/releases/tag/0.0.1)
-          - Upgraded newrelic/nri-docker from 0.0.3 to 0.0.4 - [Changelog 🔗](https://github.com/newrelic/nri-docker/releases/tag/0.0.4)
+          - Upgraded newrelic/nri-docker from 0.0.3 to 1.8.26 - [Changelog 🔗](https://github.com/newrelic/nri-docker/releases/tag/v1.8.26)
 
           ## v1.2.3 - 20YY-DD-MM
 
@@ -595,14 +595,14 @@ jobs:
         shell: bash
         run: |
           cat > expected-partial.md <<EOF
-          ## v1.3.0 - $(date +%Y-%m-%d)
+          ## v2.0.0 - $(date +%Y-%m-%d)
 
           ### 🚀 Enhancements
           - test
 
           ### ⛓️ Dependencies
           - Upgraded newrelic/infrastructure from 0.0.0 to 0.0.1 - [Changelog 🔗](https://github.com/newrelic/infrastructure-agent/releases/tag/0.0.1)
-          - Upgraded newrelic/nri-docker from 0.0.3 to 0.0.4 - [Changelog 🔗](https://github.com/newrelic/nri-docker/releases/tag/0.0.4)
+          - Upgraded newrelic/nri-docker from 0.0.3 to 1.8.26 - [Changelog 🔗](https://github.com/newrelic/nri-docker/releases/tag/v1.8.26)
           EOF
 
       - name: Run action
@@ -716,11 +716,11 @@ jobs:
           echo =================================================================
           echo "action output 'next-version' return the expected value"
           echo EXPECTED:
-          echo "v1.3.0"
+          echo "v2.0.0"
           echo RESULT:
           echo "${{ steps.ohi-release-notes.outputs.next-version }}"
           echo TEST:
-          if [ "${{ steps.ohi-release-notes.outputs.next-version }}" = "v1.3.0" ] ; then
+          if [ "${{ steps.ohi-release-notes.outputs.next-version }}" = "v2.0.0" ] ; then
             echo PASS
           else
             echo FAIL - action output 'next-version' does not return the expected value
@@ -729,11 +729,11 @@ jobs:
           echo =================================================================
           echo "action output 'release-title' return the expected value"
           echo EXPECTED:
-          echo "v1.3.0 - $(date +%Y-%m-%d)"
+          echo "v2.0.0 - $(date +%Y-%m-%d)"
           echo RESULT:
           echo "${{ steps.ohi-release-notes.outputs.release-title }}"
           echo TEST:
-          if [ "${{ steps.ohi-release-notes.outputs.release-title }}" = "v1.3.0 - $(date +%Y-%m-%d)" ] ; then
+          if [ "${{ steps.ohi-release-notes.outputs.release-title }}" = "v2.0.0 - $(date +%Y-%m-%d)" ] ; then
             echo PASS
           else
             echo FAIL - action output 'release-title' does not return the expected value
