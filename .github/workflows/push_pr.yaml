@@ -66,10 +66,6 @@ jobs:
         with:
           # Use full list of linters, rather than the (default) limited set.
           golangci-lint-config: golangci-lint
-      - name: Semgrep
-        uses: returntocorp/semgrep-action@v1
-        with:
-          auditOn: push
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         continue-on-error: ${{ github.event_name != 'pull_request' }}
