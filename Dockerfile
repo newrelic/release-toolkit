@@ -1,6 +1,6 @@
 # Builder for GHA does not use BUILDKIT, so we cannot use a multiarch-friendly builder image.
 # FROM --platform=$BUILDPLATFORM golang:1.18-alpine as builder
-FROM golang:1.22.0-alpine as builder
+FROM golang:1.22.1-alpine as builder
 
 WORKDIR /rt
 COPY go.* ./
