@@ -88,7 +88,7 @@ func TestLeadingVCheck_Map(t *testing.T) {
 			name:    "Check will not pass even prepending v",
 			wrapped: &mapperMock{link: "link"},
 			dep:     changelog.Dependency{To: semver.MustParse("1.2.3")},
-			checkLink: func(link string) (bool, error) {
+			checkLink: func(_ string) (bool, error) {
 				return false, nil
 			},
 			expected:    "",
@@ -98,7 +98,7 @@ func TestLeadingVCheck_Map(t *testing.T) {
 			name:    "Check will not pass even removing v",
 			wrapped: &mapperMock{link: "link"},
 			dep:     changelog.Dependency{To: semver.MustParse("v1.2.3")},
-			checkLink: func(link string) (bool, error) {
+			checkLink: func(_ string) (bool, error) {
 				return false, nil
 			},
 			expected:    "",
@@ -108,7 +108,7 @@ func TestLeadingVCheck_Map(t *testing.T) {
 			name:    "Check returns an error",
 			wrapped: &mapperMock{link: "link"},
 			dep:     changelog.Dependency{To: semver.MustParse("1.2.3")},
-			checkLink: func(link string) (bool, error) {
+			checkLink: func(_ string) (bool, error) {
 				return false, errors.New("")
 			},
 			expected:    "link-1.2.3", // It uses the link from the underlying mapper.
@@ -204,14 +204,14 @@ func TestLeadingVCheck_checkLink(t *testing.T) {
 		{
 			name: "Request OK",
 			ok:   true,
-			handler: func(w http.ResponseWriter, r *http.Request) {
+			handler: func(w http.ResponseWriter, _ *http.Request) {
 				w.WriteHeader(http.StatusOK)
 			},
 		},
 		{
 			name: "Not found",
 			ok:   false,
-			handler: func(w http.ResponseWriter, r *http.Request) {
+			handler: func(w http.ResponseWriter, _ *http.Request) {
 				w.WriteHeader(http.StatusNotFound)
 			},
 		},
@@ -219,7 +219,7 @@ func TestLeadingVCheck_checkLink(t *testing.T) {
 			name: "Timeout",
 			ok:   false,
 			err:  true,
-			handler: func(w http.ResponseWriter, r *http.Request) {
+			handler: func(w http.ResponseWriter, _ *http.Request) {
 				time.Sleep(2 * time.Second)
 				w.WriteHeader(http.StatusOK)
 			},

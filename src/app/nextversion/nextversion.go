@@ -176,15 +176,10 @@ func NextVersion(cCtx *cli.Context) error {
 		return fmt.Errorf("bumping source: %w", err)
 	}
 
-	prefix := cCtx.String(outputPrefix)
-	nextVersion := fmt.Sprintf("%s%s", prefix, next.String())
-	nextMajor := fmt.Sprintf("%s%d", prefix, next.Major())
-	nextMajorMinor := fmt.Sprintf("%s%d.%d", prefix, next.Major(), next.Minor())
-
-	_, _ = fmt.Fprintf(cCtx.App.Writer, "%s\n", nextVersion)
-	gh.SetOutput(nextVersionOutput, nextVersion)
-	gh.SetOutput(majorOutput, nextMajor)
-	gh.SetOutput(majorMinorOutput, nextMajorMinor)
+	_, _ = fmt.Fprintf(cCtx.App.Writer, "%s\n", fmt.Sprintf("%s%s", cCtx.String(outputPrefix), next.String()))
+	gh.SetOutput(nextVersionOutput, fmt.Sprintf("%s%s", cCtx.String(outputPrefix), next.String()))
+	gh.SetOutput(majorOutput, fmt.Sprintf("%s%d", cCtx.String(outputPrefix), next.Major()))
+	gh.SetOutput(majorMinorOutput, fmt.Sprintf("%s%d.%d", cCtx.String(outputPrefix), next.Major(), next.Minor()))
 
 	return nil
 }
