@@ -90,6 +90,22 @@ jobs:
             --target $(git rev-parse HEAD) \
             --notes-file CHANGELOG.partial.md
 
+      - name: Move major tag to this new commit
+        run: |
+          # The release is created above, the repo still does not have the tag available here
+          git fetch
+          git pull --tags
+
+          # Delete, tag, and push the major tag
+          git push --delete origin "${{ steps.version.outputs.next-version-major }}"
+          git push tag "${{ steps.version.outputs.next-version-major }}" "${{ steps.version.outputs.next-version }}"
+          git push origin "${{ steps.version.outputs.next-version-major }}"
+
+          # Delete, tag, and push the major.minor tag
+          git push --delete origin "${{ steps.version.outputs.next-version-major-minor }}"
+          git push tag "${{ steps.version.outputs.next-version-major-minor }}" "${{ steps.version.outputs.next-version }}"
+          git push origin "${{ steps.version.outputs.next-version-major-minor }}"
+
   notify:
     name: Test if release is needed
     runs-on: ubuntu-latest
