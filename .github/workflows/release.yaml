@@ -86,6 +86,8 @@ jobs:
         with:
           version: ${{ steps.version.outputs.next-version }}
       - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           gh release create \
             ${{ steps.version.outputs.next-version }} \
@@ -100,14 +102,14 @@ jobs:
           git pull --tags
 
           # Delete, tag, and push the major tag
-          git push --delete origin "${{ steps.version.outputs.next-version-major }}"
-          git push tag "${{ steps.version.outputs.next-version-major }}" "${{ steps.version.outputs.next-version }}"
-          git push origin "${{ steps.version.outputs.next-version-major }}"
+          git push --delete origin "${{ steps.version.outputs.next-version-major }}" || true  # Do not fail if the tag does not exist. It will be created.
+          git tag --force "${{ steps.version.outputs.next-version-major }}" "${{ steps.version.outputs.next-version }}"  # The tag might be deleted upstream bit still exists locally
+          git push origin "${{ steps.version.outputs.next-version-major }}"  # Push only the new tag
 
           # Delete, tag, and push the major.minor tag
-          git push --delete origin "${{ steps.version.outputs.next-version-major-minor }}"
-          git push tag "${{ steps.version.outputs.next-version-major-minor }}" "${{ steps.version.outputs.next-version }}"
-          git push origin "${{ steps.version.outputs.next-version-major-minor }}"
+          git push --delete origin "${{ steps.version.outputs.next-version-major-minor }}" || true  # Do not fail if the tag does not exist. It will be created.
+          git tag --force "${{ steps.version.outputs.next-version-major-minor }}" "${{ steps.version.outputs.next-version }}"  # The tag might be deleted upstream bit still exists locally
+          git push origin "${{ steps.version.outputs.next-version-major-minor }}"  # Push only the new tag
 
   notify:
     name: Test if release is needed
