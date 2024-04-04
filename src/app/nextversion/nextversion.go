@@ -31,8 +31,8 @@ const (
 
 const (
 	nextVersionOutput = "next-version"
-	majorOutput       = "next-major"
-	majorMinorOutput  = "next-major-minor"
+	majorOutput       = "next-version-major"
+	majorMinorOutput  = "next-version-major-minor"
 )
 
 // Cmd is the cli.Command object for the next-version command.
