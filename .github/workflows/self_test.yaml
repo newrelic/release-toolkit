@@ -259,10 +259,22 @@ jobs:
           yaml: ${{ env.MOCK_REPO }}/changelog.yaml
           git-root: ${{ env.MOCK_REPO }}
       - run: |
+          errors=0
+
           if [[ "${{ steps.next-version.outputs.next-version }}" != "v2.0.0" ]]; then
             echo "next-version should have returned v2.0.0" >&2
-            exit 1
+            (( errors++ ))
           fi
+          if [[ "${{ steps.next-version.outputs.next-version-major }}" != "v2" ]]; then
+            echo "next-version should have returned v2.0.0" >&2
+            (( errors++ ))
+          fi
+          if [[ "${{ steps.next-version.outputs.next-version-major-minor }}" != "v2.0" ]]; then
+            echo "next-version should have returned v2.0.0" >&2
+            (( errors++ ))
+          fi
+
+          exit ${errors}
 
   link-dependencies:
     name: link-dependencies action

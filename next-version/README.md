@@ -1,6 +1,6 @@
 # 🛠️ `next-version`
 
-Compute next version according to changelog.yaml and Semver conventions.
+Compute next version according to changelog.yaml and Semver conventions. It will output the major version and the minor too, so it can be used to tag actions and docker images that do not need to be pinned to the whole version but to respect the interface that it has.
 
 ## Example Usage
 
@@ -12,11 +12,13 @@ Example generating the next version from a repo with version tags with last rele
     tag-prefix: my-project-
 ```
 
-If for example there are breaking changes, the output will be `v2.0.0`
+If for example there are breaking changes, the output will be `v2.0.0`, `v2.0`, and `v2`.
 
 ## Outputs
 
-`next-version`: Returns Semver next version, with leading v
+`next-version`: Returns Semver next version, with leading v. E.g.: `v3.4.1`
+`next-version-major`: Returns only the major version, with leading v. E.g.: `v3`
+`next-version-major-minor`: Returns major and minor version, with leading v. E.g.: `v3.4`
 
 ## Parameters
 
@@ -44,4 +46,3 @@ release-toolkit is licensed under the [Apache 2.0](http://apache.org/licenses/LI
 ## Disclaimer
 
 This tool is provided by New Relic AS IS, without warranty of any kind. New Relic does not guarantee that the tool will: not cause any disruption to services or systems; provide results that are complete or 100% accurate; correct or cure any detected vulnerability; or provide specific remediation advice.
-

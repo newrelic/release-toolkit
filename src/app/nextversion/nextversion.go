@@ -29,7 +29,11 @@ const (
 	failFlag          = "fail"
 )
 
-const nextVersionOutput = "next-version"
+const (
+	nextVersionOutput = "next-version"
+	majorOutput       = "next-version-major"
+	majorMinorOutput  = "next-version-major-minor"
+)
 
 // Cmd is the cli.Command object for the next-version command.
 //
@@ -146,7 +150,6 @@ func NextVersion(cCtx *cli.Context) error {
 		return fmt.Errorf("computing next version: %w", err)
 	}
 
-	nextStr := ""
 	switch {
 	case nextOverride != nil && next != nil:
 		if nextOverride.LessThan(next) {
@@ -154,14 +157,13 @@ func NextVersion(cCtx *cli.Context) error {
 		} else {
 			log.Infof("Overriding next version from autocomputed %v to %v", next.String(), nextOverride.String())
 		}
-		nextStr = nextOverride.String()
+		next = nextOverride
 
 	case nextOverride != nil && next == nil:
 		log.Infof("Could not compute automatic bump, using overridden version")
-		nextStr = nextOverride.String()
+		next = nextOverride
 
 	case nextOverride == nil && next != nil:
-		nextStr = next.String()
 		// If we don't have an override, the bumper did not bump anything, and the user has set `--fail`, then we should error out.
 		if errors.Is(err, bumper.ErrNoNewVersion) {
 			log.Warnf("None of the changelog entries produced a version bump, returning current version")
@@ -174,8 +176,10 @@ func NextVersion(cCtx *cli.Context) error {
 		return fmt.Errorf("bumping source: %w", err)
 	}
 
-	_, _ = fmt.Fprintf(cCtx.App.Writer, "%s%s\n", cCtx.String(outputPrefix), nextStr)
-	gh.SetOutput(nextVersionOutput, fmt.Sprintf("%s%s", cCtx.String(outputPrefix), nextStr))
+	_, _ = fmt.Fprintf(cCtx.App.Writer, "%s\n", fmt.Sprintf("%s%s", cCtx.String(outputPrefix), next.String()))
+	gh.SetOutput(nextVersionOutput, fmt.Sprintf("%s%s", cCtx.String(outputPrefix), next.String()))
+	gh.SetOutput(majorOutput, fmt.Sprintf("%s%d", cCtx.String(outputPrefix), next.Major()))
+	gh.SetOutput(majorMinorOutput, fmt.Sprintf("%s%d.%d", cCtx.String(outputPrefix), next.Major(), next.Minor()))
 
 	return nil
 }
