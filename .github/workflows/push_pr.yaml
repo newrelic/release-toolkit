@@ -47,7 +47,7 @@ jobs:
         run: GITHUB_ACTIONS=false go test -race ./...
 
   check-changelog:
-    name: Run tests
+    name: Check changelog
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
