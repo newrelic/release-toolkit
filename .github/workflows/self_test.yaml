@@ -265,11 +265,11 @@ jobs:
             echo "next-version should have returned v2.0.0" >&2
             (( errors++ ))
           fi
-          if [[ "${{ steps.next-version.outputs.major }}" != "v2" ]]; then
+          if [[ "${{ steps.next-version.outputs.next-major }}" != "v2" ]]; then
             echo "next-version should have returned v2.0.0" >&2
             (( errors++ ))
           fi
-          if [[ "${{ steps.next-version.outputs.major-minor }}" != "v2.0" ]]; then
+          if [[ "${{ steps.next-version.outputs.next-major-minor }}" != "v2.0" ]]; then
             echo "next-version should have returned v2.0.0" >&2
             (( errors++ ))
           fi

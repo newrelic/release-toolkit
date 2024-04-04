@@ -79,7 +79,7 @@ changes:
 			name:       "Bumps_Major_GHA",
 			globalargs: "-gha=true",
 			args:       "-current v1.2.3",
-			expected:   "v2.0.0\n::set-output name=next-version::v2.0.0\n::set-output name=major::v2\n::set-output name=major-minor::v2.0",
+			expected:   "v2.0.0\n::set-output name=next-version::v2.0.0\n::set-output name=next-major::v2\n::set-output name=next-major-minor::v2.0",
 			yaml: strings.TrimSpace(`
 changes:
 - type: breaking
