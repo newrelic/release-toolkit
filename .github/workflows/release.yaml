@@ -1,0 +1,125 @@
+name: Release on merge to main
+on:
+  push:
+    branches:
+      - main
+
+env:
+  BOT_NAME: newrelic-coreint-bot
+  BOT_EMAIL: coreint-dev@newrelic.com
+
+permissions:
+  contents: write
+
+jobs:
+  test-release-needed:
+    name: Test if release is needed
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # Validation and generation.
+      - name: Validate that the markdown is correct
+        uses: ./validate-markdown
+      - name: Generate YAML
+        uses: ./generate-yaml
+        with:
+          excluded-dirs: .github
+
+      # Check that a release is needed.
+      - name: Check if the release is empty
+        id: empty
+        uses: ./is-empty
+      - name: Check if the release is held
+        id: held
+        uses: ./is-held
+      - name: Output if the release should be skipped
+        id: output
+        shell: bash
+        run: |
+          echo "skip=${{ steps.empty.outputs.is-empty == 'true' || steps.held.outputs.is-held == 'true' }}" >> $GITHUB_OUTPUT
+    outputs:
+      make-release: ${{ steps.output.outputs.skip != true }}
+
+  make-release:
+    name: Make the release if needed
+    runs-on: ubuntu-latest
+    needs: [ test-release-needed ]
+    if: ${{ needs.test-release-needed.outputs.make-release }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Generate YAML
+        uses: ./generate-yaml
+        with:
+          excluded-dirs: .github
+
+      # Put release toolkit to work.
+      - name: Link dependencies
+        uses: ./link-dependencies
+      - name: Calculate next version
+        id: version
+        uses: ./next-version
+
+      # Prepare to commit the Changelog.
+      - name: Configure Git
+        run: |
+          git config user.name '${{ env.BOT_NAME }}'
+          git config user.email '${{ env.BOT_EMAIL }}'
+
+      # Create changelog and commit it.
+      - name: Update the markdown
+        uses: ./update-markdown
+        with:
+          version: ${{ steps.version.outputs.next-version }}
+      - name: Commit updated changelog
+        run: |
+          git add CHANGELOG.md
+          git commit -m "Update changelog with changes from ${{ steps.version.outputs.next-version }}"
+          git push -u origin ${{ github.event.repository.default_branch }}
+
+      # Create the release from the commit above using only the changelog for this release.
+      - name: Render the changelog snippet
+        uses: ./render
+        with:
+          version: ${{ steps.version.outputs.next-version }}
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create \
+            ${{ steps.version.outputs.next-version }} \
+            --title ${{ steps.version.outputs.next-version }} \
+            --target $(git rev-parse HEAD) \
+            --notes-file CHANGELOG.partial.md
+
+      - name: Move major and major.minor tags to this new commit
+        run: |
+          # The release is created above, the repo still does not have the tag available here
+          git fetch
+          git pull --tags
+
+          # Delete, tag, and push the major tag
+          git push --delete origin "${{ steps.version.outputs.next-version-major }}" || true  # Do not fail if the tag does not exist. It will be created.
+          git tag --force "${{ steps.version.outputs.next-version-major }}" "${{ steps.version.outputs.next-version }}"  # The tag might be deleted upstream bit still exists locally
+          git push origin "${{ steps.version.outputs.next-version-major }}"  # Push only the new tag
+
+          # Delete, tag, and push the major.minor tag
+          git push --delete origin "${{ steps.version.outputs.next-version-major-minor }}" || true  # Do not fail if the tag does not exist. It will be created.
+          git tag --force "${{ steps.version.outputs.next-version-major-minor }}" "${{ steps.version.outputs.next-version }}"  # The tag might be deleted upstream bit still exists locally
+          git push origin "${{ steps.version.outputs.next-version-major-minor }}"  # Push only the new tag
+
+  notify:
+    name: Notify if somthing went wrong
+    runs-on: ubuntu-latest
+    needs: [ test-release-needed, make-release ]
+    steps:
+      - name: Notify failure via Slack
+        if: ${{ always() && failure() }}
+        uses: archive/github-actions-slack@master
+        with:
+          slack-bot-user-oauth-access-token: ${{ secrets.COREINT_SLACK_TOKEN }}
+          slack-channel: ${{ secrets.COREINT_SLACK_CHANNEL }}
+          slack-text: "❌ `${{ github.repository }}`: [release pipeline failed](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})."
