@@ -95,7 +95,7 @@ jobs:
             --target $(git rev-parse HEAD) \
             --notes-file CHANGELOG.partial.md
 
-      - name: Move major tag to this new commit
+      - name: Move major and major.minor tags to this new commit
         run: |
           # The release is created above, the repo still does not have the tag available here
           git fetch
