@@ -112,7 +112,7 @@ jobs:
           git push origin "${{ steps.version.outputs.next-version-major-minor }}"  # Push only the new tag
 
   notify:
-    name: Test if release is needed
+    name: Notify if somthing went wrong
     runs-on: ubuntu-latest
     needs: [ test-release-needed, make-release ]
     steps:
