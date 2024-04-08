@@ -8,9 +8,6 @@ env:
   BOT_NAME: newrelic-coreint-bot
   BOT_EMAIL: coreint-dev@newrelic.com
 
-permissions:
-  contents: write
-
 jobs:
   test-release-needed:
     name: Test if release is needed
@@ -51,6 +48,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: "${{ secrets.COREINT_BOT_TOKEN }}"
+      - name: Configure Git
+        run: |
+          git config user.name '${{ env.BOT_NAME }}'
+          git config user.email '${{ env.BOT_EMAIL }}'
+
       - name: Generate YAML
         uses: ./generate-yaml
         with:
@@ -62,12 +65,6 @@ jobs:
       - name: Calculate next version
         id: version
         uses: ./next-version
-
-      # Prepare to commit the Changelog.
-      - name: Configure Git
-        run: |
-          git config user.name '${{ env.BOT_NAME }}'
-          git config user.email '${{ env.BOT_EMAIL }}'
 
       # Create changelog and commit it.
       - name: Update the markdown
@@ -87,7 +84,7 @@ jobs:
           version: ${{ steps.version.outputs.next-version }}
       - name: Create release
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.COREINT_BOT_TOKEN }}
         run: |
           gh release create \
             ${{ steps.version.outputs.next-version }} \
