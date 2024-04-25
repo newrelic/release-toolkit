@@ -67,7 +67,7 @@ jobs:
           # Use full list of linters, rather than the (default) limited set.
           golangci-lint-config: golangci-lint
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
+        uses: golangci/golangci-lint-action@v5
         continue-on-error: ${{ github.event_name != 'pull_request' }}
         with:
           # to remove findings from commit history
