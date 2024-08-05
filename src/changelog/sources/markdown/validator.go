@@ -123,11 +123,19 @@ func (v *Validator) validateL2Children(l2doc *headingdoc.Doc) []error {
 
 // isEntryType detects if a L3 header is one of the defined changelog EntryTypes.
 func (v *Validator) isEntryType(header *headingdoc.Doc) bool {
-	return strings.ToLower(header.Name) == string(changelog.TypeEnhancement) ||
-		strings.ToLower(header.Name) == string(changelog.TypeBugfix) ||
-		strings.ToLower(header.Name) == string(changelog.TypeSecurity) ||
-		strings.ToLower(header.Name) == string(changelog.TypeBreaking) ||
-		strings.ToLower(header.Name) == string(changelog.TypeDependency)
+	for _, entryType := range []changelog.EntryType{
+		changelog.TypeBreaking,
+		changelog.TypeSecurity,
+		changelog.TypeEnhancement,
+		changelog.TypeBugfix,
+		changelog.TypeDependency,
+	} {
+		if strings.Contains(strings.ToLower(header.Name), strings.ToLower(string(entryType))) {
+			return true
+		}
+	}
+
+	return false
 }
 
 // ensureItemizedList ensures the body of a L3 header

@@ -224,6 +224,23 @@ This is a release note
 `),
 			expected: []error{},
 		},
+		{
+			name: "Only enhancements",
+			markdown: strings.TrimSpace(`
+# Changelog
+This is based on blah blah blah
+
+### Enhancements
+- Added this
+- Improved that
+
+## v1.2.3 - 2022-11-11
+
+### Enhancements
+- This is in the past and should not be included
+`),
+			expected: []error{},
+		},
 	} {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
