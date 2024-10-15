@@ -11,6 +11,7 @@ import (
 
 	"github.com/newrelic/release-toolkit/src/app"
 	"github.com/newrelic/release-toolkit/src/bump"
+	"github.com/newrelic/release-toolkit/src/bumper"
 )
 
 //nolint:paralleltest, funlen // urfave/cli cannot be tested concurrently.
@@ -87,9 +88,17 @@ changes:
 			`),
 		},
 		{
-			name:     "No_Bump",
-			args:     "-current v1.2.3",
+			name:     "No_Bump_without_failing",
+			args:     "-current v1.2.3 -fail=false",
 			expected: "v1.2.3",
+			yaml: strings.TrimSpace(`
+changes: []
+			`),
+		},
+		{
+			name:          "No_Bump_fails_by_default",
+			args:          "-current v1.2.3",
+			errorExpected: bumper.ErrNoNewVersion,
 			yaml: strings.TrimSpace(`
 changes: []
 			`),

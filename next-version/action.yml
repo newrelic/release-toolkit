@@ -20,7 +20,7 @@ inputs:
   fail:
     description: Fail if no new version found, by default the current version will be returned in that case
     required: false
-    default: "0"
+    default: "1"
 outputs:
   next-version:
     description: Semver next version, with leading v

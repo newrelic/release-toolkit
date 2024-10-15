@@ -17,9 +17,15 @@ Unreleased section should follow [Release Toolkit](https://github.com/newrelic/r
 encourages the user to hack the YAML if needed. This is also needed so an empty YAML is there for the
 other actions like `is-empty` or `is-held` to work properly.
 
+`next-version` should also follow the composable nature of `release-toolkit`. But this part of the tool
+should fail if there is no new version in case a user hack the YAML to a point that is not bumping the
+version. Not failing can lead scripts to override an already existing version. This is also a change
+on the default behavior.
+
 ### Breaking
 - `ohi-release-notes` action has been moved to another repository
 - `generate-yaml` does not fail to create an empty YAML by default
+- `next-version` fail if there are no version to be bumped
 
 ## v1.2.0 - 2024-08-09
 

@@ -94,7 +94,7 @@ next-version will exit with an error if no previous versions are found in the gi
 			EnvVars: common.EnvFor(failFlag),
 			Usage: "If set, command will exit with a code of 1 if no new version bump is produced. If not set," +
 				"the current version will be returned.",
-			Value: false,
+			Value: true,
 		},
 	},
 	Action: NextVersion,
@@ -166,10 +166,11 @@ func NextVersion(cCtx *cli.Context) error {
 	case nextOverride == nil && next != nil:
 		// If we don't have an override, the bumper did not bump anything, and the user has set `--fail`, then we should error out.
 		if errors.Is(err, bumper.ErrNoNewVersion) {
-			log.Warnf("None of the changelog entries produced a version bump, returning current version")
-			if cCtx.Bool("fail") {
-				return fmt.Errorf("failing by user request: %w", err)
+			if cCtx.Bool(failFlag) {
+				return fmt.Errorf("none of the changelog entries produced a version bump: %w", err)
 			}
+
+			log.Warnf("None of the changelog entries produced a version bump, returning current version")
 		}
 
 	case nextOverride == nil && next == nil:
