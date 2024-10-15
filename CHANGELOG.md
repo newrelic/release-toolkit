@@ -13,8 +13,13 @@ Unreleased section should follow [Release Toolkit](https://github.com/newrelic/r
 `ohi-release-notes` action was only used by Coreint team and it has been moved to their repository: 
 [`coreint-automation` PR](https://github.com/newrelic/coreint-automation/pull/83)
 
+`generate-yaml` failed to create an empty YAML by default. The composable nature of `release-toolkit`
+encourages the user to hack the YAML if needed. This is also needed so an empty YAML is there for the
+other actions like `is-empty` or `is-held` to work properly.
+
 ### Breaking
 - `ohi-release-notes` action has been moved to another repository
+- `generate-yaml` does not fail to create an empty YAML by default
 
 ## v1.2.0 - 2024-08-09
 

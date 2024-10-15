@@ -107,7 +107,7 @@ var Cmd = &cli.Command{
 			Name:    exitCodeFlag,
 			EnvVars: common.EnvFor(exitCodeFlag),
 			Usage:   "Exit code if generated changelog yaml is empty",
-			Value:   1,
+			Value:   0,
 		},
 	},
 	Action: Generate,
@@ -246,12 +246,7 @@ func tagVersionGetter(cCtx *cli.Context) (*git.TagsSource, error) {
 		versionOpts = append(versionOpts, git.TagSourceReplacing(matching, ""))
 	}
 
-	tvsrc := git.NewTagsSource(src, versionOpts...)
-	if err != nil {
-		return nil, fmt.Errorf("creating version source from git tag source: %w", err)
-	}
-
-	return tvsrc, nil
+	return git.NewTagsSource(src, versionOpts...), nil
 }
 
 func sanitizeValue(in []string) []string {

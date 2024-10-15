@@ -215,7 +215,6 @@ jobs:
           yaml: ${{ env.MOCK_REPO }}/changelog.yaml
           markdown: ${{ env.MOCK_REPO }}/CHANGELOG.md
           git-root: ${{ env.MOCK_REPO }}
-          exit-code: 0
       - run: |
           if [[ "${{ steps.generate-yaml.outputs.empty-changelog }}" != "true" ]]; then
             echo "empty-changelog should have returned true" >&2
