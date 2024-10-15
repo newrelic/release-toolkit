@@ -27,7 +27,9 @@ name: Release workflow
 on:
    workflow-dispatch:
 jobs:
-  - uses: actions/checkout@v3
+  - uses: actions/checkout@v4
+    with:
+      fetch-depth: 0  # This is important to have all the commits and tags
   - name: Generate transient changelog.yaml
     uses: newrelic/release-toolkit/generate-yaml@v1
     with:

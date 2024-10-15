@@ -1,15 +1,11 @@
 name: Push/PR pipeline
 on:
   pull_request:
-  push:
-    branches:
-      - main
 
 jobs:
   rebase:
     name: Branch needs rebase
     runs-on: ubuntu-latest
-    if: github.event.pull_request
     steps:
       - uses: actions/checkout@v4
         with:
@@ -51,8 +47,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Check if CHANGELOG is valid
         uses: ./validate-markdown
+      - name: Generate YAML for the changelog
+        uses: ./generate-yaml
+      - name: Check if the release is not needed
+        id: empty
+        uses: ./is-empty
+      - run: |
+          if [[ "${{ steps.empty.outputs.is-empty }}" == "true" ]]; then
+            echo "Release is empty, failing" >&2
+            exit 1
+          fi
 
   static-analysis:
     name: Static analysis and linting
