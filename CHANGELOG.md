@@ -27,6 +27,9 @@ on the default behavior.
 - `generate-yaml` does not fail to create an empty YAML by default
 - `next-version` fail if there are no version to be bumped
 
+### Bugfix
+- Upgrade golang and project dependencies to the latest version
+
 ## v1.2.0 - 2024-08-09
 
 ### 🚀 Enhancements
