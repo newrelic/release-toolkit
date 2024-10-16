@@ -119,7 +119,10 @@ type appendDepSrc func([]changelog.Source, git.TagsVersionGetter, git.CommitsGet
 //
 //nolint:gocyclo,cyclop
 func Generate(cCtx *cli.Context) error {
-	gh := gha.NewFromCli(cCtx)
+	gh, err := gha.NewFromCli(cCtx)
+	if err != nil {
+		return fmt.Errorf("creating github client: %w", err)
+	}
 
 	yamlPath := cCtx.String(common.YAMLFlag)
 	chFile, err := os.Create(yamlPath)

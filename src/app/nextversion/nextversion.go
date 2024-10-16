@@ -105,7 +105,10 @@ next-version will exit with an error if no previous versions are found in the gi
 //
 //nolint:gocyclo,cyclop
 func NextVersion(cCtx *cli.Context) error {
-	gh := gha.NewFromCli(cCtx)
+	gh, err := gha.NewFromCli(cCtx)
+	if err != nil {
+		return fmt.Errorf("creating github client: %w", err)
+	}
 
 	nextOverride, err := parseNextFlag(cCtx.String(nextFlag))
 	if err != nil {

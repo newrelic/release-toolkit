@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/newrelic/release-toolkit/internal/testutil"
 	"github.com/newrelic/release-toolkit/src/app"
 )
 
@@ -74,7 +75,7 @@ Support has been removed
 "Important announcement (note)" header found with empty content
 "Breaking" header must contain only an itemized list
 `, "\n"),
-			expectedGha: "::set-output name=valid::false\n",
+			expectedGha: "valid=false\n",
 		},
 		{
 			name: "Valid_Changelog",
@@ -126,7 +127,7 @@ This is a release note
 `),
 			args:        "--exit-code=0",
 			expectedErr: "",
-			expectedGha: "::set-output name=valid::true\n",
+			expectedGha: "valid=true\n",
 		},
 		{
 			name: "Invalid_Changelog_Only_Notes",
@@ -154,12 +155,11 @@ unreleased changelog can't only contain notes
 		//nolint:paralleltest // urfave/cli cannot be tested concurrently.
 		t.Run(tc.name, func(t *testing.T) {
 			tDir := t.TempDir()
+			ghaOutput := testutil.NewGithubOutputWriter(t)
 
 			app := app.App()
 			bufErr := &strings.Builder{}
-			buf := &strings.Builder{}
 			app.ErrWriter = bufErr
-			app.Writer = buf
 
 			mdPath := path.Join(tDir, "CHANGELOG.md")
 			mdFile, err := os.Create(mdPath)
@@ -178,8 +178,7 @@ unreleased changelog can't only contain notes
 			if actual := bufErr.String(); actual != tc.expectedErr {
 				t.Fatalf("Expected:\n%s\n\napp printed:\n%s", tc.expectedErr, actual)
 			}
-
-			if actual := buf.String(); actual != tc.expectedGha {
+			if actual := ghaOutput.Result(t); actual != tc.expectedGha {
 				t.Fatalf("Expected:\n%s\n\napp printed:\n%s", tc.expectedGha, actual)
 			}
 		})

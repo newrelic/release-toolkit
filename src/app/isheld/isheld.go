@@ -35,7 +35,10 @@ var Cmd = &cli.Command{
 // IsHeld is a command function which loads a changelog.yaml file from this, and prints to stdout whether it has the
 // Held flag set to true.
 func IsHeld(cCtx *cli.Context) error {
-	gh := gha.NewFromCli(cCtx)
+	gh, err := gha.NewFromCli(cCtx)
+	if err != nil {
+		return fmt.Errorf("creating github client: %w", err)
+	}
 
 	chPath := cCtx.String(common.YAMLFlag)
 	chFile, err := os.Open(chPath)

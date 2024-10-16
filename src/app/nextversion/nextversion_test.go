@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/newrelic/release-toolkit/internal/testutil"
 	"github.com/newrelic/release-toolkit/src/app"
 	"github.com/newrelic/release-toolkit/src/bump"
 	"github.com/newrelic/release-toolkit/src/bumper"
@@ -17,17 +18,18 @@ import (
 //nolint:paralleltest, funlen // urfave/cli cannot be tested concurrently.
 func TestNextVersion_Without_Repo(t *testing.T) {
 	for _, tc := range []struct {
-		name          string
-		yaml          string
-		expected      string
-		errorExpected error
-		args          string
-		globalargs    string
+		name              string
+		yaml              string
+		expectedStdOutput string
+		expectedGHAOutput string
+		errorExpected     error
+		args              string
+		globalargs        string
 	}{
 		{
-			name:     "Overrides_Next_And_Current",
-			args:     "-next v0.0.1 -current v1.2.3",
-			expected: "v0.0.1",
+			name:              "Overrides_Next_And_Current",
+			args:              "-next v0.0.1 -current v1.2.3",
+			expectedStdOutput: "v0.0.1",
 			yaml: strings.TrimSpace(`
 notes: |-
     ### Important announcement (note)
@@ -47,9 +49,9 @@ dependencies:
 			`),
 		},
 		{
-			name:     "Bumps_Patch",
-			args:     "-current v1.2.3",
-			expected: "v1.2.4",
+			name:              "Bumps_Patch",
+			args:              "-current v1.2.3",
+			expectedStdOutput: "v1.2.4",
 			yaml: strings.TrimSpace(`
 changes:
 - type: bugfix
@@ -57,9 +59,9 @@ changes:
 			`),
 		},
 		{
-			name:     "Bumps_Minor",
-			args:     "-current v1.2.3",
-			expected: "v1.3.0",
+			name:              "Bumps_Minor",
+			args:              "-current v1.2.3",
+			expectedStdOutput: "v1.3.0",
 			yaml: strings.TrimSpace(`
 changes:
 - type: enhancement
@@ -67,9 +69,9 @@ changes:
 			`),
 		},
 		{
-			name:     "Bumps_Major",
-			args:     "-current v1.2.3",
-			expected: "v2.0.0",
+			name:              "Bumps_Major",
+			args:              "-current v1.2.3",
+			expectedStdOutput: "v2.0.0",
 			yaml: strings.TrimSpace(`
 changes:
 - type: breaking
@@ -77,10 +79,11 @@ changes:
 			`),
 		},
 		{
-			name:       "Bumps_Major_GHA",
-			globalargs: "-gha=true",
-			args:       "-current v1.2.3",
-			expected:   "v2.0.0\n::set-output name=next-version::v2.0.0\n::set-output name=next-version-major::v2\n::set-output name=next-version-major-minor::v2.0",
+			name:              "Bumps_Major_GHA",
+			globalargs:        "-gha=true",
+			args:              "-current v1.2.3",
+			expectedStdOutput: "v2.0.0",
+			expectedGHAOutput: "next-version=v2.0.0\nnext-version-major=v2\nnext-version-major-minor=v2.0\n",
 			yaml: strings.TrimSpace(`
 changes:
 - type: breaking
@@ -88,9 +91,9 @@ changes:
 			`),
 		},
 		{
-			name:     "No_Bump_without_failing",
-			args:     "-current v1.2.3 -fail=false",
-			expected: "v1.2.3",
+			name:              "No_Bump_without_failing",
+			args:              "-current v1.2.3 -fail=false",
+			expectedStdOutput: "v1.2.3",
 			yaml: strings.TrimSpace(`
 changes: []
 			`),
@@ -108,6 +111,7 @@ changes: []
 		//nolint:paralleltest // urfave/cli cannot be tested concurrently.
 		t.Run(tc.name, func(t *testing.T) {
 			tDir := t.TempDir()
+			ghaOutput := testutil.NewGithubOutputWriter(t)
 
 			app := app.App()
 
@@ -127,9 +131,11 @@ changes: []
 				t.Fatalf("Expected error %v, got %v", tc.errorExpected, err)
 			}
 
-			actual := buf.String()
-			if tc.expected != "" && actual != tc.expected+"\n" {
-				t.Fatalf("Expected %q, got %q", tc.expected, actual)
+			if actual := buf.String(); tc.expectedStdOutput != "" && actual != tc.expectedStdOutput+"\n" {
+				t.Fatalf("Expected %q, App printed: %q", tc.expectedStdOutput, actual)
+			}
+			if actual := ghaOutput.Result(t); actual != tc.expectedGHAOutput {
+				t.Fatalf("Expected %q, GHA output: %q", tc.expectedStdOutput, actual)
 			}
 		})
 	}

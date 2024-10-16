@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/newrelic/release-toolkit/internal/testutil"
 	"github.com/newrelic/release-toolkit/src/app"
 )
 
@@ -32,26 +33,32 @@ changes:
 `)
 
 	for _, tc := range []struct {
-		cmd      string
-		expected string
+		cmd               string
+		expectedStdOutput string
+		expectedGHAOutput string
 	}{
 		{
-			cmd:      fmt.Sprintf("rt -yaml %s is-held", filepath),
-			expected: "true\n",
+			cmd:               fmt.Sprintf("rt -yaml %s is-held", filepath),
+			expectedStdOutput: "true\n",
 		},
 		{
-			cmd:      fmt.Sprintf("rt -gha=1 -yaml %s is-held", filepath),
-			expected: "true\n::set-output name=is-held::true\n",
+			cmd:               fmt.Sprintf("rt -gha=1 -yaml %s is-held", filepath),
+			expectedStdOutput: "true\n",
+			expectedGHAOutput: "is-held=true\n",
 		},
 	} {
+		ghaOutput := testutil.NewGithubOutputWriter(t)
 		buf.Reset()
 		err = app.Run(strings.Fields(tc.cmd))
 		if err != nil {
 			t.Fatalf("Error running app: %v", err)
 		}
 
-		if actual := buf.String(); actual != tc.expected {
-			t.Fatalf("Expected %q, app printed: %q", tc.expected, actual)
+		if actual := buf.String(); actual != tc.expectedStdOutput {
+			t.Fatalf("Expected %q, app printed: %q", tc.expectedStdOutput, actual)
+		}
+		if actual := ghaOutput.Result(t); actual != tc.expectedGHAOutput {
+			t.Fatalf("Expected %q, GHA output: %q", tc.expectedStdOutput, actual)
 		}
 	}
 }

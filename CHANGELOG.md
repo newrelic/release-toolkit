@@ -29,6 +29,7 @@ on the default behavior.
 
 ### Bugfix
 - Upgrade golang and project dependencies to the latest version
+- Change use of deprecated print `::set-output` to write to `$GITHUB_OUTPUT` file
 
 ## v1.2.0 - 2024-08-09
 

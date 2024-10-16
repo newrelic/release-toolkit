@@ -2,6 +2,7 @@ package isempty_test
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path"
 	"strings"
@@ -9,7 +10,9 @@ import (
 
 	"github.com/urfave/cli/v2"
 
+	"github.com/newrelic/release-toolkit/internal/testutil"
 	"github.com/newrelic/release-toolkit/src/app"
+	"github.com/newrelic/release-toolkit/src/app/gha"
 )
 
 //nolint:paralleltest,gocyclo,cyclop
@@ -32,29 +35,40 @@ changes: []
 `)
 
 	for _, tc := range []struct {
-		cmd         string
-		expected    string
-		errExpected bool
+		cmd               string
+		expectedStdOutput string
+		expectedGHAOutput string
+		errExpected       bool
 	}{
 		{
-			cmd:         fmt.Sprintf("rt -yaml %s is-empty", filepath),
-			expected:    "true\n",
-			errExpected: false,
+			cmd:               fmt.Sprintf("rt -yaml %s is-empty", filepath),
+			expectedStdOutput: "true\n",
+			errExpected:       false,
 		},
 		{
-			cmd:         fmt.Sprintf("rt -gha=1 -yaml %s is-empty", filepath),
-			expected:    "true\n::set-output name=is-empty::true\n",
-			errExpected: false,
+			cmd:               fmt.Sprintf("rt -gha=1 -yaml %s is-empty", filepath),
+			expectedStdOutput: "true\n",
+			expectedGHAOutput: "is-empty=true\n",
+			errExpected:       false,
 		},
 		{
-			cmd:         fmt.Sprintf("rt -gha=1 -yaml %s is-empty -fail", filepath),
-			expected:    "true\n::set-output name=is-empty::true\n",
-			errExpected: true,
+			cmd:               fmt.Sprintf("rt -gha=1 -yaml %s is-empty -fail", filepath),
+			expectedStdOutput: "true\n",
+			expectedGHAOutput: "is-empty=true\n",
+			errExpected:       true,
 		},
 	} {
 		var errValue int
 		cli.OsExiter = func(code int) {
 			errValue = code
+		}
+
+		ghaOutputFileName := path.Join(t.TempDir(), "temporary_github_output_file")
+		t.Setenv(gha.GithubOutput, ghaOutputFileName)
+
+		ghaOutputFile, err := os.Create(ghaOutputFileName)
+		if err != nil {
+			t.Fatalf("Error creating temporary GHA output file for test: %v", err)
 		}
 
 		buf.Reset()
@@ -66,8 +80,8 @@ changes: []
 			t.Fatalf("An error was expected running app: %v", err)
 		}
 
-		if actual := buf.String(); actual != tc.expected {
-			t.Fatalf("Expected %q, app printed: %q", tc.expected, actual)
+		if actual := buf.String(); actual != tc.expectedStdOutput {
+			t.Fatalf("Expected %q, app printed: %q", tc.expectedStdOutput, actual)
 		}
 
 		if errValue != 1 && tc.errExpected {
@@ -76,6 +90,14 @@ changes: []
 
 		if errValue == 1 && !tc.errExpected {
 			t.Fatalf("An exit code 1 was not expected")
+		}
+
+		actual, err := io.ReadAll(ghaOutputFile)
+		if err != nil {
+			t.Fatalf("Unable to read temporary GHA output file: %v", err)
+		}
+		if string(actual) != tc.expectedGHAOutput {
+			t.Fatalf("Expected %q, GHA output: %q", tc.expectedStdOutput, actual)
 		}
 	}
 }
@@ -101,16 +123,18 @@ changes:
 `)
 
 	for _, tc := range []struct {
-		cmd      string
-		expected string
+		cmd               string
+		expectedStdOutput string
+		expectedGHAOutput string
 	}{
 		{
-			cmd:      fmt.Sprintf("rt -yaml %s is-empty -fail", filepath),
-			expected: "false\n",
+			cmd:               fmt.Sprintf("rt -yaml %s is-empty -fail", filepath),
+			expectedStdOutput: "false\n",
 		},
 		{
-			cmd:      fmt.Sprintf("rt -gha=1 -yaml %s is-empty -fail", filepath),
-			expected: "false\n::set-output name=is-empty::false\n",
+			cmd:               fmt.Sprintf("rt -gha=1 -yaml %s is-empty -fail", filepath),
+			expectedStdOutput: "false\n",
+			expectedGHAOutput: "is-empty=false\n",
 		},
 	} {
 		var errValue int
@@ -118,14 +142,19 @@ changes:
 			errValue = code
 		}
 
+		ghaOutput := testutil.NewGithubOutputWriter(t)
+
 		buf.Reset()
 		err = app.Run(strings.Fields(tc.cmd))
 		if err != nil {
 			t.Fatalf("Error running app: %v", err)
 		}
 
-		if actual := buf.String(); actual != tc.expected {
-			t.Fatalf("Expected %q, app printed: %q", tc.expected, actual)
+		if actual := buf.String(); actual != tc.expectedStdOutput {
+			t.Fatalf("Expected %q, app printed: %q", tc.expectedStdOutput, actual)
+		}
+		if actual := ghaOutput.Result(t); actual != tc.expectedGHAOutput {
+			t.Fatalf("Expected %q, GHA output: %q", tc.expectedStdOutput, actual)
 		}
 
 		if errValue != 0 {
