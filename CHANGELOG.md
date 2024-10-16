@@ -5,7 +5,31 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Unreleased section should follow [Release Toolkit](https://github.com/newrelic/release-toolkit#render-markdown-and-update-markdown)
+
 ## Unreleased
+
+### Notes
+
+`ohi-release-notes` action was only used by Coreint team and it has been moved to their repository: 
+[`coreint-automation` PR](https://github.com/newrelic/coreint-automation/pull/83)
+
+`generate-yaml` failed to create an empty YAML by default. The composable nature of `release-toolkit`
+encourages the user to hack the YAML if needed. This is also needed so an empty YAML is there for the
+other actions like `is-empty` or `is-held` to work properly.
+
+`next-version` should also follow the composable nature of `release-toolkit`. But this part of the tool
+should fail if there is no new version in case a user hack the YAML to a point that is not bumping the
+version. Not failing can lead scripts to override an already existing version. This is also a change
+on the default behavior.
+
+### Breaking
+- `ohi-release-notes` action has been moved to another repository
+- `generate-yaml` does not fail to create an empty YAML by default
+- `next-version` fail if there are no version to be bumped
+
+### Bugfix
+- Upgrade golang and project dependencies to the latest version
+- Change use of deprecated print `::set-output` to write to `$GITHUB_OUTPUT` file
 
 ## v1.2.0 - 2024-08-09
 

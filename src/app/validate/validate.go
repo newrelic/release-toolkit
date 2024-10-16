@@ -42,7 +42,10 @@ var Cmd = &cli.Command{
 // Validate is a command function which loads a changelog.md file, and prints to stderr
 // all the errors found.
 func Validate(cCtx *cli.Context) error {
-	gh := gha.NewFromCli(cCtx)
+	gh, err := gha.NewFromCli(cCtx)
+	if err != nil {
+		return fmt.Errorf("creating github client: %w", err)
+	}
 
 	mdPath := cCtx.String(markdownPathFlag)
 	chFile, err := os.Open(mdPath)

@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/newrelic/release-toolkit/internal/testutil"
 	"github.com/newrelic/release-toolkit/src/app"
 	"github.com/newrelic/release-toolkit/src/git"
 )
@@ -37,18 +38,18 @@ This is a release note
 //nolint:funlen,paralleltest,maintidx
 func TestGenerate(t *testing.T) {
 	for _, tc := range []struct {
-		name           string
-		commits        []string
-		author         string
-		md             string
-		expected       string
-		outputExpected string
-		args           string
-		preCmdArgs     string
+		name              string
+		commits           []string
+		author            string
+		md                string
+		expected          string
+		expectedStdOutput string
+		expectedGHAOutput string
+		args              string
+		preCmdArgs        string
 	}{
 		{
 			name:       "Empty_Changelog_gha",
-			args:       "--exit-code=0",
 			preCmdArgs: "--gha=1",
 			md: strings.TrimSpace(`
 # Changelog
@@ -61,7 +62,8 @@ This is based on blah blah blah
 ### Enhancements
 - This is in the past and should not be included
 			`),
-			outputExpected: "::set-output name=empty-changelog::true\n",
+			expectedStdOutput: "",
+			expectedGHAOutput: "empty-changelog=true\n",
 			expected: strings.TrimSpace(`
 notes: ""
 changes: []
@@ -427,6 +429,7 @@ dependencies:
 	} {
 		//nolint:paralleltest
 		t.Run(tc.name, func(t *testing.T) {
+			ghaOutput := testutil.NewGithubOutputWriter(t)
 			tDir := repoWithCommits(t, tc.author, tc.commits...)
 			tc.expected = calculateHashes(t, tDir, tc.expected)
 
@@ -460,8 +463,11 @@ dependencies:
 			if diff := cmp.Diff(tc.expected, string(yaml)); diff != "" {
 				t.Fatalf("Output YAML is not as expected:\n%s", diff)
 			}
-			if actual := buf.String(); actual != tc.outputExpected {
-				t.Fatalf("Expected %q, app printed: %q", tc.outputExpected, actual)
+			if actual := buf.String(); actual != tc.expectedStdOutput {
+				t.Fatalf("Expected %q, app printed: %q", tc.expectedStdOutput, actual)
+			}
+			if actual := ghaOutput.Result(t); actual != tc.expectedGHAOutput {
+				t.Fatalf("Expected %q, GHA output: %q", tc.expectedStdOutput, actual)
 			}
 		})
 	}

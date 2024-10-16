@@ -107,7 +107,7 @@ var Cmd = &cli.Command{
 			Name:    exitCodeFlag,
 			EnvVars: common.EnvFor(exitCodeFlag),
 			Usage:   "Exit code if generated changelog yaml is empty",
-			Value:   1,
+			Value:   0,
 		},
 	},
 	Action: Generate,
@@ -119,7 +119,10 @@ type appendDepSrc func([]changelog.Source, git.TagsVersionGetter, git.CommitsGet
 //
 //nolint:gocyclo,cyclop
 func Generate(cCtx *cli.Context) error {
-	gh := gha.NewFromCli(cCtx)
+	gh, err := gha.NewFromCli(cCtx)
+	if err != nil {
+		return fmt.Errorf("creating github client: %w", err)
+	}
 
 	yamlPath := cCtx.String(common.YAMLFlag)
 	chFile, err := os.Create(yamlPath)
@@ -246,12 +249,7 @@ func tagVersionGetter(cCtx *cli.Context) (*git.TagsSource, error) {
 		versionOpts = append(versionOpts, git.TagSourceReplacing(matching, ""))
 	}
 
-	tvsrc := git.NewTagsSource(src, versionOpts...)
-	if err != nil {
-		return nil, fmt.Errorf("creating version source from git tag source: %w", err)
-	}
-
-	return tvsrc, nil
+	return git.NewTagsSource(src, versionOpts...), nil
 }
 
 func sanitizeValue(in []string) []string {

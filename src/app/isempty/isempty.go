@@ -33,7 +33,10 @@ var Cmd = &cli.Command{
 
 // IsEmpty is a command function which loads a changelog.yaml file, and prints to stdout whether it is empty or not.
 func IsEmpty(cCtx *cli.Context) error {
-	gh := gha.NewFromCli(cCtx)
+	gh, err := gha.NewFromCli(cCtx)
+	if err != nil {
+		return fmt.Errorf("creating github client: %w", err)
+	}
 
 	chPath := cCtx.String(common.YAMLFlag)
 	chFile, err := os.Open(chPath)

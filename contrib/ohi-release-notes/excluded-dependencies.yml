@@ -1,4 +1,0 @@
-# This contains a list of development dependencies that should be skipped from the changelog.
-dependencies:
-  - github.com/stretchr/testify
-  - github.com/testcontainers/testcontainers-go
