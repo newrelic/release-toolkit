@@ -11,7 +11,7 @@ The way in which the toolkit works is the following:
 1. Maintainers add human-readable changelog entries to the `## Unreleased` section in a [`CHANGELOG.md`](https://keepachangelog.com/en/1.0.0/) file.
 2. When the release process is initiated, a pipeline using the toolkit will:
    1. Put the contents of the `## Unreleased` section in a machine-readable yaml file, `changelog.yaml`
-   2. Add dependency update entries from Renovate or Dependabot commits
+   2. Add dependency update entries from Mend or Dependabot commits
    3. Automatically calculate the next version following semver standards
    4. Generate a Markdown document with the release notes for this release
    5. Reincorporate all the contents of `changelog.yaml` into `CHANGELOG.md`, under the correct version header.
@@ -72,7 +72,7 @@ The heart of the release toolkit architecture is the `changelog.yaml` file. This
 `generate-changelog` will populate `changelog.yaml` with:
 - Changelog entries written by maintainers in the `## Unreleased` section of `CHANGELOG.md`. Typically, these entries will be added in the same PR the mentioned changes are.
 - [Dependabot](https://github.com/dependabot) commits that happened after the last release.
-- [Renovate](https://github.com/renovatebot/renovate) commits that happened after the last release.
+- [Mend](https://github.com/renovatebot/renovate) commits that happened after the last release.
 
 The changelog object represented in this YAML file has 3 important fields:
 - `changes`: List of changes parsed from `CHANGELOG.md` Changes have a type and a message, and changes belonging to the same type are grouped in the release notes.

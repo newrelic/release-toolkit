@@ -82,7 +82,7 @@ Maintainers can include an L2 `## Held` header in the `CHANGELOG.md` file. This 
 `generate-changelog` will set the boolean `held` property to `true` in `changelog.yaml` if it founds such a header. This flag can be consumed later in the pipeline to check if an automated workflow should continue releasing.
 
 ## Bot sources
-Dependabot and renovate changelog entries will be gathered (unless deactivated) from dependabot/renovate commits since last tag.
+Dependabot and mend changelog entries will be gathered (unless deactivated) from dependabot/renovate commits since last tag.
 The release toolkit `generate-yaml` command will detect a renovate/dependabot commit based on the author and message of the commit.
 
 The release toolkit will add those dependency entries, trying to extract the following (only the name is mandatory):

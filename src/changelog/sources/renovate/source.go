@@ -12,7 +12,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const renovateAuthor = "renovate"
+const renovateAuthor = "mend"
 
 type Source struct {
 	tagsVersionGetter git.TagsVersionGetter
