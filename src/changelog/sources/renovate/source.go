@@ -12,7 +12,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const renovateAuthor = "mend"
+const (
+	renovateAuthor = "renovate"
+	mendAuthor     = "mend"
+)
 
 type Source struct {
 	tagsVersionGetter git.TagsVersionGetter
@@ -47,8 +50,8 @@ func (r Source) Changelog() (*changelog.Changelog, error) {
 		var commitDependencies []changelog.Dependency
 
 		commitLine := strings.Split(c.Message, "\n")[0]
-		if !strings.Contains(strings.ToLower(c.Author), renovateAuthor) {
-			log.Debugf("skipping commit as it is not authored by renovate\n> %q", commitLine)
+		if !(strings.Contains(strings.ToLower(c.Author), renovateAuthor) || strings.Contains(strings.ToLower(c.Author), mendAuthor)) {
+			log.Debugf("skipping commit as it is not authored by renovate or mend\n> %q", commitLine)
 			continue
 		}
 
