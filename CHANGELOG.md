@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 Unreleased section should follow [Release Toolkit](https://github.com/newrelic/release-toolkit#render-markdown-and-update-markdown)
 ## Unreleased
 
-### enhancement
+## v1.3.0 - 2026-03-17
+
+### 🚀 Enhancements
 - Adds output-prefix input to OHI release notes action, making it possible to customize the prefix used when printing the output version. This allows for greater flexibility in version formatting, accommodating different versioning schemes or preferences.
 
 ## v1.2.0 - 2024-08-09
