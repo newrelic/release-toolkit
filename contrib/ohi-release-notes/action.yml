@@ -27,6 +27,10 @@ inputs:
   excluded-dependencies-manifest:
     description: Excluded dependencies manifest. Dependency commits containing any of the strings listed, will be excluded. Defaults to `.github/excluded-dependencies.yml`.
     default: '.github/excluded-dependencies.yml'
+  output-prefix:
+    description: The prefix to prepend when printing the output version
+    required: false
+    default: "v"
 outputs:
   is-empty:
     description: "Outputs if changelog is empty"
@@ -115,6 +119,7 @@ runs:
       with:
         git-root: ${{ inputs.git-root }}
         yaml: ${{ inputs.git-root }}/changelog.yaml
+        output-prefix: ${{ inputs.output-prefix }}
     - name: Update the markdown
       if: ${{ steps.check-release.outputs.skip != 'true' }}
       uses: newrelic/release-toolkit/update-markdown@v1
