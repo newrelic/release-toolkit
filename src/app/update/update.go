@@ -33,11 +33,10 @@ var Cmd = &cli.Command{
 			Value:   "CHANGELOG.md",
 		},
 		&cli.StringFlag{
-			Name:    versionFlag,
-			EnvVars: common.EnvFor(versionFlag),
-			Usage: "Version to stamp in the changelog section header. " +
-				"If omitted, no version header will be generated.",
-			Value: "",
+			Name:     versionFlag,
+			EnvVars:  common.EnvFor(versionFlag),
+			Usage:    "Version to stamp in the changelog section header. ",
+			Required: true,
 		},
 		&cli.TimestampFlag{
 			Name:    dateFlag,
