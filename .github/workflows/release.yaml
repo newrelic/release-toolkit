@@ -8,6 +8,9 @@ env:
   BOT_NAME: newrelic-coreint-bot
   BOT_EMAIL: coreint-dev@newrelic.com
 
+permissions:
+  contents: read
+
 jobs:
   test-release-needed:
     name: Test if release is needed
