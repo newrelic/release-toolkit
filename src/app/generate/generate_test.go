@@ -159,7 +159,7 @@ dependencies:
 			name:   "Markdown_Renovate",
 			md:     mdChangelog,
 			args:   "--dependabot=false",
-			author: "renovate[bot] <renovatebot@imadethisup.com>",
+			author: "mend[bot] <mendbot@imadethisup.com>",
 			commits: []string{
 				"chore(deps): update newrelic/infrastructure-bundle docker tag to v2.7.2",
 				"chore(deps): update helm release common-library to v1.0.4 (#401)",
@@ -189,7 +189,7 @@ dependencies:
 			name:   "Markdown_Renovate_Filter_IncludedDirs_notIncluded",
 			md:     mdChangelog,
 			args:   "--dependabot=false --included-dirs=invented,another-invented",
-			author: "renovate[bot] <renovatebot@imadethisup.com>",
+			author: "mend[bot] <mendbot@imadethisup.com>",
 			commits: []string{
 				"chore(deps): update newrelic/infrastructure-bundle docker tag to v2.7.2",
 				"chore(deps): update helm release common-library to v1.0.4 (#401)",
@@ -210,7 +210,7 @@ dependencies: []
 			name:   "Markdown_Renovate_Filter_ExcludedDirs_Included",
 			md:     mdChangelog,
 			args:   "--dependabot=false --excluded-dirs=invented",
-			author: "renovate[bot] <renovatebot@imadethisup.com>",
+			author: "mend[bot] <mendbot@imadethisup.com>",
 			commits: []string{
 				"chore(deps): update newrelic/infrastructure-bundle docker tag to v2.7.2",
 				"chore(deps): update helm release common-library to v1.0.4 (#401)",
@@ -376,7 +376,7 @@ dependencies:
 			name:   "Markdown_Renovate_Filter_ExcludedDependencies",
 			md:     mdChangelog,
 			args:   fmt.Sprintf("--dependabot=false --excluded-dependencies-manifest=%s", path.Join("..", "testdata", "excluded-dependencies.yml")),
-			author: "renovate[bot] <renovatebot@imadethisup.com>",
+			author: "mend[bot] <mendbot@imadethisup.com>",
 			commits: []string{
 				"chore(deps): update github.com/stretchr/testify to 1.8.0",
 				"chore(deps): update helm release common-library to v1.0.4 (#401)",
