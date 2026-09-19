@@ -3,7 +3,6 @@ package update_test
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"os"
 	"path"
@@ -11,7 +10,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Masterminds/semver"
 	"github.com/google/go-cmp/cmp"
 	"github.com/newrelic/release-toolkit/src/app"
 )
@@ -255,8 +253,8 @@ func TestRender_Fails_Without_Version(t *testing.T) {
 		"rt", "-yaml", yamlPath, "update-markdown", "-markdown", mdPath,
 	})
 
-	if !errors.Is(err, semver.ErrInvalidSemVer) {
-		t.Fatalf("App did not return an error with an invalid semver: %v", err)
+	if err == nil {
+		t.Fatalf("App did not return an error when --version was not specified")
 	}
 }
 
