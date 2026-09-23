@@ -1,11 +1,9 @@
 # 🛠️ `release-notes-mdx`
 
-Extracts a single version's section from `CHANGELOG.md` and renders it as an MDX file suitable for publishing on a
-docs site.
+Extracts a single version's section from `CHANGELOG.md` and renders it as an MDX file suitable for publishing on
+NewRelic public docs site.
 
-It picks the `## v<version> - <YYYY-MM-DD>` section from the changelog, buckets its `### ...` subsections into
-features, bug fixes, and security notices (matching heading keywords such as "Enhancements", "Bug fixes",
-"Security"), and writes YAML frontmatter plus a rendered markdown body ending with a link to the GitHub release.
+It picks the `## v<version> - <YYYY-MM-DD>` section from the changelog and writes YAML file in the format that the NewRelic public docs site expects for the release notes.
 
 ## Example Usage
 
@@ -13,8 +11,8 @@ features, bug fixes, and security notices (matching heading keywords such as "En
 - name: Generate docs release notes
   uses: newrelic/release-toolkit/release-notes-mdx@v1
   with:
-    version: 1.19.0
     subject: Agent Control
+    version: 1.19.0
     repo: newrelic/newrelic-agent-control
 ```
 

@@ -119,13 +119,14 @@ Extracts a version's section from CHANGELOG.md and renders it as a docs-site MDX
 ```shell
 rt release-notes-mdx [-flags]
 ```
-| Flags      | Default        | Description                                                                                            |
-|------------|----------------|----------------------------------------------------------------------------------------------------------|
-| `markdown` | `CHANGELOG.md` | Path to the source CHANGELOG.md file                                                                    |
-| `version`  |                | Version to extract from the changelog, without a `v` prefix (e.g. `1.2.3`). Required                    |
-| `subject`  |                | Product or component name to stamp in the `subject` frontmatter field (e.g. `Agent Control`). Required   |
-| `repo`     |                | GitHub repository in `owner/name` form, used to build the release notes link. Required                  |
-| `output`   |                | Path of the MDX file to write. If omitted, defaults to `<repo-name>-<version-with-dashes>.mdx`          |
+| Flags       | Default        | Description                                                                                            |
+|-------------|----------------|----------------------------------------------------------------------------------------------------------|
+| `changelog` | `CHANGELOG.md` | Path to the source CHANGELOG.md file                                                                    |
+| `version`   |                | Version to extract from the changelog, without a `v` prefix (e.g. `1.2.3`). Required                    |
+| `subject`   |                | Product or component name to stamp in the `subject` frontmatter field (e.g. `Agent Control`). Required   |
+| `repo`      |                | GitHub repository in `owner/name` form, used to build the release notes link. Required                  |
+
+The MDX file is always written to `<repo-name>-<version-with-dashes>.mdx`, and its path is printed and set as the command's `mdx-path` GitHub Actions output.
 
 ## Validate markdown
 Prints errors if CHANGELOG.md has an invalid format.

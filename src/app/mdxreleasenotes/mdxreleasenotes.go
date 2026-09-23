@@ -1,23 +1,25 @@
-// Package mdxreleasenotes wires the mdxreleasenotes.Renderer into the rt CLI as the release-notes-mdx command.
 package mdxreleasenotes
 
 import (
 	"fmt"
 	"os"
+	"path"
 	"strings"
 
 	"github.com/newrelic/release-toolkit/src/app/common"
+	"github.com/newrelic/release-toolkit/src/app/gha"
 	"github.com/newrelic/release-toolkit/src/mdxreleasenotes"
 	"github.com/urfave/cli/v2"
 )
 
 const (
-	markdownPathFlag = "markdown"
-	versionFlag      = "version"
-	subjectFlag      = "subject"
-	repoFlag         = "repo"
-	outputFlag       = "output"
+	changelogPathFlag = "changelog"
+	versionFlag       = "version"
+	subjectFlag       = "subject"
+	repoFlag          = "repo"
 )
+
+const mdxPathOutput = "mdx-path"
 
 // Cmd is the cli.Command object for the release-notes-mdx command.
 //
@@ -27,21 +29,15 @@ var Cmd = &cli.Command{
 	Usage: "Extracts a version's section from CHANGELOG.md and renders it as a docs-site MDX file.",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:    markdownPathFlag,
-			EnvVars: common.EnvFor(markdownPathFlag),
-			Usage:   "Path to the source CHANGELOG.md file.",
-			Value:   "CHANGELOG.md",
+			Name:     subjectFlag,
+			EnvVars:  common.EnvFor(subjectFlag),
+			Usage:    "Product or component name to stamp in the `subject` frontmatter field (e.g. \"Agent Control\").",
+			Required: true,
 		},
 		&cli.StringFlag{
 			Name:     versionFlag,
 			EnvVars:  common.EnvFor(versionFlag),
 			Usage:    "Version to extract from the changelog, without a `v` prefix (e.g. 1.2.3).",
-			Required: true,
-		},
-		&cli.StringFlag{
-			Name:     subjectFlag,
-			EnvVars:  common.EnvFor(subjectFlag),
-			Usage:    "Product or component name to stamp in the `subject` frontmatter field (e.g. \"Agent Control\").",
 			Required: true,
 		},
 		&cli.StringFlag{
@@ -51,30 +47,32 @@ var Cmd = &cli.Command{
 			Required: true,
 		},
 		&cli.StringFlag{
-			Name:    outputFlag,
-			EnvVars: common.EnvFor(outputFlag),
-			Usage:   "Path of the MDX file to write. If omitted, defaults to \"<repo-name>-<version-with-dashes>.mdx\".",
-			Value:   "",
+			Name:    changelogPathFlag,
+			EnvVars: common.EnvFor(changelogPathFlag),
+			Usage:   "Path to the source CHANGELOG.md file.",
+			Value:   "CHANGELOG.md",
 		},
 	},
 	Action: Run,
 }
 
-// Run is a command function which extracts a version's section from a markdown changelog and writes it as MDX.
+// Run is a command function which extracts a version's section from a changelog and writes it as MDX.
 func Run(cCtx *cli.Context) error {
-	mdPath := cCtx.String(markdownPathFlag)
+	gh := gha.NewFromCli(cCtx)
+
+	mdPath := cCtx.String(changelogPathFlag)
 
 	changelogBytes, err := os.ReadFile(mdPath)
 	if err != nil {
 		return fmt.Errorf("reading changelog file %q: %w", mdPath, err)
 	}
 
+	repo := cCtx.String(repoFlag)
 	version := cCtx.String(versionFlag)
 
-	outputPath := cCtx.String(outputFlag)
-	if outputPath == "" {
-		outputPath = defaultOutputPath(cCtx.String(repoFlag), version)
-	}
+	name := path.Base(repo)
+	dashedVersion := strings.ReplaceAll(version, ".", "-")
+	outputPath := fmt.Sprintf("%s-%s.mdx", name, dashedVersion)
 
 	outputFile, err := os.Create(outputPath)
 	if err != nil {
@@ -84,7 +82,7 @@ func Run(cCtx *cli.Context) error {
 
 	r := mdxreleasenotes.Renderer{
 		Subject:  cCtx.String(subjectFlag),
-		Repo:     cCtx.String(repoFlag),
+		Repo:     repo,
 		Sections: mdxreleasenotes.DefaultSections,
 	}
 
@@ -92,19 +90,8 @@ func Run(cCtx *cli.Context) error {
 		return fmt.Errorf("rendering release notes mdx: %w", err)
 	}
 
-	fmt.Println(outputPath)
+	_, _ = fmt.Fprintln(cCtx.App.Writer, outputPath)
+	gh.SetOutput(mdxPathOutput, outputPath)
 
 	return nil
-}
-
-// defaultOutputPath derives "<repo-name>-<version-with-dashes>.mdx" from a `owner/name` repo slug and a version.
-func defaultOutputPath(repo, version string) string {
-	name := repo
-	if idx := strings.LastIndexByte(repo, '/'); idx != -1 {
-		name = repo[idx+1:]
-	}
-
-	dashedVersion := strings.ReplaceAll(version, ".", "-")
-
-	return fmt.Sprintf("%s-%s.mdx", name, dashedVersion)
 }

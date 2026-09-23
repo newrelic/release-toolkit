@@ -14,16 +14,21 @@ All notable changes are documented in this file.
 
 ## Unreleased
 
+## v2.0.0 - 2026-07-18
+
+### 🚀 Enhancements
+- A new release enhancement that must NOT appear in the 1.99.0 notes
+
 ## v1.99.0 - 2026-07-15
 
 ### 🚀 Enhancements
-- Add support for shared filesystems in on-host agent types (#1234)
+- Add support for shared filesystems in on-host agent types
 - On-host self-update now skips sub-agent reconciliation while an update is in progress
 
 ### 🐞 Bug fixes
-- Restore ` + "`local_config.yaml`" + ` from the ` + "`.rpmsave`" + ` backup left by a prior uninstall (#1240)
-- Fix a mis-recording of the Instrumented metric (a1b2c3d)
-- Supports escaping 'quotes' and ''quotes'' (#1250)
+- Restore ` + "`local_config.yaml`" + ` from the ` + "`.rpmsave`" + ` backup left by a prior uninstall
+- Fix a mis-recording of the Instrumented metric
+- Supports escaping 'quotes' and ''quotes''
 
 ### 🛡️ Security notices
 - Bump base image to patch CVE-2026-0001
