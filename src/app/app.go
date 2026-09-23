@@ -7,6 +7,7 @@ import (
 	"github.com/newrelic/release-toolkit/src/app/isempty"
 	"github.com/newrelic/release-toolkit/src/app/isheld"
 	"github.com/newrelic/release-toolkit/src/app/link"
+	"github.com/newrelic/release-toolkit/src/app/mdxreleasenotes"
 	"github.com/newrelic/release-toolkit/src/app/nextversion"
 	"github.com/newrelic/release-toolkit/src/app/render"
 	"github.com/newrelic/release-toolkit/src/app/update"
@@ -45,6 +46,7 @@ func App() *cli.App {
 			validate.Cmd,
 			link.Cmd,
 			isempty.Cmd,
+			mdxreleasenotes.Cmd,
 		},
 	}
 }

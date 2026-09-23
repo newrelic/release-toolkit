@@ -114,6 +114,19 @@ rt update-markdown [-flags]
 | `version`  |                  | Version to stamp in the changelog section header. If omitted, no version header will be generated                              |
 | `date`     | `time.Now()`     | Date to stamp in the changelog section header, in YYYY-MM-DD format. If empty it will default to the current time (time.Now()) |                                                                                                                                                                                                          |
 
+## Release notes MDX
+Extracts a version's section from CHANGELOG.md and renders it as a docs-site MDX file.
+```shell
+rt release-notes-mdx [-flags]
+```
+| Flags      | Default        | Description                                                                                            |
+|------------|----------------|----------------------------------------------------------------------------------------------------------|
+| `markdown` | `CHANGELOG.md` | Path to the source CHANGELOG.md file                                                                    |
+| `version`  |                | Version to extract from the changelog, without a `v` prefix (e.g. `1.2.3`). Required                    |
+| `subject`  |                | Product or component name to stamp in the `subject` frontmatter field (e.g. `Agent Control`). Required   |
+| `repo`     |                | GitHub repository in `owner/name` form, used to build the release notes link. Required                  |
+| `output`   |                | Path of the MDX file to write. If omitted, defaults to `<repo-name>-<version-with-dashes>.mdx`          |
+
 ## Validate markdown
 Prints errors if CHANGELOG.md has an invalid format.
 ```shell
