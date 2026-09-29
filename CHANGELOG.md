@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 Unreleased section should follow [Release Toolkit](https://github.com/newrelic/release-toolkit#render-markdown-and-update-markdown)
 ## Unreleased
 
-### enhancement
+## v1.4.0 - 2026-09-29
+
+### 🚀 Enhancements
 - Adds `contrib/nr-docs-release-notes` action and `docsreleasenotes` package to convert `CHANGELOG.md` into release notes that can be published to the New Relic public docs site.
 
 ## v1.3.0 - 2026-03-17
