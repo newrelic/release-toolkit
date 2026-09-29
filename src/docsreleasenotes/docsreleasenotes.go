@@ -1,4 +1,4 @@
-package mdxreleasenotes
+package docsreleasenotes
 
 import (
 	"errors"

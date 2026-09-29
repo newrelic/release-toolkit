@@ -1,11 +1,11 @@
-package mdxreleasenotes_test
+package docsreleasenotes_test
 
 import (
 	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/newrelic/release-toolkit/src/mdxreleasenotes"
+	"github.com/newrelic/release-toolkit/src/docsreleasenotes"
 )
 
 const fullChangelog = `# Changelog
@@ -123,10 +123,10 @@ For a detailed description of changes, see the [release notes](https://github.co
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			r := mdxreleasenotes.Renderer{
+			r := docsreleasenotes.Renderer{
 				Subject:  "Agent Control",
 				Repo:     "newrelic/newrelic-agent-control",
-				Sections: mdxreleasenotes.DefaultSections,
+				Sections: docsreleasenotes.DefaultSections,
 			}
 
 			buf := &strings.Builder{}
@@ -144,10 +144,10 @@ For a detailed description of changes, see the [release notes](https://github.co
 func TestRenderVersionNotFound(t *testing.T) {
 	t.Parallel()
 
-	r := mdxreleasenotes.Renderer{
+	r := docsreleasenotes.Renderer{
 		Subject:  "Agent Control",
 		Repo:     "newrelic/newrelic-agent-control",
-		Sections: mdxreleasenotes.DefaultSections,
+		Sections: docsreleasenotes.DefaultSections,
 	}
 
 	buf := &strings.Builder{}

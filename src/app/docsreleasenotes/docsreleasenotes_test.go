@@ -1,4 +1,4 @@
-package mdxreleasenotes_test
+package docsreleasenotes_test
 
 import (
 	"os"
@@ -71,7 +71,7 @@ For a detailed description of changes, see the [release notes](https://github.co
 
 	a := app.App()
 	args := []string{
-		"rt", "release-notes-mdx",
+		"rt", "nr-docs-release-notes",
 		"-changelog", mdPath,
 		"-version", "1.99.0",
 		"-subject", "Agent Control",

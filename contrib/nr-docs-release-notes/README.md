@@ -1,4 +1,4 @@
-# 🛠️ `release-notes-mdx`
+# 🛠️ `nr-docs-release-notes`
 
 Extracts a single version's section from `CHANGELOG.md` and renders it as an MDX file.
 
@@ -8,7 +8,7 @@ The output format matches the schema expected by the [newrelic/docs-website](htt
 
 ```yaml
 - name: Generate docs release notes
-  uses: newrelic/release-toolkit/release-notes-mdx@v1
+  uses: newrelic/release-toolkit/contrib/nr-docs-release-notes@v1
   with:
     subject: Agent Control
     version: 1.19.0
@@ -18,16 +18,15 @@ The output format matches the schema expected by the [newrelic/docs-website](htt
 ## Parameters
 
 All parameters match the ones used for the CLI command flags, you can see the values and the defaults
-[here](../README_CLI.md#release-notes-mdx).
+[here](../../README_CLI.md#nr-docs-release-notes).
 
 ## Contributing
 
 Standard policy and procedure across the New Relic GitHub organization.
 
 #### Useful Links
-* [Code of Conduct](../CODE_OF_CONDUCT.md)
-* [Security Policy](../SECURITY.md)
-* [License](../LICENSE)
+* [Code of Conduct](../../CODE_OF_CONDUCT.md)
+* [License](../../LICENSE)
 
 ## Support
 

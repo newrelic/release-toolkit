@@ -269,8 +269,8 @@ This flag can be readily checked using the `is-held` action/command. `is-held` w
 - [Is Empty](./is-empty/README.md)
 - [Link dependencies](./link-dependencies/README.md)
 - [Next Version](./next-version/README.md)
+- [NR docs release notes](./contrib/nr-docs-release-notes/README.md)
 - [render](./render/README.md)
-- [Release notes MDX](./release-notes-mdx/README.md)
 - [Update markdown](./update-markdown/README.md)
 - [Validate markdown](./validate-markdown/README.md)
 

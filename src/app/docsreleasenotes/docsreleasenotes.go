@@ -1,4 +1,4 @@
-package mdxreleasenotes
+package docsreleasenotes
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 
 	"github.com/newrelic/release-toolkit/src/app/common"
 	"github.com/newrelic/release-toolkit/src/app/gha"
-	"github.com/newrelic/release-toolkit/src/mdxreleasenotes"
+	"github.com/newrelic/release-toolkit/src/docsreleasenotes"
 	"github.com/urfave/cli/v2"
 )
 
@@ -21,11 +21,11 @@ const (
 
 const mdxPathOutput = "mdx-path"
 
-// Cmd is the cli.Command object for the release-notes-mdx command.
+// Cmd is the cli.Command object for the nr-docs-release-notes command.
 //
 //nolint:gochecknoglobals // We could overengineer this to avoid the global command but I don't think it's worth it.
 var Cmd = &cli.Command{
-	Name: "release-notes-mdx",
+	Name: "nr-docs-release-notes",
 	Usage: "Extracts a version's section from CHANGELOG.md and renders it as an MDX file matching the " +
 		"newrelic/docs-website release notes schema.",
 	Flags: []cli.Flag{
@@ -81,10 +81,10 @@ func Run(cCtx *cli.Context) error {
 	}
 	defer outputFile.Close()
 
-	r := mdxreleasenotes.Renderer{
+	r := docsreleasenotes.Renderer{
 		Subject:  cCtx.String(subjectFlag),
 		Repo:     repo,
-		Sections: mdxreleasenotes.DefaultSections,
+		Sections: docsreleasenotes.DefaultSections,
 	}
 
 	if err := r.Render(outputFile, string(changelogBytes), version); err != nil {

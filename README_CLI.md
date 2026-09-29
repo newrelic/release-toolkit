@@ -114,10 +114,10 @@ rt update-markdown [-flags]
 | `version`  |                  | Version to stamp in the changelog section header. If omitted, no version header will be generated                              |
 | `date`     | `time.Now()`     | Date to stamp in the changelog section header, in YYYY-MM-DD format. If empty it will default to the current time (time.Now()) |                                                                                                                                                                                                          |
 
-## Release notes MDX
+## NR docs release notes
 Extracts a version's section from CHANGELOG.md and renders it as a docs-site MDX file.
 ```shell
-rt release-notes-mdx [-flags]
+rt nr-docs-release-notes [-flags]
 ```
 | Flags       | Default        | Description                                                                                            |
 |-------------|----------------|----------------------------------------------------------------------------------------------------------|

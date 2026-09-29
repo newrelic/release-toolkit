@@ -1,4 +1,4 @@
-name: Release notes MDX
+name: NR docs release notes
 description: Extracts a version's section from CHANGELOG.md and renders it as an MDX file matching the newrelic/docs-website release notes schema
 inputs:
   subject:
@@ -19,9 +19,9 @@ outputs:
     description: Path of the MDX file that was written, "<repo-name>-<version-with-dashes>.mdx"
 runs:
   using: docker
-  image: ../Dockerfile
+  image: ../../Dockerfile
   args:
-    - release-notes-mdx
+    - nr-docs-release-notes
     - --changelog
     - ${{ inputs.changelog }}
     - --version
