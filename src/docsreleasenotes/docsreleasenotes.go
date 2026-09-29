@@ -34,15 +34,12 @@ type Renderer struct {
 }
 
 // DefaultSections mirrors the sections used by New Relic's changelog conventions: Enhancements/Features,
-// Bug fixes, and Security notices/Dependencies.
+// Breaking changes, Bug fixes, and Security notices/Dependencies.
 //
 //nolint:gochecknoglobals // This is a read-only default configuration value, akin to a constant.
 var DefaultSections = []Section{
 	{Key: "features", Title: "New features", Keywords: []string{"Enhancements"}},
-	// The release-toolkit doesn't have an "Enhancementes" heading. It is kept as a
-	// frontmatter field to comply with NewRelic public docs site schema.
-	// https://github.com/newrelic/docs-website/blob/develop/templates/release-notes-template.mdx
-	{Key: "enhancements", Title: "Improvements and enhancements", Keywords: nil},
+	{Key: "enhancements", Title: "Improvements and enhancements", Keywords: []string{"Breaking changes"}},
 	{Key: "bugs", Title: "Bug fixes", Keywords: []string{"Bug fixes"}},
 	{Key: "security", Title: "Security updates", Keywords: []string{"Security notices", "Dependencies"}},
 }

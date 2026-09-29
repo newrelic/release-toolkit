@@ -25,6 +25,9 @@ All notable changes are documented in this file.
 - Add support for shared filesystems in on-host agent types
 - On-host self-update now skips sub-agent reconciliation while an update is in progress
 
+### ⚠️️ Breaking changes ⚠️
+- Remove support for the deprecated ` + "`legacy_mode`" + ` config option
+
 ### 🐞 Bug fixes
 - Restore ` + "`local_config.yaml`" + ` from the ` + "`.rpmsave`" + ` backup left by a prior uninstall
 - Fix a mis-recording of the Instrumented metric
@@ -78,7 +81,7 @@ subject: Agent Control
 releaseDate: '2026-07-15'
 version: 1.99.0
 features: ['Add support for shared filesystems in on-host agent types', 'On-host self-update now skips sub-agent reconciliation while an update is in progress']
-enhancements: []
+enhancements: ['Remove support for the deprecated `+"`legacy_mode`"+` config option']
 bugs: ['Restore `+"`local_config.yaml`"+` from the `+"`.rpmsave`"+` backup left by a prior uninstall', 'Fix a mis-recording of the Instrumented metric', 'Supports escaping ''quotes'' and ''''quotes''''']
 security: ['Bump base image to patch CVE-2026-0001', 'Updated rust crate chrono to 0.4.45', 'Updated alpine/helm to v4.2.1']
 ---
@@ -87,6 +90,10 @@ security: ['Bump base image to patch CVE-2026-0001', 'Updated rust crate chrono 
 
 - Add support for shared filesystems in on-host agent types
 - On-host self-update now skips sub-agent reconciliation while an update is in progress
+
+### Improvements and enhancements
+
+- Remove support for the deprecated `+"`legacy_mode`"+` config option
 
 ### Bug fixes
 
