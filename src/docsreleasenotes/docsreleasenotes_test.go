@@ -80,7 +80,7 @@ version: 1.99.0
 features: ['Add support for shared filesystems in on-host agent types', 'On-host self-update now skips sub-agent reconciliation while an update is in progress']
 enhancements: []
 bugs: ['Restore `+"`local_config.yaml`"+` from the `+"`.rpmsave`"+` backup left by a prior uninstall', 'Fix a mis-recording of the Instrumented metric', 'Supports escaping ''quotes'' and ''''quotes''''']
-security: ['Bump base image to patch CVE-2026-0001']
+security: ['Bump base image to patch CVE-2026-0001', 'Updated rust crate chrono to 0.4.45', 'Updated alpine/helm to v4.2.1']
 ---
 
 ### New features
@@ -97,6 +97,8 @@ security: ['Bump base image to patch CVE-2026-0001']
 ### Security updates
 
 - Bump base image to patch CVE-2026-0001
+- Updated rust crate chrono to 0.4.45
+- Updated alpine/helm to v4.2.1
 
 For a detailed description of changes, see the [release notes](https://github.com/newrelic/newrelic-agent-control/releases/tag/1.99.0).
 			`) + "\n",
@@ -112,8 +114,13 @@ version: 1.99.0
 features: []
 enhancements: []
 bugs: []
-security: []
+security: ['Updated rust crate chrono to 0.4.45', 'Updated alpine/helm to v4.2.1']
 ---
+
+### Security updates
+
+- Updated rust crate chrono to 0.4.45
+- Updated alpine/helm to v4.2.1
 
 For a detailed description of changes, see the [release notes](https://github.com/newrelic/newrelic-agent-control/releases/tag/1.99.0).
 			`) + "\n",

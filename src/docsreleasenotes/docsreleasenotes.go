@@ -34,17 +34,17 @@ type Renderer struct {
 }
 
 // DefaultSections mirrors the sections used by New Relic's changelog conventions: Enhancements/Features,
-// Bug fixes, and Security notices.
+// Bug fixes, and Security notices/Dependencies.
 //
 //nolint:gochecknoglobals // This is a read-only default configuration value, akin to a constant.
 var DefaultSections = []Section{
-	{Key: "features", Title: "New features", Keywords: []string{"Enhancements", "Features"}},
+	{Key: "features", Title: "New features", Keywords: []string{"Enhancements"}},
 	// The release-toolkit doesn't have an "Enhancementes" heading. It is kept as a
 	// frontmatter field to comply with NewRelic public docs site schema.
 	// https://github.com/newrelic/docs-website/blob/develop/templates/release-notes-template.mdx
 	{Key: "enhancements", Title: "Improvements and enhancements", Keywords: nil},
 	{Key: "bugs", Title: "Bug fixes", Keywords: []string{"Bug fixes"}},
-	{Key: "security", Title: "Security updates", Keywords: []string{"Security notices"}},
+	{Key: "security", Title: "Security updates", Keywords: []string{"Security notices", "Dependencies"}},
 }
 
 // Render extracts the section for version from changelog and writes the rendered MDX to w.
@@ -78,8 +78,10 @@ func (r Renderer) Render(w io.Writer, changelog string, version string) error {
 	return nil
 }
 
-// extractBullets returns the bullet items under the subsection of versionDoc matching one of keywords.
+// extractBullets returns the bullet items under every subsection of versionDoc matching one of keywords.
 func extractBullets(versionDoc *headingdoc.Doc, keywords []string) []string {
+	var bullets []string
+
 	for _, keyword := range keywords {
 		sub := versionDoc.FindOne(keyword)
 		if sub == nil {
@@ -87,10 +89,10 @@ func extractBullets(versionDoc *headingdoc.Doc, keywords []string) []string {
 		}
 
 		// First item of a Doc's content is always its own heading, so we skip it when extracting items.
-		return markdown.Items(sub.Content[1:])
+		bullets = append(bullets, markdown.Items(sub.Content[1:])...)
 	}
 
-	return nil
+	return bullets
 }
 
 func (r Renderer) renderFrontmatter(w io.Writer, version, releaseDate string, bulletsBySection map[string][]string) error {
