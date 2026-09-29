@@ -107,7 +107,7 @@ func (b builder) entriesFromHeader(header *headingdoc.Doc, t changelog.EntryType
 
 	log.Debugf("Extracting list items under header %q", header.Name)
 	// First item of the headingDoc content is always the heading itself, so we skip it for parsing.
-	changes := items(header.Content[1:])
+	changes := Items(header.Content[1:])
 	if len(changes) == 0 {
 		log.Warnf("No list items found under header %q", header.Name)
 	}
@@ -137,9 +137,9 @@ func (b builder) unvisitedAsNotes(header *headingdoc.Doc) {
 	b.cl.Notes = notes.String()
 }
 
-// items receives a list of ast.Node, and for those nodes which are lists, returns the list items inside.
+// Items receives a list of ast.Node, and for those nodes which are lists, returns the list items inside.
 // Nodes which are not lists are ignored.
-func items(content []ast.Node) []string {
+func Items(content []ast.Node) []string {
 	var itemsStr []string
 
 	// FilterRenderer uses the default renderer, but skips feeding it *ast.Hardbreaks, which would make it panic.

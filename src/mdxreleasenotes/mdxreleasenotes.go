@@ -4,8 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"regexp"
 	"strings"
+
+	"github.com/newrelic/release-toolkit/src/changelog/sources/markdown"
+	"github.com/newrelic/release-toolkit/src/changelog/sources/markdown/headingdoc"
 )
 
 var ErrHeadingNotFound = errors.New("could not find heading in changelog")
@@ -45,40 +47,24 @@ var DefaultSections = []Section{
 	{Key: "security", Title: "Security updates", Keywords: []string{"Security notices"}},
 }
 
-// Matches the next `## v...` heading, used to find where the current version's section ends.
-var nextVersionHeadingPattern = regexp.MustCompile(`(?m)^##\s+v`)
-
-// Matches a `## v<version> - <YYYY-MM-DD>` heading and captures the release date.
-func headingPattern(version string) *regexp.Regexp {
-	return regexp.MustCompile(`(?m)^##\s+v` + regexp.QuoteMeta(version) + `\s+-\s+(\d{4}-\d{2}-\d{2})\s*$`)
-}
-
-// Matches a `### ...` changelog subsection heading and captures its title.
-var subsectionHeadingPattern = regexp.MustCompile(`(?m)^###\s+(.*)$`)
-
 // Render extracts the section for version from changelog and writes the rendered MDX to w.
 func (r Renderer) Render(w io.Writer, changelog string, version string) error {
-	changelog = strings.ReplaceAll(changelog, "\r", "")
+	doc, err := headingdoc.NewFromReader(strings.NewReader(changelog))
+	if err != nil {
+		return fmt.Errorf("parsing changelog: %w", err)
+	}
 
-	loc := headingPattern(version).FindStringSubmatchIndex(changelog)
-	if loc == nil {
+	versionDoc := doc.FindOne("v" + version)
+	if versionDoc == nil {
 		return fmt.Errorf("%w: version %q", ErrHeadingNotFound, version)
 	}
 
-	releaseDate := changelog[loc[2]:loc[3]]
-
-	bodyStart := loc[1]
-
-	bodyEnd := len(changelog)
-	if nextLoc := nextVersionHeadingPattern.FindStringIndex(changelog[bodyStart:]); nextLoc != nil {
-		bodyEnd = bodyStart + nextLoc[0]
-	}
-
-	body := changelog[bodyStart:bodyEnd]
+	_, releaseDate, _ := strings.Cut(versionDoc.Name, "-")
+	releaseDate = strings.TrimSpace(releaseDate)
 
 	bulletsBySection := make(map[string][]string, len(r.Sections))
 	for _, section := range r.Sections {
-		bulletsBySection[section.Key] = extractBullets(body, section.Keywords)
+		bulletsBySection[section.Key] = extractBullets(versionDoc, section.Keywords)
 	}
 
 	if err := r.renderFrontmatter(w, version, releaseDate, bulletsBySection); err != nil {
@@ -92,51 +78,19 @@ func (r Renderer) Render(w io.Writer, changelog string, version string) error {
 	return nil
 }
 
-func extractBullets(body string, keywords []string) []string {
-	headings := subsectionHeadingPattern.FindAllStringSubmatchIndex(body, -1)
-
-	for i, headingMatch := range headings {
-		heading := body[headingMatch[2]:headingMatch[3]]
-		if !containsAny(heading, keywords) {
+// extractBullets returns the bullet items under the subsection of versionDoc matching one of keywords.
+func extractBullets(versionDoc *headingdoc.Doc, keywords []string) []string {
+	for _, keyword := range keywords {
+		sub := versionDoc.FindOne(keyword)
+		if sub == nil {
 			continue
 		}
 
-		contentStart := headingMatch[1]
-		contentEnd := len(body)
-		if i+1 < len(headings) {
-			contentEnd = headings[i+1][0]
-		}
-
-		return cleanBullets(body[contentStart:contentEnd])
+		// First item of a Doc's content is always its own heading, so we skip it when extracting items.
+		return markdown.Items(sub.Content[1:])
 	}
 
 	return nil
-}
-
-func containsAny(haystack string, needles []string) bool {
-	for _, needle := range needles {
-		if strings.Contains(haystack, needle) {
-			return true
-		}
-	}
-
-	return false
-}
-
-func cleanBullets(content string) []string {
-	var items []string
-
-	for _, line := range strings.Split(content, "\n") {
-		line = strings.TrimSpace(line)
-		line = strings.TrimPrefix(line, "- ")
-		line = strings.TrimSpace(line)
-
-		if line != "" {
-			items = append(items, line)
-		}
-	}
-
-	return items
 }
 
 func (r Renderer) renderFrontmatter(w io.Writer, version, releaseDate string, bulletsBySection map[string][]string) error {
