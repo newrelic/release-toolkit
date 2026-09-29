@@ -1,5 +1,5 @@
 name: Release notes MDX
-description: Extracts a version's section from CHANGELOG.md and renders it as a docs-site MDX file
+description: Extracts a version's section from CHANGELOG.md and renders it as an MDX file matching the newrelic/docs-website release notes schema
 inputs:
   subject:
     description: Product or component name to stamp in the `subject` frontmatter field (e.g. "Agent Control")

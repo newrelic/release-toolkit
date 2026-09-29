@@ -1,9 +1,8 @@
 # 🛠️ `release-notes-mdx`
 
-Extracts a single version's section from `CHANGELOG.md` and renders it as an MDX file suitable for publishing on
-NewRelic public docs site.
+Extracts a single version's section from `CHANGELOG.md` and renders it as an MDX file.
 
-It picks the `## v<version> - <YYYY-MM-DD>` section from the changelog and writes YAML file in the format that the NewRelic public docs site expects for the release notes.
+The output format matches the schema expected by the [newrelic/docs-website](https://github.com/newrelic/docs-website) release notes template ([`release-notes-template.mdx`](https://github.com/newrelic/docs-website/blob/develop/templates/release-notes-template.mdx)). It picks the `## v<version> - <YYYY-MM-DD>` section from the changelog and writes it as MDX frontmatter plus a markdown body in that shape.
 
 ## Example Usage
 

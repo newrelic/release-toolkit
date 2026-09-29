@@ -25,8 +25,9 @@ const mdxPathOutput = "mdx-path"
 //
 //nolint:gochecknoglobals // We could overengineer this to avoid the global command but I don't think it's worth it.
 var Cmd = &cli.Command{
-	Name:  "release-notes-mdx",
-	Usage: "Extracts a version's section from CHANGELOG.md and renders it as a docs-site MDX file.",
+	Name: "release-notes-mdx",
+	Usage: "Extracts a version's section from CHANGELOG.md and renders it as an MDX file matching the " +
+		"newrelic/docs-website release notes schema.",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:     subjectFlag,
