@@ -1,0 +1,32 @@
+name: NR docs release notes
+description: Extracts a version's section from CHANGELOG.md and renders it as an MDX file matching the newrelic/docs-website release notes schema
+inputs:
+  subject:
+    description: Product or component name to stamp in the `subject` frontmatter field (e.g. "Agent Control")
+    required: true
+  version:
+    description: Version to extract from the changelog, without a `v` prefix (e.g. 1.2.3)
+    required: true
+  changelog:
+    description: Path to the source CHANGELOG.md file
+    required: false
+    default: CHANGELOG.md
+  repo:
+    description: GitHub repository in `owner/name` form, used to build the release notes link
+    required: true
+outputs:
+  mdx-path:
+    description: Path of the MDX file that was written, "<repo-name>-<version-with-dashes>.mdx"
+runs:
+  using: docker
+  image: ../../Dockerfile
+  args:
+    - nr-docs-release-notes
+    - --changelog
+    - ${{ inputs.changelog }}
+    - --version
+    - ${{ inputs.version }}
+    - --subject
+    - ${{ inputs.subject }}
+    - --repo
+    - ${{ inputs.repo }}

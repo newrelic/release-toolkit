@@ -3,6 +3,7 @@ package app
 
 import (
 	"github.com/newrelic/release-toolkit/src/app/common"
+	"github.com/newrelic/release-toolkit/src/app/docsreleasenotes"
 	"github.com/newrelic/release-toolkit/src/app/generate"
 	"github.com/newrelic/release-toolkit/src/app/isempty"
 	"github.com/newrelic/release-toolkit/src/app/isheld"
@@ -45,6 +46,7 @@ func App() *cli.App {
 			validate.Cmd,
 			link.Cmd,
 			isempty.Cmd,
+			docsreleasenotes.Cmd,
 		},
 	}
 }
