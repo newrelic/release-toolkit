@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 Unreleased section should follow [Release Toolkit](https://github.com/newrelic/release-toolkit#render-markdown-and-update-markdown)
 ## Unreleased
 
-### bugfix
+## v1.5.1 - 2026-10-01
+
+### 🐞 Bug fixes
 - Derive the `nr-docs-release-notes` output filename from the `subject` input instead of `repo`.
 
 ## v1.5.0 - 2026-09-29
