@@ -3,7 +3,6 @@ package docsreleasenotes
 import (
 	"fmt"
 	"os"
-	"path"
 	"strings"
 
 	"github.com/newrelic/release-toolkit/src/app/common"
@@ -70,8 +69,9 @@ func Run(cCtx *cli.Context) error {
 
 	repo := cCtx.String(repoFlag)
 	version := cCtx.String(versionFlag)
+	subject := cCtx.String(subjectFlag)
 
-	name := path.Base(repo)
+	name := strings.ReplaceAll(strings.ToLower(subject), " ", "-")
 	dashedVersion := strings.ReplaceAll(version, ".", "-")
 	outputPath := fmt.Sprintf("%s-%s.mdx", name, dashedVersion)
 
@@ -82,7 +82,7 @@ func Run(cCtx *cli.Context) error {
 	defer outputFile.Close()
 
 	r := docsreleasenotes.Renderer{
-		Subject:  cCtx.String(subjectFlag),
+		Subject:  subject,
 		Repo:     repo,
 		Sections: docsreleasenotes.DefaultSections,
 	}

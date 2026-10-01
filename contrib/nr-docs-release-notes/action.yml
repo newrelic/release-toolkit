@@ -16,7 +16,7 @@ inputs:
     required: true
 outputs:
   mdx-path:
-    description: Path of the MDX file that was written, "<repo-name>-<version-with-dashes>.mdx"
+    description: Path of the MDX file that was written, "<subject-slug>-<version-with-dashes>.mdx"
 runs:
   using: docker
   image: ../../Dockerfile
