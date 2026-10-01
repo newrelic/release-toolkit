@@ -9,6 +9,12 @@ inputs:
     description: Exit code when errors are found
     required: false
     default: "1"
+  previous-markdown:
+    description: >
+      Path to the previous version of the changelog md file. If set, already released versions must not be
+      modified compared to this version.
+    required: false
+    default: ""
 outputs:
   valid:
     description: Returns `true` if the changelog is valid
@@ -21,3 +27,5 @@ runs:
     - ${{ inputs.markdown }}
     - --exit-code
     - ${{ inputs.exit-code }}
+    - --previous-markdown
+    - ${{ inputs.previous-markdown }}
