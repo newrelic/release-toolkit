@@ -82,7 +82,7 @@ For a detailed description of changes, see the [release notes](https://github.co
 		t.Fatalf("Error running app: %v", err)
 	}
 
-	outPath := path.Join(tDir, "newrelic-agent-control-1-99-0.mdx")
+	outPath := path.Join(tDir, "agent-control-1-99-0.mdx")
 	actual, err := os.ReadFile(outPath)
 	if err != nil {
 		t.Fatalf("Error reading MDX file: %v", err)
@@ -90,5 +90,53 @@ For a detailed description of changes, see the [release notes](https://github.co
 
 	if diff := cmp.Diff(expected, string(actual)); diff != "" {
 		t.Fatalf("MDX output is not as expected\n%s", diff)
+	}
+}
+
+//nolint:paralleltest // urfave/cli cannot be tested concurrently.
+func TestRunFilenameSlugifiesSubject(t *testing.T) {
+	changelog := strings.TrimSpace(`
+# Changelog
+
+## Unreleased
+
+## v2.0.0 - 2026-07-15
+
+### Enhancements
+- Add support for shared filesystems
+	`) + "\n"
+
+	tDir := t.TempDir()
+
+	mdPath := path.Join(tDir, "CHANGELOG.md")
+	if err := os.WriteFile(mdPath, []byte(changelog), 0o600); err != nil {
+		t.Fatalf("Error writing changelog for test: %v", err)
+	}
+
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("Error getting working directory: %v", err)
+	}
+	if err := os.Chdir(tDir); err != nil {
+		t.Fatalf("Error changing to temp dir: %v", err)
+	}
+	defer func() { _ = os.Chdir(wd) }()
+
+	a := app.App()
+	args := []string{
+		"rt", "nr-docs-release-notes",
+		"-changelog", mdPath,
+		"-version", "2.0.0",
+		"-subject", "New Relic Agent Control",
+		"-repo", "newrelic/newrelic-agent-control",
+	}
+
+	if err := a.Run(args); err != nil {
+		t.Fatalf("Error running app: %v", err)
+	}
+
+	outPath := path.Join(tDir, "new-relic-agent-control-2-0-0.mdx")
+	if _, err := os.Stat(outPath); err != nil {
+		t.Fatalf("Expected slugified output file not found: %v", err)
 	}
 }

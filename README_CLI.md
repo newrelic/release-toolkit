@@ -126,7 +126,7 @@ rt nr-docs-release-notes [-flags]
 | `subject`   |                | Product or component name to stamp in the `subject` frontmatter field (e.g. `Agent Control`). Required   |
 | `repo`      |                | GitHub repository in `owner/name` form, used to build the release notes link. Required                  |
 
-The MDX file is always written to `<repo-name>-<version-with-dashes>.mdx`, and its path is printed and set as the command's `mdx-path` GitHub Actions output.
+The MDX file is always written to `<subject-slug>-<version-with-dashes>.mdx` (the `subject` value lowercased and hyphenated, e.g. `Agent Control` becomes `agent-control`), and its path is printed and set as the command's `mdx-path` GitHub Actions output.
 
 ## Validate markdown
 Prints errors if CHANGELOG.md has an invalid format.
