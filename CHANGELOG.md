@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 Unreleased section should follow [Release Toolkit](https://github.com/newrelic/release-toolkit#render-markdown-and-update-markdown)
 ## Unreleased
 
-### enhancement
+## v1.6.0 - 2026-10-02
+
+### 🚀 Enhancements
 - Adds `previous-markdown` input to the `validate-markdown` action to ensure changelog changes are only added to the Unreleased section, preventing accidental edits to already released versions.
 
 ## v1.5.1 - 2026-10-01
