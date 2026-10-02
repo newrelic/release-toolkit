@@ -508,6 +508,66 @@ jobs:
             exit 1
           fi
 
+  validate-markdown-previous:
+    name: validate markdown action (previous-markdown)
+    runs-on: ubuntu-latest
+    env:
+      MOCK_REPO: ./mock_repo
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure test repo
+        shell: bash
+        run: |
+          mkdir $MOCK_REPO
+
+          cat > $MOCK_REPO/previous-changelog.md <<EOF
+          # Changelog
+
+          ## Unreleased
+
+          ### Breaking
+          - Support has been removed
+
+          ## v1.2.3 - 20YY-DD-MM
+
+          ### Enhancements
+          - This is in the past and should be preserved
+          EOF
+
+      - name: Changes only in Unreleased should be valid
+        shell: bash
+        run: |
+          cp $MOCK_REPO/previous-changelog.md $MOCK_REPO/changelog.md
+          sed -i 's/- Support has been removed/- Support has been removed\n- Another breaking change/' $MOCK_REPO/changelog.md
+      - uses: ./validate-markdown
+        id: validate-markdown-valid
+        with:
+          markdown: ${{ env.MOCK_REPO }}/changelog.md
+          previous-markdown: ${{ env.MOCK_REPO }}/previous-changelog.md
+          exit-code: 0
+      - run: |
+          if [[ "${{ steps.validate-markdown-valid.outputs.valid }}" != "true" ]]; then
+            echo "valid should have returned true" >&2
+            exit 1
+          fi
+
+      - name: Changes in an already released version should be invalid
+        shell: bash
+        run: |
+          cp $MOCK_REPO/previous-changelog.md $MOCK_REPO/changelog.md
+          sed -i 's/- This is in the past and should be preserved/- This is in the past and should be preserved\n- Sneaked in/' $MOCK_REPO/changelog.md
+      - uses: ./validate-markdown
+        id: validate-markdown-invalid
+        with:
+          markdown: ${{ env.MOCK_REPO }}/changelog.md
+          previous-markdown: ${{ env.MOCK_REPO }}/previous-changelog.md
+          exit-code: 0
+      - run: |
+          if [[ "${{ steps.validate-markdown-invalid.outputs.valid }}" != "false" ]]; then
+            echo "valid should have returned false" >&2
+            exit 1
+          fi
+
   contrib-ohi-release-notes:
     name: validate ohi-release-notes (contrib action)
     runs-on: ubuntu-latest

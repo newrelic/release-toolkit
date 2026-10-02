@@ -1,6 +1,7 @@
 package validate
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 
@@ -11,9 +12,10 @@ import (
 )
 
 const (
-	markdownPathFlag = "markdown"
-	exitCodeFlag     = "exit-code"
-	validOutput      = "valid"
+	markdownPathFlag         = "markdown"
+	previousMarkdownPathFlag = "previous-markdown"
+	exitCodeFlag             = "exit-code"
+	validOutput              = "valid"
 )
 
 // Cmd is the cli.Command object for the validate-markdown command.
@@ -35,6 +37,13 @@ var Cmd = &cli.Command{
 			Usage:   "Exit code when errors are found",
 			Value:   1,
 		},
+		&cli.StringFlag{
+			Name:    previousMarkdownPathFlag,
+			EnvVars: common.EnvFor(previousMarkdownPathFlag),
+			Usage: "Path to the previous version of the changelog md file. If set, already released " +
+				"versions must not be modified compared to this version.",
+			Value: "",
+		},
 	},
 	Action: Validate,
 }
@@ -45,17 +54,26 @@ func Validate(cCtx *cli.Context) error {
 	gh := gha.NewFromCli(cCtx)
 
 	mdPath := cCtx.String(markdownPathFlag)
-	chFile, err := os.Open(mdPath)
+	mdContent, err := os.ReadFile(mdPath)
 	if err != nil {
 		return fmt.Errorf("opening changelog file %q: %w", mdPath, err)
 	}
 
-	validator, err := markdown.NewValidator(chFile)
+	validator, err := markdown.NewValidator(bytes.NewReader(mdContent))
 	if err != nil {
 		return fmt.Errorf("creating validator: %w", err)
 	}
 
 	errs := validator.Validate()
+
+	if prevPath := cCtx.String(previousMarkdownPathFlag); prevPath != "" {
+		prevContent, errRead := os.ReadFile(prevPath)
+		if errRead != nil {
+			return fmt.Errorf("opening previous changelog file %q: %w", prevPath, errRead)
+		}
+
+		errs = append(errs, validator.ValidateDiff(string(prevContent), string(mdContent))...)
+	}
 
 	for _, err := range errs {
 		_, _ = fmt.Fprintln(cCtx.App.ErrWriter, err)
