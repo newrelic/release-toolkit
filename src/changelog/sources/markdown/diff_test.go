@@ -8,6 +8,7 @@ import (
 	"github.com/newrelic/release-toolkit/src/changelog/sources/markdown"
 )
 
+//nolint:funlen
 func TestValidator_ValidateDiff(t *testing.T) {
 	t.Parallel()
 
