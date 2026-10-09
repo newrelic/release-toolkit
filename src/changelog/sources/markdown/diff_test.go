@@ -56,6 +56,28 @@ This is based on blah blah blah
 			expectErr:  true,
 		},
 		{
+			name: "First_release_cut_from_Unreleased_when_no_prior_release_exists",
+			oldContent: `# Changelog
+This is based on blah blah blah
+
+## Unreleased
+
+### Breaking
+- Support has been removed
+`,
+			newContent: `# Changelog
+This is based on blah blah blah
+
+## Unreleased
+
+## v1.0.0 - 2022-12-01
+
+### Breaking
+- Support has been removed
+`,
+			expectErr: false,
+		},
+		{
 			name:       "Line_added_before_Unreleased",
 			oldContent: base,
 			newContent: strings.Replace(
@@ -76,6 +98,68 @@ This is based on blah blah blah
 				1,
 			),
 			expectErr: false,
+		},
+		{
+			name:       "Unreleased_content_cut_into_new_release_section",
+			oldContent: base,
+			newContent: `# Changelog
+This is based on blah blah blah
+
+## Unreleased
+
+## v1.3.0 - 2022-12-01
+
+### Breaking
+- Support has been removed
+
+## v1.2.3 - 2022-11-11
+
+### Enhancements
+- This is in the past and should not be included
+`,
+			expectErr: false,
+		},
+		{
+			name:       "New_release_section_can_differ_from_old_Unreleased",
+			oldContent: base,
+			newContent: `# Changelog
+This is based on blah blah blah
+
+## Unreleased
+
+## v1.3.0 - 2022-12-01
+
+### Breaking
+- Support has been removed
+- This was added during release, not validated
+
+## v1.2.3 - 2022-11-11
+
+### Enhancements
+- This is in the past and should not be included
+`,
+			expectErr: false,
+		},
+		{
+			name:       "Release_combined_with_tampered_old_version",
+			oldContent: base,
+			newContent: `# Changelog
+This is based on blah blah blah
+
+## Unreleased
+
+## v1.3.0 - 2022-12-01
+
+### Breaking
+- Support has been removed
+
+## v1.2.3 - 2022-11-11
+
+### Enhancements
+- This is in the past and should not be included
+- Sneaked in here
+`,
+			expectErr: true,
 		},
 		{
 			name:       "No_Unreleased_header",
