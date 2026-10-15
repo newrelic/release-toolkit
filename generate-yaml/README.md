@@ -28,6 +28,17 @@ These L3 headers should be composed exclusively of unordered lists. Each item of
 
 The `CHANGELOG.md` can be validated with the `validate` command to spot wrong entries.
 
+## Changes from change files
+
+In addition to `CHANGELOG.md`, `generate-yaml` gathers the YAML files, one per change (`type` and `message`), of a directory. It is `.changelog` unless another one is specified with the `changes-dir` input, and an empty value disables it. A directory that does not exist has no files. See [change files](../README.md#change-files-one-yaml-file-per-change).
+
+```yaml
+- name: Generate the changelog yaml from CHANGELOG.md and the change files
+  uses: newrelic/release-toolkit/generate-yaml@v1
+  with:
+    changes-dir: .changelog
+```
+
 ---
 
 User modified CHANGELOG.md Example:

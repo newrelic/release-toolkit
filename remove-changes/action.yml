@@ -1,0 +1,16 @@
+name: Remove change files
+description: Removes the YAML files, one per change, that hold the unreleased changelog entries, once they have been released
+inputs:
+  changes-dir:
+    description: >
+      Directory with the YAML files to remove. Only the files read by generate-yaml are removed, so templates and any
+      other file are kept.
+    required: false
+    default: .changelog
+runs:
+  using: docker
+  image: ../Dockerfile
+  args:
+    - remove-changes
+    - --changes-dir
+    - ${{ inputs.changes-dir }}

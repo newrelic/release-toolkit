@@ -45,6 +45,8 @@ func TestGenerate(t *testing.T) {
 		outputExpected string
 		args           string
 		preCmdArgs     string
+		changes        map[string]string
+		errExpected    string
 	}{
 		{
 			name:       "Empty_Changelog_gha",
@@ -424,6 +426,95 @@ dependencies:
         commit: chore(deps): bump thisdep from 1.7.0 to 1.10.1
 			`) + "\n",
 		},
+		{
+			name: "Markdown_Changes_Default_Dir",
+			md:   mdChangelog,
+			changes: map[string]string{
+				".changelog/fix-a-bug.yaml":   "type: bugfix\nmessage: Fixed by a change file\n",
+				".changelog/new-feature.yaml": "type: Enhancements\nmessage: Added by a change file\n",
+				".changelog/TEMPLATE.yaml":    "type:\nmessage:\n",
+			},
+			expected: strings.TrimSpace(`
+notes: |-
+    ### Important announcement (note)
+    This is a release note
+changes:
+    - type: breaking
+      message: Support has been removed
+    - type: security
+      message: Fixed a security issue that leaked all data
+    - type: bugfix
+      message: Fixed by a change file
+    - type: enhancement
+      message: Added by a change file
+dependencies: []
+			`) + "\n",
+		},
+		{
+			name: "Markdown_Changes_Specified_Dir",
+			md:   mdChangelog,
+			args: "--changes-dir other",
+			changes: map[string]string{
+				".changelog/fix-a-bug.yaml": "type: bugfix\nmessage: From the default directory\n",
+				"other/fix-a-bug.yaml":      "type: bugfix\nmessage: From another directory\n",
+			},
+			expected: strings.TrimSpace(`
+notes: |-
+    ### Important announcement (note)
+    This is a release note
+changes:
+    - type: breaking
+      message: Support has been removed
+    - type: security
+      message: Fixed a security issue that leaked all data
+    - type: bugfix
+      message: From another directory
+dependencies: []
+			`) + "\n",
+		},
+		{
+			name: "Markdown_Changes_Disabled",
+			md:   mdChangelog,
+			args: "--changes-dir=",
+			changes: map[string]string{
+				".changelog/fix-a-bug.yaml": "type: bugfix\nmessage: From the default directory\n",
+			},
+			expected: strings.TrimSpace(`
+notes: |-
+    ### Important announcement (note)
+    This is a release note
+changes:
+    - type: breaking
+      message: Support has been removed
+    - type: security
+      message: Fixed a security issue that leaked all data
+dependencies: []
+			`) + "\n",
+		},
+		{
+			name:    "Markdown_Changes_Dir_Does_Not_Exist",
+			md:      mdChangelog,
+			changes: map[string]string{},
+			expected: strings.TrimSpace(`
+notes: |-
+    ### Important announcement (note)
+    This is a release note
+changes:
+    - type: breaking
+      message: Support has been removed
+    - type: security
+      message: Fixed a security issue that leaked all data
+dependencies: []
+			`) + "\n",
+		},
+		{
+			name: "Markdown_Invalid_Change",
+			md:   mdChangelog,
+			changes: map[string]string{
+				".changelog/typo.yaml": "type: bugfix\nmsg: Fixed by a change file\n",
+			},
+			errExpected: "typo.yaml",
+		},
 	} {
 		//nolint:paralleltest
 		t.Run(tc.name, func(t *testing.T) {
@@ -442,13 +533,17 @@ dependencies:
 			}
 
 			mdPath := path.Join(tDir, "CHANGELOG.md")
-			mdFile, err := os.Create(mdPath)
-			if err != nil {
-				t.Fatalf("Error creating test markdown source: %v", err)
-			}
-			_, _ = mdFile.WriteString(tc.md)
+			writeFile(t, tDir, "CHANGELOG.md", tc.md)
+
+			writeChanges(t, tDir, tc.changes)
 
 			err = app.Run(strings.Fields(fmt.Sprintf("rt --yaml %s %s generate-yaml -git-root %s -markdown %s %s", yamlPath, tc.preCmdArgs, tDir, mdPath, tc.args)))
+			if tc.errExpected != "" {
+				if err == nil || !strings.Contains(err.Error(), tc.errExpected) {
+					t.Fatalf("Expected error %q running app, got: %v", tc.errExpected, err)
+				}
+				return
+			}
 			if err != nil {
 				t.Fatalf("Error running app: %v", err)
 			}
@@ -465,6 +560,38 @@ dependencies:
 			}
 		})
 	}
+}
+
+// writeChanges writes the change files and, if there are any, moves to the directory, as the default directory of the
+// change files is relative to the working directory.
+func writeChanges(t *testing.T, dir string, changes map[string]string) {
+	t.Helper()
+
+	if changes == nil {
+		return
+	}
+
+	for name, content := range changes {
+		writeFile(t, dir, name, content)
+	}
+
+	chdir(t, dir)
+}
+
+// chdir changes the working directory for the rest of the test.
+func chdir(t *testing.T, dir string) {
+	t.Helper()
+
+	previous, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("Error getting working directory: %v", err)
+	}
+
+	if err = os.Chdir(dir); err != nil {
+		t.Fatalf("Error changing working directory: %v", err)
+	}
+
+	t.Cleanup(func() { _ = os.Chdir(previous) })
 }
 
 func repoWithCommits(t *testing.T, author string, commits ...string) string {

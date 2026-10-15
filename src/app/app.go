@@ -9,9 +9,11 @@ import (
 	"github.com/newrelic/release-toolkit/src/app/isheld"
 	"github.com/newrelic/release-toolkit/src/app/link"
 	"github.com/newrelic/release-toolkit/src/app/nextversion"
+	"github.com/newrelic/release-toolkit/src/app/removechanges"
 	"github.com/newrelic/release-toolkit/src/app/render"
 	"github.com/newrelic/release-toolkit/src/app/update"
 	"github.com/newrelic/release-toolkit/src/app/validate"
+	"github.com/newrelic/release-toolkit/src/app/validatechanges"
 	"github.com/urfave/cli/v2"
 )
 
@@ -44,6 +46,8 @@ func App() *cli.App {
 			generate.Cmd,
 			update.Cmd,
 			validate.Cmd,
+			validatechanges.Cmd,
+			removechanges.Cmd,
 			link.Cmd,
 			isempty.Cmd,
 			docsreleasenotes.Cmd,

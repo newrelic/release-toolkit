@@ -1,0 +1,23 @@
+name: Validate change files
+description: Validates the YAML files, one per change, that hold the unreleased changelog entries and prints errors if any is invalid
+inputs:
+  changes-dir:
+    description: Directory with the YAML files to validate. A directory that does not exist has no change files.
+    required: false
+    default: .changelog
+  exit-code:
+    description: Exit code when errors are found
+    required: false
+    default: "1"
+outputs:
+  valid:
+    description: Returns `true` if all the change files are valid
+runs:
+  using: docker
+  image: ../Dockerfile
+  args:
+    - validate-changes
+    - --changes-dir
+    - ${{ inputs.changes-dir }}
+    - --exit-code
+    - ${{ inputs.exit-code }}

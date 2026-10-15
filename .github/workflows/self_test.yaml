@@ -817,3 +817,199 @@ jobs:
           fi
 
           exit $exit_status
+
+  generate-yaml-changes:
+    name: generate-yaml action (change files)
+    runs-on: ubuntu-latest
+    env:
+      MOCK_REPO: ./mock_repo
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure test repo
+        shell: bash
+        run: |
+          mkdir -p "$MOCK_REPO/.changelog"
+          cd "$MOCK_REPO"
+
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+
+          git init
+          for i in 1 2 3; do
+            touch file$i
+            git add file$i
+            git commit -m commit_$i
+          done
+
+          cat > CHANGELOG.md <<EOF
+          # Changelog
+
+          ## Unreleased
+
+          ### Enhancements
+          - Added by the markdown
+
+          ## 1.0.0 - 2017-06-20
+
+          ### Enhancements
+          - New visual identity.
+          EOF
+
+          cat > .changelog/fix-a-bug.yaml <<EOF
+          type: bugfix
+          message: Fixed by a change file
+          EOF
+
+          cat > .changelog/TEMPLATE.yaml <<EOF
+          type:
+          message:
+          EOF
+      - uses: ./generate-yaml
+        with:
+          yaml: ${{ env.MOCK_REPO }}/changelog.yaml
+          markdown: ${{ env.MOCK_REPO }}/CHANGELOG.md
+          changes-dir: ${{ env.MOCK_REPO }}/.changelog
+          git-root: ${{ env.MOCK_REPO }}
+      - run: |
+          cat "$MOCK_REPO/changelog.yaml"
+
+          if ! grep -q "message: Fixed by a change file" "$MOCK_REPO/changelog.yaml"; then
+            echo "The entry of the change file should be in changelog.yaml" >&2
+            exit 1
+          fi
+
+          if ! grep -q "message: Added by the markdown" "$MOCK_REPO/changelog.yaml"; then
+            echo "The entry of the markdown should still be in changelog.yaml" >&2
+            exit 2
+          fi
+
+  generate-yaml-changes-disabled:
+    name: generate-yaml action (change files disabled with an empty directory)
+    runs-on: ubuntu-latest
+    env:
+      MOCK_REPO: ./mock_repo
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure test repo
+        shell: bash
+        run: |
+          mkdir -p "$MOCK_REPO/.changelog"
+          cd "$MOCK_REPO"
+
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+
+          git init
+          for i in 1 2 3; do
+            touch file$i
+            git add file$i
+            git commit -m commit_$i
+          done
+
+          cat > CHANGELOG.md <<EOF
+          # Changelog
+
+          ## Unreleased
+
+          ### Enhancements
+          - Added by the markdown
+
+          ## 1.0.0 - 2017-06-20
+
+          ### Enhancements
+          - New visual identity.
+          EOF
+
+          cat > .changelog/fix-a-bug.yaml <<EOF
+          type: bugfix
+          message: Fixed by a change file
+          EOF
+      - uses: ./generate-yaml
+        with:
+          yaml: ${{ env.MOCK_REPO }}/changelog.yaml
+          markdown: ${{ env.MOCK_REPO }}/CHANGELOG.md
+          changes-dir: ""
+          git-root: ${{ env.MOCK_REPO }}
+      - run: |
+          cat "$MOCK_REPO/changelog.yaml"
+
+          if grep -q "message: Fixed by a change file" "$MOCK_REPO/changelog.yaml"; then
+            echo "An empty changes-dir should disable the change files" >&2
+            exit 1
+          fi
+
+  validate-changes:
+    name: validate-changes action
+    runs-on: ubuntu-latest
+    env:
+      MOCK_REPO: ./mock_repo
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure test changes
+        shell: bash
+        run: |
+          mkdir -p "$MOCK_REPO/valid" "$MOCK_REPO/invalid"
+
+          cat > "$MOCK_REPO/valid/fix-a-bug.yaml" <<EOF
+          type: bugfix
+          message: Fixed a bug
+          EOF
+
+          cat > "$MOCK_REPO/invalid/wrong-type.yaml" <<EOF
+          type: feature
+          message: Added a feature
+          EOF
+      - uses: ./validate-changes
+        id: valid
+        with:
+          changes-dir: ${{ env.MOCK_REPO }}/valid
+      - uses: ./validate-changes
+        id: invalid
+        with:
+          changes-dir: ${{ env.MOCK_REPO }}/invalid
+          exit-code: 0
+      - run: |
+          if [[ "${{ steps.valid.outputs.valid }}" != "true" ]]; then
+            echo "valid should have returned true for valid change files" >&2
+            exit 1
+          fi
+
+          if [[ "${{ steps.invalid.outputs.valid }}" != "false" ]]; then
+            echo "valid should have returned false for invalid change files" >&2
+            exit 2
+          fi
+
+  remove-changes:
+    name: remove-changes action
+    runs-on: ubuntu-latest
+    env:
+      MOCK_REPO: ./mock_repo
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure test changes
+        shell: bash
+        run: |
+          mkdir -p "$MOCK_REPO/.changelog"
+
+          cat > "$MOCK_REPO/.changelog/fix-a-bug.yaml" <<EOF
+          type: bugfix
+          message: Fixed a bug
+          EOF
+
+          cat > "$MOCK_REPO/.changelog/TEMPLATE.yaml" <<EOF
+          type:
+          message:
+          EOF
+      - uses: ./remove-changes
+        with:
+          changes-dir: ${{ env.MOCK_REPO }}/.changelog
+      - run: |
+          if [ -e "$MOCK_REPO/.changelog/fix-a-bug.yaml" ]; then
+            echo "The released change file should have been removed" >&2
+            exit 1
+          fi
+
+          if [ ! -e "$MOCK_REPO/.changelog/TEMPLATE.yaml" ]; then
+            echo "The template should have been kept" >&2
+            exit 2
+          fi
