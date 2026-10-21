@@ -46,6 +46,7 @@ func TestGenerate(t *testing.T) {
 		args           string
 		preCmdArgs     string
 		changes        map[string]string
+		changesDir     string
 		errExpected    string
 	}{
 		{
@@ -427,8 +428,9 @@ dependencies:
 			`) + "\n",
 		},
 		{
-			name: "Markdown_Changes_Default_Dir",
-			md:   mdChangelog,
+			name:       "Markdown_Changes_Dir",
+			md:         mdChangelog,
+			changesDir: ".changelog",
 			changes: map[string]string{
 				".changelog/fix-a-bug.yaml":   "type: bugfix\nmessage: Fixed by a change file\n",
 				".changelog/new-feature.yaml": "type: Enhancements\nmessage: Added by a change file\n",
@@ -451,9 +453,9 @@ dependencies: []
 			`) + "\n",
 		},
 		{
-			name: "Markdown_Changes_Specified_Dir",
-			md:   mdChangelog,
-			args: "--changes-dir other",
+			name:       "Markdown_Changes_Specified_Dir",
+			md:         mdChangelog,
+			changesDir: "other",
 			changes: map[string]string{
 				".changelog/fix-a-bug.yaml": "type: bugfix\nmessage: From the default directory\n",
 				"other/fix-a-bug.yaml":      "type: bugfix\nmessage: From another directory\n",
@@ -473,12 +475,9 @@ dependencies: []
 			`) + "\n",
 		},
 		{
-			name: "Markdown_Changes_Disabled",
-			md:   mdChangelog,
-			args: "--changes-dir=",
-			changes: map[string]string{
-				".changelog/fix-a-bug.yaml": "type: bugfix\nmessage: From the default directory\n",
-			},
+			name:       "Markdown_Changes_Dir_Does_Not_Exist",
+			md:         mdChangelog,
+			changesDir: "missing",
 			expected: strings.TrimSpace(`
 notes: |-
     ### Important announcement (note)
@@ -492,24 +491,9 @@ dependencies: []
 			`) + "\n",
 		},
 		{
-			name:    "Markdown_Changes_Dir_Does_Not_Exist",
-			md:      mdChangelog,
-			changes: map[string]string{},
-			expected: strings.TrimSpace(`
-notes: |-
-    ### Important announcement (note)
-    This is a release note
-changes:
-    - type: breaking
-      message: Support has been removed
-    - type: security
-      message: Fixed a security issue that leaked all data
-dependencies: []
-			`) + "\n",
-		},
-		{
-			name: "Markdown_Invalid_Change",
-			md:   mdChangelog,
+			name:       "Markdown_Invalid_Change",
+			md:         mdChangelog,
+			changesDir: ".changelog",
 			changes: map[string]string{
 				".changelog/typo.yaml": "type: bugfix\nmsg: Fixed by a change file\n",
 			},
@@ -533,11 +517,12 @@ dependencies: []
 			}
 
 			mdPath := path.Join(tDir, "CHANGELOG.md")
-			writeFile(t, tDir, "CHANGELOG.md", tc.md)
+			writeFile(t, mdPath, tc.md)
 
-			writeChanges(t, tDir, tc.changes)
+			writeFiles(t, tDir, tc.changes)
+			changesArg := changesDirArg(tDir, tc.changesDir)
 
-			err = app.Run(strings.Fields(fmt.Sprintf("rt --yaml %s %s generate-yaml -git-root %s -markdown %s %s", yamlPath, tc.preCmdArgs, tDir, mdPath, tc.args)))
+			err = app.Run(strings.Fields(fmt.Sprintf("rt --yaml %s %s generate-yaml -git-root %s -markdown %s %s %s", yamlPath, tc.preCmdArgs, tDir, mdPath, tc.args, changesArg)))
 			if tc.errExpected != "" {
 				if err == nil || !strings.Contains(err.Error(), tc.errExpected) {
 					t.Fatalf("Expected error %q running app, got: %v", tc.errExpected, err)
@@ -562,36 +547,22 @@ dependencies: []
 	}
 }
 
-// writeChanges writes the change files and, if there are any, moves to the directory, as the default directory of the
-// change files is relative to the working directory.
-func writeChanges(t *testing.T, dir string, changes map[string]string) {
+// writeFiles writes the files, whose names are relative to dir.
+func writeFiles(t *testing.T, dir string, files map[string]string) {
 	t.Helper()
 
-	if changes == nil {
-		return
+	for name, content := range files {
+		writeFile(t, path.Join(dir, name), content)
 	}
-
-	for name, content := range changes {
-		writeFile(t, dir, name, content)
-	}
-
-	chdir(t, dir)
 }
 
-// chdir changes the working directory for the rest of the test.
-func chdir(t *testing.T, dir string) {
-	t.Helper()
-
-	previous, err := os.Getwd()
-	if err != nil {
-		t.Fatalf("Error getting working directory: %v", err)
+// changesDirArg returns the flag with the changes directory, relative to dir, or nothing if it is empty.
+func changesDirArg(dir, changesDir string) string {
+	if changesDir == "" {
+		return ""
 	}
 
-	if err = os.Chdir(dir); err != nil {
-		t.Fatalf("Error changing working directory: %v", err)
-	}
-
-	t.Cleanup(func() { _ = os.Chdir(previous) })
+	return "--changes-dir " + path.Join(dir, changesDir)
 }
 
 func repoWithCommits(t *testing.T, author string, commits ...string) string {

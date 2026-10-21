@@ -27,14 +27,14 @@ This is based on blah blah blah
 - This is in the past and should not be included
 `
 
-func writeFile(t *testing.T, dir, name, content string) {
+func writeFile(t *testing.T, filePath, content string) {
 	t.Helper()
 
-	if err := os.MkdirAll(path.Dir(path.Join(dir, name)), 0o755); err != nil {
+	if err := os.MkdirAll(path.Dir(filePath), 0o755); err != nil {
 		t.Fatal(err)
 	}
 
-	if err := os.WriteFile(path.Join(dir, name), []byte(content), 0o600); err != nil {
+	if err := os.WriteFile(filePath, []byte(content), 0o600); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -71,10 +71,10 @@ func runGenerate(t *testing.T, dir, args string) (*changelog.Changelog, error) {
 //nolint:paralleltest // urfave/cli cannot be tested concurrently.
 func TestGenerate_Changes(t *testing.T) {
 	dir := t.TempDir()
-	writeFile(t, dir, "CHANGELOG.md", markdownWithOneEntry)
-	writeFile(t, dir, ".changelog/fix-a-bug.yaml", "type: bugfix\nmessage: Fixed by a change file\n")
-	writeFile(t, dir, ".changelog/new-feature.yaml", "type: Enhancements\nmessage: Added by a change file\n")
-	writeFile(t, dir, ".changelog/TEMPLATE.yaml", "type:\nmessage:\n")
+	writeFile(t, path.Join(dir, "CHANGELOG.md"), markdownWithOneEntry)
+	writeFile(t, path.Join(dir, ".changelog/fix-a-bug.yaml"), "type: bugfix\nmessage: Fixed by a change file\n")
+	writeFile(t, path.Join(dir, ".changelog/new-feature.yaml"), "type: Enhancements\nmessage: Added by a change file\n")
+	writeFile(t, path.Join(dir, ".changelog/TEMPLATE.yaml"), "type:\nmessage:\n")
 
 	actual, err := runGenerate(t, dir, "-changes-dir "+path.Join(dir, ".changelog"))
 	if err != nil {
@@ -105,48 +105,47 @@ func messages(ch *changelog.Changelog) []string {
 }
 
 //nolint:paralleltest // urfave/cli cannot be tested concurrently.
-func TestGenerate_ChangesDefaultDirectory(t *testing.T) {
-	dir := t.TempDir()
-	writeFile(t, dir, "CHANGELOG.md", markdownWithOneEntry)
-	writeFile(t, dir, ".changelog/fix-a-bug.yaml", "type: bugfix\nmessage: From the default directory\n")
-	writeFile(t, dir, "other/another.yaml", "type: bugfix\nmessage: From another directory\n")
-	chdir(t, dir)
+func TestGenerate_ChangesDirectory(t *testing.T) {
+	for _, tc := range []struct {
+		name     string
+		args     string
+		expected []string
+	}{
+		{
+			name:     "Default_Directory",
+			expected: []string{"Added from markdown", "From the default directory"},
+		},
+		{
+			name:     "Specified_Directory_Replaces_Default",
+			args:     "-changes-dir other",
+			expected: []string{"Added from markdown", "From another directory"},
+		},
+	} {
+		//nolint:paralleltest
+		t.Run(tc.name, func(t *testing.T) {
+			dir := t.TempDir()
+			writeFile(t, path.Join(dir, "CHANGELOG.md"), markdownWithOneEntry)
+			writeFile(t, path.Join(dir, ".changelog/fix-a-bug.yaml"), "type: bugfix\nmessage: From the default directory\n")
+			writeFile(t, path.Join(dir, "other/another.yaml"), "type: bugfix\nmessage: From another directory\n")
+			chdir(t, dir)
 
-	actual, err := runGenerate(t, dir, "")
-	if err != nil {
-		t.Fatalf("Error running app: %v", err)
-	}
+			actual, err := runGenerate(t, dir, tc.args)
+			if err != nil {
+				t.Fatalf("Error running app: %v", err)
+			}
 
-	expected := []string{"Added from markdown", "From the default directory"}
-	if diff := cmp.Diff(expected, messages(actual)); diff != "" {
-		t.Fatalf("Generated entries are not as expected: %s", diff)
-	}
-}
-
-//nolint:paralleltest // urfave/cli cannot be tested concurrently.
-func TestGenerate_ChangesSpecifiedDirectoryReplacesDefault(t *testing.T) {
-	dir := t.TempDir()
-	writeFile(t, dir, "CHANGELOG.md", markdownWithOneEntry)
-	writeFile(t, dir, ".changelog/fix-a-bug.yaml", "type: bugfix\nmessage: From the default directory\n")
-	writeFile(t, dir, "other/another.yaml", "type: bugfix\nmessage: From another directory\n")
-	chdir(t, dir)
-
-	actual, err := runGenerate(t, dir, "-changes-dir other")
-	if err != nil {
-		t.Fatalf("Error running app: %v", err)
-	}
-
-	expected := []string{"Added from markdown", "From another directory"}
-	if diff := cmp.Diff(expected, messages(actual)); diff != "" {
-		t.Fatalf("Generated entries are not as expected: %s", diff)
+			if diff := cmp.Diff(tc.expected, messages(actual)); diff != "" {
+				t.Fatalf("Generated entries are not as expected: %s", diff)
+			}
+		})
 	}
 }
 
 //nolint:paralleltest // urfave/cli cannot be tested concurrently.
 func TestGenerate_ChangesCanBeDisabled(t *testing.T) {
 	dir := t.TempDir()
-	writeFile(t, dir, "CHANGELOG.md", markdownWithOneEntry)
-	writeFile(t, dir, ".changelog/fix-a-bug.yaml", "type: bugfix\nmessage: From the default directory\n")
+	writeFile(t, path.Join(dir, "CHANGELOG.md"), markdownWithOneEntry)
+	writeFile(t, path.Join(dir, ".changelog/fix-a-bug.yaml"), "type: bugfix\nmessage: From the default directory\n")
 	chdir(t, dir)
 
 	actual, err := runGenerate(t, dir, "-changes-dir=")
@@ -160,25 +159,9 @@ func TestGenerate_ChangesCanBeDisabled(t *testing.T) {
 }
 
 //nolint:paralleltest // urfave/cli cannot be tested concurrently.
-func TestGenerate_NoDefaultDirectoryChangesNothing(t *testing.T) {
-	dir := t.TempDir()
-	writeFile(t, dir, "CHANGELOG.md", markdownWithOneEntry)
-	chdir(t, dir)
-
-	actual, err := runGenerate(t, dir, "")
-	if err != nil {
-		t.Fatalf("Error running app: %v", err)
-	}
-
-	if diff := cmp.Diff([]string{"Added from markdown"}, messages(actual)); diff != "" {
-		t.Fatalf("Generated entries are not as expected: %s", diff)
-	}
-}
-
-//nolint:paralleltest // urfave/cli cannot be tested concurrently.
 func TestGenerate_ChangesDirectoryMayNotExist(t *testing.T) {
 	dir := t.TempDir()
-	writeFile(t, dir, "CHANGELOG.md", markdownWithOneEntry)
+	writeFile(t, path.Join(dir, "CHANGELOG.md"), markdownWithOneEntry)
 
 	actual, err := runGenerate(t, dir, "-changes-dir "+path.Join(dir, ".changelog"))
 	if err != nil {
@@ -193,11 +176,27 @@ func TestGenerate_ChangesDirectoryMayNotExist(t *testing.T) {
 //nolint:paralleltest // urfave/cli cannot be tested concurrently.
 func TestGenerate_InvalidChangeFails(t *testing.T) {
 	dir := t.TempDir()
-	writeFile(t, dir, "CHANGELOG.md", markdownWithOneEntry)
-	writeFile(t, dir, ".changelog/typo.yaml", "type: bugfix\nmsg: Fixed by a change file\n")
+	writeFile(t, path.Join(dir, "CHANGELOG.md"), markdownWithOneEntry)
+	writeFile(t, path.Join(dir, ".changelog/typo.yaml"), "type: bugfix\nmsg: Fixed by a change file\n")
 
 	_, err := runGenerate(t, dir, "-changes-dir "+path.Join(dir, ".changelog"))
 	if err == nil || !strings.Contains(err.Error(), "typo.yaml") {
 		t.Fatalf("Expected an error naming the invalid change file but got: %v", err)
 	}
+}
+
+// chdir changes the working directory for the rest of the test.
+func chdir(t *testing.T, dir string) {
+	t.Helper()
+
+	previous, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("Error getting working directory: %v", err)
+	}
+
+	if err = os.Chdir(dir); err != nil {
+		t.Fatalf("Error changing working directory: %v", err)
+	}
+
+	t.Cleanup(func() { _ = os.Chdir(previous) })
 }
