@@ -103,7 +103,32 @@ dependencies:
 
 In addition to the fields listed above, there's a fourth boolean field called `held`. Purpose and behavior of this field is explained in the advanced section of this manual.
 
-This `generate-yaml` command will extract this changes and notes from 3 different sources:
+This `generate-yaml` command will extract the changes and notes from different sources: the `Unreleased` section of `CHANGELOG.md`, the Renovate and Dependabot commits, and the change files described below.
+
+### Change files: one YAML file per change
+
+Editing the `Unreleased` section of `CHANGELOG.md` makes pull requests conflict with each other. As an alternative that never conflicts, each pull request can add its own small YAML file to a directory (e.g. `.changelog/`), and `generate-yaml` gathers them. The directory is `.changelog` unless another one is specified with `--changes-dir` (or the `CHANGES_DIR` environment variable, or the `changes-dir` input of the actions), and an empty value disables it. A repository with no such directory behaves as it always did. The files are used in addition to the markdown file, which keeps working as usual, so both ways can be used at the same time.
+
+```yaml
+# .changelog/azure-key-vault.yaml
+type: enhancement   # breaking | security | enhancement | bugfix | dependency
+message: Added Azure Key Vault value provider
+```
+
+- `type` accepts the entry types (`breaking`, `security`, `enhancement`, `bugfix`, `dependency`) and the titles of their sections, matched like the titles of the `Unreleased` section, ignoring case and spaces: `bugfix`, `Bugfixes` and `Bug fixes` are the same.
+- `message` is mandatory and has to be a single line.
+- A `dependency` entry is listed in the Dependencies section and bumps the patch version.
+- Any other field is an error, so a wrong name such as `msg` is not silently ignored.
+- Hidden files, files starting with `_`, `TEMPLATE.yaml`, subdirectories and files that are not `.yaml` or `.yml` are not change files, so the directory can hold a template and a README.
+- Entries are sorted by the name of the file. A name based on the branch or the pull request avoids two pull requests creating the same file.
+- A directory that does not exist is the same as one with no change files, as git does not keep empty directories.
+
+Two commands complete the flow:
+
+- `validate-changes [--changes-dir <dir>]` checks every file and lists all the problems, to be used in the pull request checks.
+- `remove-changes [--changes-dir <dir>]` deletes the change files that have been released, and only those that `generate-yaml` reads, so a template is kept.
+
+A relative directory is relative to where the command runs, not to `--git-root`.
 
 ## `render-markdown` and `update-markdown`
 
@@ -273,6 +298,8 @@ This flag can be readily checked using the `is-held` action/command. `is-held` w
 - [render](./render/README.md)
 - [Update markdown](./update-markdown/README.md)
 - [Validate markdown](./validate-markdown/README.md)
+- [Validate change files](./validate-changes/README.md)
+- [Remove change files](./remove-changes/README.md)
 
 ## Contributing
 

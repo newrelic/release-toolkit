@@ -8,6 +8,7 @@ import (
 	"github.com/newrelic/release-toolkit/src/app/common"
 	"github.com/newrelic/release-toolkit/src/app/gha"
 	"github.com/newrelic/release-toolkit/src/changelog"
+	"github.com/newrelic/release-toolkit/src/changelog/sources/changes"
 	"github.com/newrelic/release-toolkit/src/changelog/sources/dependabot"
 	"github.com/newrelic/release-toolkit/src/changelog/sources/markdown"
 	"github.com/newrelic/release-toolkit/src/changelog/sources/renovate"
@@ -28,6 +29,7 @@ const (
 	excludedFilesFlag                = "excluded-files"
 	excludedDependenciesManifestFlag = "excluded-dependencies-manifest"
 	exitCodeFlag                     = "exit-code"
+	changesDirFlag                   = "changes-dir"
 )
 
 const emptyChangelogOutput = "empty-changelog"
@@ -47,6 +49,12 @@ var Cmd = &cli.Command{
 			EnvVars: common.EnvFor(markdownPathFlag),
 			Usage:   "Gather changelog entries from the specified file",
 			Value:   "CHANGELOG.md",
+		},
+		&cli.StringFlag{
+			Name:    changesDirFlag,
+			EnvVars: common.EnvFor(changesDirFlag),
+			Usage:   "Gather changelog entries from the YAML files, one per change, in the specified directory. Empty disables it",
+			Value:   changes.DefaultDir,
 		},
 		&cli.BoolFlag{
 			Name:    renovateFlag,
@@ -166,6 +174,10 @@ func Generate(cCtx *cli.Context) error {
 		}
 
 		sources = append(sources, markdown.New(mdFile))
+	}
+
+	if changesDir := cCtx.String(changesDirFlag); changesDir != "" {
+		sources = append(sources, changes.NewSource(changesDir))
 	}
 
 	if len(sources) == 0 {

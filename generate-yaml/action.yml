@@ -9,6 +9,12 @@ inputs:
     description: Path to CHANGELOG.md to source entries from (read-only)
     required: false
     default: CHANGELOG.md
+  changes-dir:
+    description: >
+      Directory with the YAML files, one per change, to source entries from, in addition to the markdown file
+      (read-only). A directory that does not exist has no files.
+    required: false
+    default: .changelog
   renovate:
     description: Extract dependency updates from renovate commits
     required: false
@@ -58,6 +64,8 @@ runs:
     - generate-yaml
     - --markdown
     - ${{ inputs.markdown }}
+    - --changes-dir
+    - ${{ inputs.changes-dir }}
     - --renovate=${{ inputs.renovate }}
     - --dependabot=${{ inputs.dependabot }}
     - --git-root

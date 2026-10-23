@@ -338,3 +338,54 @@ dependencies:
 		}
 	})
 }
+
+func TestEntry_BumpType(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		entryType changelog.EntryType
+		expected  bump.Type
+	}{
+		{entryType: changelog.TypeBreaking, expected: bump.Major},
+		{entryType: changelog.TypeSecurity, expected: bump.Minor},
+		{entryType: changelog.TypeEnhancement, expected: bump.Minor},
+		{entryType: changelog.TypeBugfix, expected: bump.Patch},
+		{entryType: changelog.TypeDependency, expected: bump.Patch},
+		{entryType: "unknown", expected: bump.None},
+	} {
+		if actual := (changelog.Entry{Type: tc.entryType}).BumpType(); actual != tc.expected {
+			t.Fatalf("Expected %v for %q, got %v", tc.expected, tc.entryType, actual)
+		}
+	}
+}
+
+func TestEntryTypeFromTitle(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		title    string
+		expected changelog.EntryType
+		found    bool
+	}{
+		{title: "breaking", expected: changelog.TypeBreaking, found: true},
+		{title: "⚠️️ Breaking changes ⚠️", expected: changelog.TypeBreaking, found: true},
+		{title: "Security notices", expected: changelog.TypeSecurity, found: true},
+		{title: "🚀 Enhancements", expected: changelog.TypeEnhancement, found: true},
+		{title: "Enhancement", expected: changelog.TypeEnhancement, found: true},
+		{title: "bugfix", expected: changelog.TypeBugfix, found: true},
+		{title: "Bugfixes", expected: changelog.TypeBugfix, found: true},
+		{title: "🐞 BUG FIXES", expected: changelog.TypeBugfix, found: true},
+		{title: "dependency", expected: changelog.TypeDependency, found: true},
+		{title: "⛓️ Dependencies", expected: changelog.TypeDependency, found: true},
+		{title: "", found: false},
+		{title: "Important announcement (note)", found: false},
+		{title: "Bug", found: false},
+		{title: "bug_fix", found: false},
+		{title: "Features", found: false},
+	} {
+		actual, found := changelog.EntryTypeFromTitle(tc.title)
+		if actual != tc.expected || found != tc.found {
+			t.Fatalf("Expected %q (%v) for %q, got %q (%v)", tc.expected, tc.found, tc.title, actual, found)
+		}
+	}
+}

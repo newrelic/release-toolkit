@@ -72,11 +72,43 @@ const (
 	TypeDependency = EntryType("dependency")
 )
 
+// EntryTypes returns all the entry types, in the order in which their sections are rendered.
+func EntryTypes() []EntryType {
+	return []EntryType{TypeBreaking, TypeSecurity, TypeEnhancement, TypeBugfix, TypeDependency}
+}
+
+// EntryTypeFromTitle returns the type whose keyword is contained in the title, ignoring case and whitespace, so both
+// "bugfix" and "🐞 Bug fixes" are a bugfix.
+func EntryTypeFromTitle(title string) (EntryType, bool) {
+	normalized := strings.ToLower(strings.Join(strings.Fields(title), ""))
+
+	for _, entryType := range EntryTypes() {
+		for _, keyword := range entryType.Keywords() {
+			if strings.Contains(normalized, keyword) {
+				return entryType, true
+			}
+		}
+	}
+
+	return "", false
+}
+
+// Keywords returns the words that identify this type in a title.
+func (t EntryType) Keywords() []string {
+	if t == TypeDependency {
+		return []string{string(t), "dependencies"}
+	}
+
+	return []string{string(t)}
+}
+
 // BumpType returns which version should be bumped due to this change.
 func (e Entry) BumpType() bump.Type {
-	//nolint:exhaustive
 	switch e.Type {
 	case TypeBugfix:
+		return bump.Patch
+	case TypeDependency:
+		// Same as a dependency with unknown versions: a release with only dependency entries needs a new version.
 		return bump.Patch
 	case TypeEnhancement:
 		return bump.Minor

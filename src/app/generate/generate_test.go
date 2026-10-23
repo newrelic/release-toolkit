@@ -45,6 +45,9 @@ func TestGenerate(t *testing.T) {
 		outputExpected string
 		args           string
 		preCmdArgs     string
+		changes        map[string]string
+		changesDir     string
+		errExpected    string
 	}{
 		{
 			name:       "Empty_Changelog_gha",
@@ -424,6 +427,78 @@ dependencies:
         commit: chore(deps): bump thisdep from 1.7.0 to 1.10.1
 			`) + "\n",
 		},
+		{
+			name:       "Markdown_Changes_Dir",
+			md:         mdChangelog,
+			changesDir: ".changelog",
+			changes: map[string]string{
+				".changelog/fix-a-bug.yaml":   "type: bugfix\nmessage: Fixed by a change file\n",
+				".changelog/new-feature.yaml": "type: Enhancements\nmessage: Added by a change file\n",
+				".changelog/TEMPLATE.yaml":    "type:\nmessage:\n",
+			},
+			expected: strings.TrimSpace(`
+notes: |-
+    ### Important announcement (note)
+    This is a release note
+changes:
+    - type: breaking
+      message: Support has been removed
+    - type: security
+      message: Fixed a security issue that leaked all data
+    - type: bugfix
+      message: Fixed by a change file
+    - type: enhancement
+      message: Added by a change file
+dependencies: []
+			`) + "\n",
+		},
+		{
+			name:       "Markdown_Changes_Specified_Dir",
+			md:         mdChangelog,
+			changesDir: "other",
+			changes: map[string]string{
+				".changelog/fix-a-bug.yaml": "type: bugfix\nmessage: From the default directory\n",
+				"other/fix-a-bug.yaml":      "type: bugfix\nmessage: From another directory\n",
+			},
+			expected: strings.TrimSpace(`
+notes: |-
+    ### Important announcement (note)
+    This is a release note
+changes:
+    - type: breaking
+      message: Support has been removed
+    - type: security
+      message: Fixed a security issue that leaked all data
+    - type: bugfix
+      message: From another directory
+dependencies: []
+			`) + "\n",
+		},
+		{
+			name:       "Markdown_Changes_Dir_Does_Not_Exist",
+			md:         mdChangelog,
+			changesDir: "missing",
+			expected: strings.TrimSpace(`
+notes: |-
+    ### Important announcement (note)
+    This is a release note
+changes:
+    - type: breaking
+      message: Support has been removed
+    - type: security
+      message: Fixed a security issue that leaked all data
+dependencies: []
+			`) + "\n",
+		},
+		{
+			name:       "Markdown_Invalid_Change",
+			md:         mdChangelog,
+			changesDir: ".changelog",
+			changes: map[string]string{
+				".changelog/typo.yaml": "type: bugfix\nmsg: Fixed by a change file\n",
+			},
+			errExpected: "typo.yaml",
+		},
 	} {
 		//nolint:paralleltest
 		t.Run(tc.name, func(t *testing.T) {
@@ -442,13 +517,18 @@ dependencies:
 			}
 
 			mdPath := path.Join(tDir, "CHANGELOG.md")
-			mdFile, err := os.Create(mdPath)
-			if err != nil {
-				t.Fatalf("Error creating test markdown source: %v", err)
-			}
-			_, _ = mdFile.WriteString(tc.md)
+			writeFile(t, mdPath, tc.md)
 
-			err = app.Run(strings.Fields(fmt.Sprintf("rt --yaml %s %s generate-yaml -git-root %s -markdown %s %s", yamlPath, tc.preCmdArgs, tDir, mdPath, tc.args)))
+			writeFiles(t, tDir, tc.changes)
+			changesArg := changesDirArg(tDir, tc.changesDir)
+
+			err = app.Run(strings.Fields(fmt.Sprintf("rt --yaml %s %s generate-yaml -git-root %s -markdown %s %s %s", yamlPath, tc.preCmdArgs, tDir, mdPath, tc.args, changesArg)))
+			if tc.errExpected != "" {
+				if err == nil || !strings.Contains(err.Error(), tc.errExpected) {
+					t.Fatalf("Expected error %q running app, got: %v", tc.errExpected, err)
+				}
+				return
+			}
 			if err != nil {
 				t.Fatalf("Error running app: %v", err)
 			}
@@ -465,6 +545,24 @@ dependencies:
 			}
 		})
 	}
+}
+
+// writeFiles writes the files, whose names are relative to dir.
+func writeFiles(t *testing.T, dir string, files map[string]string) {
+	t.Helper()
+
+	for name, content := range files {
+		writeFile(t, path.Join(dir, name), content)
+	}
+}
+
+// changesDirArg returns the flag with the changes directory, relative to dir, or nothing if it is empty.
+func changesDirArg(dir, changesDir string) string {
+	if changesDir == "" {
+		return ""
+	}
+
+	return "--changes-dir " + path.Join(dir, changesDir)
 }
 
 func repoWithCommits(t *testing.T, author string, commits ...string) string {
