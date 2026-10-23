@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 Unreleased section should follow [Release Toolkit](https://github.com/newrelic/release-toolkit#render-markdown-and-update-markdown)
 ## Unreleased
 
+### enhancement
+- New way to add changes: one YAML file per change in `.changelog/`.
 ## v1.6.1 - 2026-10-09
 
 ### 🐞 Bug fixes
