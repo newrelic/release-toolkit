@@ -54,7 +54,7 @@ func TestSource_Source(t *testing.T) {
 	}{
 		{
 			name:          "Matching_and_not_matching-commits",
-			defaultAuthor: "renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
+			defaultAuthor: "mend[bot] <29139614+mend[bot]@users.noreply.github.com>",
 			commitMessages: []git.Commit{
 				{Message: "chore(deps): Another commit message v1.0.4 (#401)"},
 				{Message: "Non matching"},
@@ -67,7 +67,7 @@ func TestSource_Source(t *testing.T) {
 		},
 		{
 			name:          "Matching_commits",
-			defaultAuthor: "renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
+			defaultAuthor: "mend[bot] <29139614+mend[bot]@users.noreply.github.com>",
 			commitMessages: []git.Commit{
 				{Message: `chore(deps): update helm release common-library-1 to v1.0.4
 
@@ -163,7 +163,7 @@ func TestSource_Source(t *testing.T) {
 		},
 		{
 			name:          "Matching_commits_with_meta",
-			defaultAuthor: "renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
+			defaultAuthor: "mend[bot] <29139614+mend[bot]@users.noreply.github.com>",
 			commitMessages: []git.Commit{
 				{Message: "chore(deps): update helm release common-library-1 to v1.0.4 (#401)", Hash: "abcda222"},
 				{Message: "chore(deps): update helm release common-library-2 to v0.0.4 (#402)", Hash: "abcda222"},
@@ -198,7 +198,7 @@ func TestSource_Source(t *testing.T) {
 		},
 		{
 			name:          "Error_No_Releases",
-			defaultAuthor: "renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
+			defaultAuthor: "mend[bot] <29139614+mend[bot]@users.noreply.github.com>",
 			commitMessages: []git.Commit{
 				{Message: "chore(deps): update helm release common-library-1 to v1.0.4 (#401)", Hash: "abcda222"},
 			},
@@ -215,7 +215,7 @@ func TestSource_Source(t *testing.T) {
 		},
 		{
 			name:          "Random_Error",
-			defaultAuthor: "renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
+			defaultAuthor: "mend[bot] <29139614+mend[bot]@users.noreply.github.com>",
 			commitMessages: []git.Commit{
 				{Message: "chore(deps): update helm release common-library-1 to v1.0.4 (#401)", Hash: "abcda222"},
 			},
