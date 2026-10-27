@@ -26,6 +26,11 @@ jobs:
         uses: ./generate-yaml
         with:
           excluded-dirs: .github
+          # Merging a PR with changes (in .changelog/ or Unreleased) triggers a run that makes the release.
+          # That run pushes the bot's changelog commit to main, which triggers this workflow again.
+          # The second run finds nothing to release, so an empty changelog must not fail the step.
+          # The is-empty and is-held steps below decide if the release is skipped.
+          exit-code: "0"
 
       # Check that a release is needed.
       - name: Check if the release is empty
@@ -40,13 +45,13 @@ jobs:
         run: |
           echo "skip=${{ steps.empty.outputs.is-empty == 'true' || steps.held.outputs.is-held == 'true' }}" >> $GITHUB_OUTPUT
     outputs:
-      make-release: ${{ steps.output.outputs.skip != true }}
+      make-release: ${{ steps.output.outputs.skip != 'true' }}
 
   make-release:
     name: Make the release if needed
     runs-on: ubuntu-latest
     needs: [ test-release-needed ]
-    if: ${{ needs.test-release-needed.outputs.make-release }}
+    if: ${{ needs.test-release-needed.outputs.make-release == 'true' }}
     steps:
       - uses: actions/checkout@v4
         with:
