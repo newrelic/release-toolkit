@@ -82,7 +82,8 @@ jobs:
       - name: Commit updated changelog
         run: |
           git add CHANGELOG.md
-          git commit -m "Update changelog with changes from ${{ steps.version.outputs.next-version }}"
+          # [skip ci] avoids re-triggering workflows on the bot commit, it only changes CHANGELOG.md.
+          git commit -m "Update changelog with changes from ${{ steps.version.outputs.next-version }} [skip ci]"
           git push -u origin ${{ github.event.repository.default_branch }}
 
       # Create the release from the commit above using only the changelog for this release.
@@ -106,15 +107,14 @@ jobs:
           git fetch
           git pull --tags
 
-          # Delete, tag, and push the major tag
-          git push --delete origin "${{ steps.version.outputs.next-version-major }}" || true  # Do not fail if the tag does not exist. It will be created.
-          git tag --force "${{ steps.version.outputs.next-version-major }}" "${{ steps.version.outputs.next-version }}"  # The tag might be deleted upstream bit still exists locally
-          git push origin "${{ steps.version.outputs.next-version-major }}"  # Push only the new tag
+          # The tags are moved with a force push, never deleted first: workflows triggered by the changelog commit use them (@v1) and would fail while they are missing.
+          # Tag and force push the major tag
+          git tag --force "${{ steps.version.outputs.next-version-major }}" "${{ steps.version.outputs.next-version }}"
+          git push --force origin "refs/tags/${{ steps.version.outputs.next-version-major }}"
 
-          # Delete, tag, and push the major.minor tag
-          git push --delete origin "${{ steps.version.outputs.next-version-major-minor }}" || true  # Do not fail if the tag does not exist. It will be created.
-          git tag --force "${{ steps.version.outputs.next-version-major-minor }}" "${{ steps.version.outputs.next-version }}"  # The tag might be deleted upstream bit still exists locally
-          git push origin "${{ steps.version.outputs.next-version-major-minor }}"  # Push only the new tag
+          # Tag and force push the major.minor tag
+          git tag --force "${{ steps.version.outputs.next-version-major-minor }}" "${{ steps.version.outputs.next-version }}"
+          git push --force origin "refs/tags/${{ steps.version.outputs.next-version-major-minor }}"
 
   notify:
     name: Notify if somthing went wrong
