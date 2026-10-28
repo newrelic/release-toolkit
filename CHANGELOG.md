@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 Unreleased section should follow [Release Toolkit](https://github.com/newrelic/release-toolkit#render-markdown-and-update-markdown)
 ## Unreleased
 
-### bugfix
+## v1.7.2 - 2026-10-28
+
+### 🐞 Bug fixes
 - Release workflow no longer triggers other workflows (such as Self-test) with the bot's changelog commit.
 
 ## v1.7.1 - 2026-10-27
